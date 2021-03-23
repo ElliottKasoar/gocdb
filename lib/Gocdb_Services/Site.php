@@ -189,7 +189,6 @@ class Site extends AbstractEntityService{
             throw new \Exception("Invalid scope update action");
         }
 
-
         // Replace lat/long with 0.0 if no value entered
         $this->emptyToZero($newValues['Site']['LATITUDE']);
         $this->emptyToZero($newValues['Site']['LONGITUDE']);
