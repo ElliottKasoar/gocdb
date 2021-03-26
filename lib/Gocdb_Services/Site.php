@@ -189,9 +189,9 @@ class Site extends AbstractEntityService{
             throw new \Exception("Invalid scope update action");
         }
 
-        // Replace lat/long with 0.0 if no value entered
-        $this->emptyToZero($newValues['Site']['LATITUDE']);
-        $this->emptyToZero($newValues['Site']['LONGITUDE']);
+        // Replace lat/long with null if no value entered
+        $this->emptyStringToNull($newValues['Site']['LATITUDE']);
+        $this->emptyStringToNull($newValues['Site']['LONGITUDE']);
 
         $this->em->getConnection()->beginTransaction();
         try {
@@ -370,10 +370,10 @@ class Site extends AbstractEntityService{
         }
     }
 
-    // Replaces empty variable with 0.0
-    private function emptyToZero(&$var) {
-        if ($var == '' || $var == null) {
-            $var = 0.0;
+    // Replaces empty string with null
+    private function emptyStringToNull(&$var) {
+        if ($var === '') {
+            $var = null;
         }
     }
 
@@ -739,9 +739,9 @@ class Site extends AbstractEntityService{
         //check there are the required number of OPTIONAL scopes specified
         $this->checkNumberOfScopes($values['Scope_ids']);
 
-        // Replace lat/long with 0.0 if no value entered
-        $this->emptyToZero($values['Site']['LATITUDE']);
-        $this->emptyToZero($values['Site']['LONGITUDE']);
+        // Replace lat/long with null if no value entered
+        $this->emptyStringToNull($values['Site']['LATITUDE']);
+        $this->emptyStringToNull($values['Site']['LONGITUDE']);
 
         // Populate the entity
         try {
