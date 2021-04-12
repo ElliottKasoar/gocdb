@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<results>
+  <site ID="4">
+    <name>UNIBE-LHEP</name>
+    <cert_status>Certified</cert_status>
+    <cert_date>23-Mar-11 07.52.05 AM</cert_date>
+  </site>
+  <site ID="5">
+    <name>T3_CH_PSI</name>
+    <cert_status>Certified</cert_status>
+    <cert_date>12-Jan-10 13.43.51 PM</cert_date>
+  </site>
+  <site ID="6">
+    <name>CSCS-LCG2</name>
+    <cert_status>Certified</cert_status>
+    <cert_date>12-Jan-10 13.42.53 PM</cert_date>
+  </site>
+  <site ID="7">
+    <name>UNIGE-DPNC</name>
+    <cert_status>Certified</cert_status>
+    <cert_date>12-Jan-10 13.44.16 PM</cert_date>
+  </site>
+  <site ID="9">
+    <name>UNIBE-ID</name>
+    <cert_status>Certified</cert_status>
+    <cert_date>30-Oct-12 16.05.05 PM</cert_date>
+  </site>
+  <site ID="10">
+    <name>TEST</name>
+    <cert_status>Candidate</cert_status>
+    <cert_date>09-Apr-21 09.27.08 AM</cert_date>
+  </site>
+  <site ID="22">
+    <name>T2</name>
+    <cert_status>Candidate</cert_status>
+    <cert_date>12-Apr-21 14.40.44 PM</cert_date>
+  </site>
+  <site ID="24">
+    <name>T3</name>
+    <cert_status>Candidate</cert_status>
+    <cert_date>12-Apr-21 14.41.39 PM</cert_date>
+  </site>
+</results>

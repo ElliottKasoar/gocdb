@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<results>
+  <result ID="1">
+    <TIME>30-Oct-2012 16.05.05</TIME>
+    <UNIX_TIME>1351613105</UNIX_TIME>
+    <SITE>UNIBE-ID</SITE>
+    <OLD_STATUS>Uncertified</OLD_STATUS>
+    <NEW_STATUS>Certified</NEW_STATUS>
+    <CHANGED_BY>/DC=com/DC=quovadisglobal/DC=grid/DC=switch/DC=users/C=CH/O=SWITCH/CN=Alessandro Usai</CHANGED_BY>
+    <COMMENT/>
+  </result>
+  <result ID="2">
+    <TIME>30-Oct-2012 16.04.56</TIME>
+    <UNIX_TIME>1351613096</UNIX_TIME>
+    <SITE>UNIBE-ID</SITE>
+    <OLD_STATUS>Candidate</OLD_STATUS>
+    <NEW_STATUS>Uncertified</NEW_STATUS>
+    <CHANGED_BY>/DC=com/DC=quovadisglobal/DC=grid/DC=switch/DC=users/C=CH/O=SWITCH/CN=Alessandro Usai</CHANGED_BY>
+    <COMMENT/>
+  </result>
+  <result ID="3">
+    <TIME>09-Apr-2021 09.27.08</TIME>
+    <UNIX_TIME>1617960428</UNIX_TIME>
+    <SITE>TEST</SITE>
+    <OLD_STATUS/>
+    <NEW_STATUS>Candidate</NEW_STATUS>
+    <CHANGED_BY>/C=UK/O=eScience/OU=CLRC/L=RAL/CN=elliott kasoar</CHANGED_BY>
+    <COMMENT>Initial creation</COMMENT>
+  </result>
+  <result ID="22">
+    <TIME>12-Apr-2021 14.40.44</TIME>
+    <UNIX_TIME>1618238444</UNIX_TIME>
+    <SITE>T2</SITE>
+    <OLD_STATUS/>
+    <NEW_STATUS>Candidate</NEW_STATUS>
+    <CHANGED_BY>/C=UK/O=eScience/OU=CLRC/L=RAL/CN=elliott kasoar</CHANGED_BY>
+    <COMMENT>Initial creation</COMMENT>
+  </result>
+  <result ID="24">
+    <TIME>12-Apr-2021 14.41.39</TIME>
+    <UNIX_TIME>1618238499</UNIX_TIME>
+    <SITE>T3</SITE>
+    <OLD_STATUS/>
+    <NEW_STATUS>Candidate</NEW_STATUS>
+    <CHANGED_BY>/C=UK/O=eScience/OU=CLRC/L=RAL/CN=elliott kasoar</CHANGED_BY>
+    <COMMENT>Initial creation</COMMENT>
+  </result>
+</results>

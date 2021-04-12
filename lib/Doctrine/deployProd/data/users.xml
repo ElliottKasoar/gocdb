@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<results>
+  <EGEE_USER ID="1G0" PRIMARY_KEY="1G0">
+    <FORENAME>Griffin</FORENAME>
+    <SURNAME>Peterson</SURNAME>
+    <TITLE/>
+    <DESCRIPTION/>
+    <GOCDB_PORTAL_URL>https://localhost/portal/index.php?Page_Type=User&amp;id=1</GOCDB_PORTAL_URL>
+    <EMAIL>sample@sample.com</EMAIL>
+    <TEL>+49 7247 82 0000</TEL>
+    <WORKING_HOURS_START/>
+    <WORKING_HOURS_END/>
+    <CERTDN>/C=00/O=00000/OU=000000/CN=Griffin Peterson</CERTDN>
+    <SSOUSERNAME/>
+    <APPROVED/>
+    <ACTIVE/>
+    <HOMESITE>SWITCH</HOMESITE>
+    <USER_ROLE>
+      <USER_ROLE>Regional Staff (ROD)</USER_ROLE>
+      <ON_ENTITY>NGI_CH</ON_ENTITY>
+      <ENTITY_TYPE>ngi</ENTITY_TYPE>
+      <PRIMARY_KEY>2</PRIMARY_KEY>
+      <RECOGNISED_IN_PROJECTS>
+        <PROJECT ID="1">EGI</PROJECT>
+      </RECOGNISED_IN_PROJECTS>
+    </USER_ROLE>
+  </EGEE_USER>
+  <EGEE_USER ID="2G0" PRIMARY_KEY="2G0">
+    <FORENAME>Amy</FORENAME>
+    <SURNAME>Wong</SURNAME>
+    <TITLE/>
+    <DESCRIPTION/>
+    <GOCDB_PORTAL_URL>https://localhost/portal/index.php?Page_Type=User&amp;id=2</GOCDB_PORTAL_URL>
+    <EMAIL>sample@sample.com</EMAIL>
+    <TEL>+49 040 0000 1763</TEL>
+    <WORKING_HOURS_START/>
+    <WORKING_HOURS_END/>
+    <CERTDN>/C=00/O=00000/OU=000000/CN=Amy Wong</CERTDN>
+    <SSOUSERNAME/>
+    <APPROVED/>
+    <ACTIVE/>
+    <HOMESITE>T3_CH_PSI</HOMESITE>
+    <USER_ROLE>
+      <USER_ROLE>CIC Staff</USER_ROLE>
+      <ON_ENTITY>EGI</ON_ENTITY>
+      <ENTITY_TYPE>project</ENTITY_TYPE>
+      <PRIMARY_KEY>1</PRIMARY_KEY>
+      <RECOGNISED_IN_PROJECTS>
+        <PROJECT ID="1">EGI</PROJECT>
+      </RECOGNISED_IN_PROJECTS>
+    </USER_ROLE>
+    <USER_ROLE>
+      <USER_ROLE>Site Operations Manager</USER_ROLE>
+      <ON_ENTITY>NGI_CH</ON_ENTITY>
+      <ENTITY_TYPE>ngi</ENTITY_TYPE>
+      <PRIMARY_KEY>2</PRIMARY_KEY>
+      <RECOGNISED_IN_PROJECTS>
+        <PROJECT ID="1">EGI</PROJECT>
+      </RECOGNISED_IN_PROJECTS>
+    </USER_ROLE>
+    <USER_ROLE>
+      <USER_ROLE>Regional Staff (ROD)</USER_ROLE>
+      <ON_ENTITY>NGI_CH</ON_ENTITY>
+      <ENTITY_TYPE>ngi</ENTITY_TYPE>
+      <PRIMARY_KEY>2</PRIMARY_KEY>
+      <RECOGNISED_IN_PROJECTS>
+        <PROJECT ID="1">EGI</PROJECT>
+      </RECOGNISED_IN_PROJECTS>
+    </USER_ROLE>
+    <USER_ROLE>
+      <USER_ROLE>COD Staff</USER_ROLE>
+      <ON_ENTITY>EGI</ON_ENTITY>
+      <ENTITY_TYPE>project</ENTITY_TYPE>
+      <PRIMARY_KEY>1</PRIMARY_KEY>
+      <RECOGNISED_IN_PROJECTS>
+        <PROJECT ID="1">EGI</PROJECT>
+      </RECOGNISED_IN_PROJECTS>
+    </USER_ROLE>
+  </EGEE_USER>
+  <EGEE_USER ID="3G0" PRIMARY_KEY="3G0">
+    <FORENAME>Neville</FORENAME>
+    <SURNAME>Longbottom</SURNAME>
+    <TITLE/>
+    <DESCRIPTION/>
+    <GOCDB_PORTAL_URL>https://localhost/portal/index.php?Page_Type=User&amp;id=3</GOCDB_PORTAL_URL>
+    <EMAIL>sample@sample.com</EMAIL>
+    <TEL>+49 040 0000 1763</TEL>
+    <WORKING_HOURS_START/>
+    <WORKING_HOURS_END/>
+    <CERTDN>/C=00/O=00000/OU=000000/CN=Neville Longbottom</CERTDN>
+    <SSOUSERNAME/>
+    <APPROVED/>
+    <ACTIVE/>
+    <HOMESITE>UZH</HOMESITE>
+    <USER_ROLE>
+      <USER_ROLE>CIC Staff</USER_ROLE>
+      <ON_ENTITY>EGI</ON_ENTITY>
+      <ENTITY_TYPE>project</ENTITY_TYPE>
+      <PRIMARY_KEY>1</PRIMARY_KEY>
+      <RECOGNISED_IN_PROJECTS>
+        <PROJECT ID="1">EGI</PROJECT>
+      </RECOGNISED_IN_PROJECTS>
+    </USER_ROLE>
+    <USER_ROLE>
+      <USER_ROLE>COD Staff</USER_ROLE>
+      <ON_ENTITY>EGI</ON_ENTITY>
+      <ENTITY_TYPE>project</ENTITY_TYPE>
+      <PRIMARY_KEY>1</PRIMARY_KEY>
+      <RECOGNISED_IN_PROJECTS>
+        <PROJECT ID="1">EGI</PROJECT>
+      </RECOGNISED_IN_PROJECTS>
+    </USER_ROLE>
+    <USER_ROLE>
+      <USER_ROLE>Regional Staff (ROD)</USER_ROLE>
+      <ON_ENTITY>NGI_CH</ON_ENTITY>
+      <ENTITY_TYPE>ngi</ENTITY_TYPE>
+      <PRIMARY_KEY>2</PRIMARY_KEY>
+      <RECOGNISED_IN_PROJECTS>
+        <PROJECT ID="1">EGI</PROJECT>
+      </RECOGNISED_IN_PROJECTS>
+    </USER_ROLE>
+    <USER_ROLE>
+      <USER_ROLE>Site Operations Manager</USER_ROLE>
+      <ON_ENTITY>NGI_CH</ON_ENTITY>
+      <ENTITY_TYPE>ngi</ENTITY_TYPE>
+      <PRIMARY_KEY>2</PRIMARY_KEY>
+      <RECOGNISED_IN_PROJECTS>
+        <PROJECT ID="1">EGI</PROJECT>
+      </RECOGNISED_IN_PROJECTS>
+    </USER_ROLE>
+  </EGEE_USER>
+  <EGEE_USER ID="4G0" PRIMARY_KEY="4G0">
+    <FORENAME>Donna</FORENAME>
+    <SURNAME>Moss</SURNAME>
+    <TITLE/>
+    <DESCRIPTION/>
+    <GOCDB_PORTAL_URL>https://localhost/portal/index.php?Page_Type=User&amp;id=4</GOCDB_PORTAL_URL>
+    <EMAIL>sample@sample.com</EMAIL>
+    <TEL>+49 040 0000 1763</TEL>
+    <WORKING_HOURS_START/>
+    <WORKING_HOURS_END/>
+    <CERTDN>/C=00/O=00000/OU=000000/CN=Donna Moss</CERTDN>
+    <SSOUSERNAME/>
+    <APPROVED/>
+    <ACTIVE/>
+    <HOMESITE>UNIBE-LHEP</HOMESITE>
+    <USER_ROLE>
+      <USER_ROLE>COD Staff</USER_ROLE>
+      <ON_ENTITY>NGI_CH</ON_ENTITY>
+      <ENTITY_TYPE>ngi</ENTITY_TYPE>
+      <PRIMARY_KEY>2</PRIMARY_KEY>
+      <RECOGNISED_IN_PROJECTS>
+        <PROJECT ID="1">EGI</PROJECT>
+      </RECOGNISED_IN_PROJECTS>
+    </USER_ROLE>
+  </EGEE_USER>
+  <EGEE_USER ID="5G0" PRIMARY_KEY="5G0">
+    <FORENAME>Richard</FORENAME>
+    <SURNAME>Winters</SURNAME>
+    <TITLE/>
+    <DESCRIPTION/>
+    <GOCDB_PORTAL_URL>https://localhost/portal/index.php?Page_Type=User&amp;id=5</GOCDB_PORTAL_URL>
+    <EMAIL>sample@sample.com</EMAIL>
+    <TEL>+49 040 0000 1763</TEL>
+    <WORKING_HOURS_START/>
+    <WORKING_HOURS_END/>
+    <CERTDN>/C=00/O=00000/OU=000000/CN=Richard Winters</CERTDN>
+    <SSOUSERNAME/>
+    <APPROVED/>
+    <ACTIVE/>
+    <HOMESITE>UNIGE-DPNC</HOMESITE>
+    <USER_ROLE>
+      <USER_ROLE>COD Staff</USER_ROLE>
+      <ON_ENTITY>NGI_CH</ON_ENTITY>
+      <ENTITY_TYPE>ngi</ENTITY_TYPE>
+      <PRIMARY_KEY>2</PRIMARY_KEY>
+      <RECOGNISED_IN_PROJECTS>
+        <PROJECT ID="1">EGI</PROJECT>
+      </RECOGNISED_IN_PROJECTS>
+    </USER_ROLE>
+  </EGEE_USER>
+  <EGEE_USER ID="6G0" PRIMARY_KEY="6G0">
+    <FORENAME>Elliott</FORENAME>
+    <SURNAME>Kasoar</SURNAME>
+    <TITLE>Mr</TITLE>
+    <DESCRIPTION/>
+    <GOCDB_PORTAL_URL>https://localhost/portal/index.php?Page_Type=User&amp;id=6</GOCDB_PORTAL_URL>
+    <EMAIL>elliott.kasoar@stfc.ac.uk</EMAIL>
+    <TEL/>
+    <WORKING_HOURS_START/>
+    <WORKING_HOURS_END/>
+    <CERTDN>/C=UK/O=eScience/OU=CLRC/L=RAL/CN=elliott kasoar</CERTDN>
+    <SSOUSERNAME/>
+    <APPROVED/>
+    <ACTIVE/>
+    <HOMESITE/>
+  </EGEE_USER>
+</results>
