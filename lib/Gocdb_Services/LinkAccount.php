@@ -209,29 +209,35 @@ class LinkAccount extends AbstractEntityService {
             throw new \Exception("Confirmation URL invalid. If you have submitted multiple requests for the same account, please ensure you have used the link in the most recent email");
         }
 
-        $user = $request->getPrimaryUser();
+        $primaryUser = $request->getPrimaryUser();
+        $secondaryUser = $request->getSecondaryUser();
         // $user = $userService->getUserByPrinciple($currentId);
 
         // Check the portal is not in read only mode, throws exception if it is. If portal is read only, but the user whos DN is being changed is an admin, we will still be able to proceed.
-        $this->checkPortalIsNotReadOnlyOrUserIsAdmin($user);
+        $this->checkPortalIsNotReadOnlyOrUserIsAdmin($primaryUser);
 
         // Check the id currently being used by the user is same as in the request
         if($currentId != $request->getPrimaryIdString()){
             // throw new Exception("Your current ID does not match the one to which it was requested be linked. The link will only work once, if you have refreshed the page or clicked the link a second time you will see this messaage"); //TODO: reword
         }
 
+        // Add property array
         $propArr = array(array($request->getAuthType(), $request->getSecondaryIdString()));
+        require_once __DIR__ . '/User.php';
+        $userService = new \org\gocdb\services\User();
+        $userService->setEntityManager($this->em);
+        $userService->addProperties($primaryUser, $propArr, $primaryUser);
+
+        // deleteUser function - but won't work if not that user
+        // deleteUser(\User $user, \User $currentUser = null)
 
         // Update user, remove request from table
         // Need to delete secondary user if exists?
         try{
-            require_once __DIR__ . '/User.php';
-            $userService = new \org\gocdb\services\User();
-            $userService->setEntityManager($this->em);
-            $userService->addProperties($user, $propArr, $user);
-
             $this->em->getConnection()->beginTransaction();
-            $this->em->merge($user);
+            if ($secondaryUser !== null){
+                $this->em->remove($secondaryUser);
+            }
             $this->em->remove($request);
             $this->em->flush();
             $this->em->getConnection()->commit();

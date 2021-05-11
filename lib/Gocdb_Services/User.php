@@ -495,7 +495,7 @@ class User extends AbstractEntityService{
      * @param bool $preventOverwrite
      * @throws \Exception
      */
-    public function addProperties(\User $user, array $propArr, \User $currentUser = null, $preventOverwrite = false) {
+    public function addProperties(\User $user, array $propArr, \User $currentUser, $preventOverwrite = true) {
         //Check the portal is not in read only mode, throws exception if it is
         $this->checkPortalIsNotReadOnlyOrUserIsAdmin($user);
 
@@ -523,7 +523,7 @@ class User extends AbstractEntityService{
      * @param bool $preventOverwrite
      * @throws \Exception
      */
-    protected function addPropertiesLogic(\User $user, array $propArr, $preventOverwrite = false) {
+    protected function addPropertiesLogic(\User $user, array $propArr, $preventOverwrite = true) {
         $existingProperties = $user->getUserProperties();
 
         //We will use this variable to track the keys as we go along, this will be used check they are all unique later
