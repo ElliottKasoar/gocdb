@@ -53,15 +53,52 @@ class User extends AbstractEntityService{
      * @param string $userPrinciple the user's principle id string, e.g. DN.
      * @return User object or null if no user can be found with the specified principle
      */
-    public function getUserByPrinciple($userPrinciple){
-       if(empty($userPrinciple)){
-           return null;
-       }
-       $dql = "SELECT u from User u WHERE u.certificateDn = :certDn";
-       $user = $this->em->createQuery($dql)
+    public function getUserFromDn($userPrinciple){
+        if(empty($userPrinciple)){
+            return null;
+        }
+        $dql = "SELECT u from User u WHERE u.certificateDn = :certDn";
+        $user = $this->em->createQuery($dql)
                   ->setParameter(":certDn", $userPrinciple)
                   ->getOneOrNullResult();
-       return $user;
+        return $user;
+    }
+
+    /**
+     * Lookup a User object by user's principle id string from UserProperty.
+     * @param string $userPrinciple the user's principle id string, e.g. DN.
+     * @return User object or null if no user can be found with the specified principle
+     */
+    public function getUserByPrinciple($userPrinciple){
+        if(empty($userPrinciple)){
+            return null;
+        }
+
+        $dql = "SELECT u FROM User u JOIN u.userProperties up WHERE up.keyValue = :keyvalue";
+        $user = $this->em->createQuery($dql)
+                  ->setParameters(array('keyvalue' => $userPrinciple))
+                  ->getOneOrNullResult();
+
+        return $user;
+    }
+
+    /**
+     * Lookup a User object by user's principle id string and auth type from UserProperty.
+     * @param string $userPrinciple the user's principle id string, e.g. DN.
+     * @param string $authType the authorisation type e.g. IGTF.
+     * @return User object or null if no user can be found with the specified principle
+     */
+    public function getUserByPrincipleAndType($userPrinciple, $authType){
+        if(empty($userPrinciple) || empty($authType)){
+            return null;
+        }
+
+        $dql = "SELECT u FROM User u JOIN u.userProperties up WHERE up.keyName = :keyname AND up.keyValue = :keyvalue";
+        $user = $this->em->createQuery($dql)
+                  ->setParameters(array('keyname' => $authType, 'keyvalue' => $userPrinciple))
+                  ->getOneOrNullResult();
+
+        return $user;
     }
 
     /**

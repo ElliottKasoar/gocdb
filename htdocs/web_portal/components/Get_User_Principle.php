@@ -150,19 +150,18 @@ function Get_User_Principle(){
         MyStaticPrincipleHolder::getInstance()->setPrincipleString($principleString);
         MyStaticAuthTokenHolder::getInstance()->setAuthToken($auth);
 
+        $user = \Factory::getUserService()->getUserByPrinciple($principleString);
+        if ($user === null) {
+            $user = \Factory::getUserService()->getUserByPrincipleFromDn($principleString);
+            $authExists = False;
+        } else {
+            $authExists = True;
+        }
+
         // Is user registered/known in the DB? if true, update their last login time
         // once for the current request.
-        $user = \Factory::getUserService()->getUserByPrinciple($principleString);
-        if($user != null){
+        if($user !== null){
             \Factory::getUserService()->updateLastLoginTime($user);
-
-            // Check if auth is stored as a property of the user
-            // No longer needed as getUserByPrinciple should return null?
-            foreach ($user->getUserProperties() as $userProp){
-                if ($userProp->getKeyName() === $authType){
-                    $authExists = True;
-                }
-            }
 
             // If property for current auth does not exist, add to user
             if (!$authExists){
