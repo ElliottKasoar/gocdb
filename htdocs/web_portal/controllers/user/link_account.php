@@ -32,10 +32,10 @@ function draw() {
     }
     $user = \Factory::getUserService()->getUserByPrinciple($id);
 
-    if(is_null($user)) {
-        show_view('error.php', "Only registered users can link an account.");
-        die();
-    }
+    // if(is_null($user)) {
+    //     show_view('error.php', "Only registered users can link an account.");
+    //     die();
+    // }
 
     $params['DN'] = $id;
 

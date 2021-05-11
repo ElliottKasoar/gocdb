@@ -34,7 +34,9 @@
             $HTML .= 	"<br/><a href=\"index.php?Page_Type=Register\">".
                 "Register</a><br/>".
                 "<a href=\"index.php?Page_Type=Retrieve_Account\">".
-                "Retrieve Old Account</a><br/>";
+                "Retrieve Old Account</a><br/>".
+                "<a href=\"index.php?Page_Type=Link_Account\">".
+                "Link Account</a>";
 
             $HTML .="</div>";
             return $HTML;
