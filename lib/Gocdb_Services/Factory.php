@@ -48,6 +48,7 @@ class Factory {
     private static $OwnedEntityService = null;
     private static $exService = null;
     private static $notificationService = null;
+    private static $linkAccountService = null;
 
     public static $properties = array();
     //private static $properties = null;
@@ -345,6 +346,19 @@ class Factory {
             self::$retrieveAccountService->setEntityManager(self::getEntityManager());
         }
         return self::$retrieveAccountService;
+    }
+
+    /**
+     * Singleton Link Account service
+     * @return org\gocdb\services\LinkAccount
+     */
+    public static function getLinkAccountService() {
+        if (self::$linkAccountService == null) {
+            require_once __DIR__ . '/LinkAccount.php';
+            self::$linkAccountService = new org\gocdb\services\LinkAccount();
+            self::$linkAccountService->setEntityManager(self::getEntityManager());
+        }
+        return self::$linkAccountService;
     }
 
      /**

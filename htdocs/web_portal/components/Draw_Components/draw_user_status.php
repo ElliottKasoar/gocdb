@@ -41,7 +41,9 @@
         }
         $HTML .= "Registered as: <br />".$user->getForename() . " " . $user->getSurname() . "<br /><br />";
         $HTML .= Get_User_Info_HTML($user);
+        $HTML .= "<br/><a href=\"index.php?Page_Type=Link_Account\">" . "Link account</a><br/>";
         $HTML .= "</div>";
+
         return $HTML;
     }
 
