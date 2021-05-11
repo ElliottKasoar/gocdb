@@ -65,7 +65,10 @@ class LinkAccount extends AbstractEntityService {
         // Check if there has already been a request to link current id, if there has,
         // remove it. This must be in a seperate try catch block to the new one,
         // to prevent constraint violations
-        $previousRequest = $this->getLinkAccountRequestByCurrentId($currentIdString);
+        // Currently request to link multiple ids to one primary id are permitted
+        // Consider checking user ids etc. too?
+        // May need to check account recovery requests too?
+        $previousRequest = $this->getLinkAccountRequestByIdString($currentIdString);
         if(!is_null($previousRequest)){
             try{
                 $this->em->getConnection()->beginTransaction();
@@ -111,6 +114,7 @@ class LinkAccount extends AbstractEntityService {
 
     /**
      * Gets a link account request from the database based on userid
+     * Not currently in use
      * @param integer $userId userid of the request to be linked
      * @return arraycollection
      */
@@ -130,13 +134,15 @@ class LinkAccount extends AbstractEntityService {
 
     /**
      * Gets a link account request from the database based on current id string
+     * Id string my be present as primary or secondary user
      * @param string $idString id string of user to be linked in primary account
      * @return arraycollection
      */
-    public function getLinkAccountRequestByCurrentId($idString){
+    public function getLinkAccountRequestByIdString($idString){
         $dql = "SELECT l
                 FROM LinkAccountRequest l
-                WHERE l.secondaryIdString = :idString";
+                WHERE l.primaryIdString = :idString
+                OR l.secondaryIdString = :idString";
 
         $request = $this->em
             ->createQuery($dql)
@@ -211,31 +217,39 @@ class LinkAccount extends AbstractEntityService {
 
         $primaryUser = $request->getPrimaryUser();
         $secondaryUser = $request->getSecondaryUser();
-        // $user = $userService->getUserByPrinciple($currentId);
 
         // Check the portal is not in read only mode, throws exception if it is. If portal is read only, but the user whos DN is being changed is an admin, we will still be able to proceed.
         $this->checkPortalIsNotReadOnlyOrUserIsAdmin($primaryUser);
 
         // Check the id currently being used by the user is same as in the request
-        if($currentId != $request->getPrimaryIdString()){
-            // throw new Exception("Your current ID does not match the one to which it was requested be linked. The link will only work once, if you have refreshed the page or clicked the link a second time you will see this messaage"); //TODO: reword
+        if($currentId !== $request->getSecondaryIdString()){
+            // throw new Exception("Your current ID does not match the one to which requested be linked. The link will only work once, if you have refreshed the page or clicked the link a second time you will see this messaage"); //TODO: reword
         }
 
         // Add property array
+        // Move addProperties into try?
         $propArr = array(array($request->getAuthType(), $request->getSecondaryIdString()));
         require_once __DIR__ . '/User.php';
-        $userService = new \org\gocdb\services\User();
-        $userService->setEntityManager($this->em);
-        $userService->addProperties($primaryUser, $propArr, $primaryUser);
 
         // deleteUser function - but won't work if not that user
         // deleteUser(\User $user, \User $currentUser = null)
 
         // Update user, remove request from table
-        // Need to delete secondary user if exists?
         try{
             $this->em->getConnection()->beginTransaction();
+
+            $userService = new \org\gocdb\services\User();
+            $userService->setEntityManager($this->em);
+            $userService->addProperties($primaryUser, $propArr, $primaryUser);
+
             if ($secondaryUser !== null){
+                $roles = $secondaryUser->getRoles();
+                foreach ($roles as $role){
+                    $roleTypeName = $role->getRoleType()->getName();
+                    $entity = $role->getOwnedEntity();
+                    $oldRole = \Factory::getRoleService()->revokeRole($role, $secondaryUser);
+                    $newRole = \Factory::getRoleService()->addRole($roleTypeName, $primaryUser, $entity);
+                }
                 $this->em->remove($secondaryUser);
             }
             $this->em->remove($request);
