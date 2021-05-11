@@ -152,7 +152,7 @@ function Get_User_Principle(){
 
         $user = \Factory::getUserService()->getUserByPrinciple($principleString);
         if ($user === null) {
-            $user = \Factory::getUserService()->getUserByPrincipleFromDn($principleString);
+            $user = \Factory::getUserService()->getUserFromDn($principleString);
             $authExists = False;
         } else {
             $authExists = True;
