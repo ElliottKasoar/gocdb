@@ -8,18 +8,21 @@ class LinkAccount extends AbstractEntityService {
     /**
      * Validates an account link request
      * @param string $primaryIdString
+     * @param string $authType
      * @param string $email
      */
-    public function validate($idString, $email) {
+    public function validate($idString, $authType, $email) {
         require_once __DIR__ . '/User.php';
         $userService = new \org\gocdb\services\User();
         $userService->setEntityManager($this->em);
 
-        $user = $userService->getUserByPrinciple($idString);
+        // Ideally, the id string and auth type match a user property
+        $user = $userService->getUserByPrincipleAndType($idString, $authType);
         if($user === null) {
+            // If no valid user properties, check certificateDNs
             $user = $userService->getUserFromDn($idString);
             if($user === null) {
-                throw new \Exception("Can't find user with id $idString");
+                throw new \Exception("Cannot find user with id $idString and auth type $authType");
             }
         }
 
@@ -40,12 +43,13 @@ class LinkAccount extends AbstractEntityService {
         $userService = new \org\gocdb\services\User();
         $userService->setEntityManager($this->em);
         
-        // This user may not have properties added yet, but must exist
-        $primaryUser = $userService->getUserByPrinciple($primaryIdString);
+        // Ideally, the id string and auth type match a user property
+        $primaryUser = $userService->getUserByPrincipleAndType($primaryIdString, $primaryAuthType);
         if($primaryUser === null) {
+            // If no valid user properties, check certificateDNs
             $primaryUser = $userService->getUserFromDn($primaryIdString);
             if($primaryUser === null) {
-                throw new \Exception("Can't find user with id $primaryIdString");
+                throw new \Exception("Cannot find user with id $primaryIdString and auth type $primaryAuthType");
             }
         }
 
