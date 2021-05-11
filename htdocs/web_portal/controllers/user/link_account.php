@@ -50,7 +50,7 @@ function submit() {
     // "Primary" account info
     $primaryId = $_REQUEST['PRIMARYID'];
     $givenEmail = $_REQUEST['EMAIL'];
-    $oldAuthType = $_REQUEST['AUTHTYPE'];
+    $primaryAuthType = $_REQUEST['AUTHTYPE'];
 
     // "Secondary" account info
     $currentId = Get_User_Principle();
@@ -68,7 +68,7 @@ function submit() {
     }
 
     try {
-        $linkReq = \Factory::getLinkAccountService()->newLinkAccountRequest($currentId, $givenEmail, $primaryId, $oldAuthType, $currentAuthType);
+        $linkReq = \Factory::getLinkAccountService()->newLinkAccountRequest($currentId, $givenEmail, $primaryId, $primaryAuthType, $currentAuthType);
     } catch(\Exception $e) {
         show_view('error.php', $e->getMessage());
         die();
