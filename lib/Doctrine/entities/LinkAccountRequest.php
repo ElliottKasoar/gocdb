@@ -37,19 +37,19 @@ class LinkAccountRequest {
     protected $confirmCode;
 
     /** @Column(type="string") */
-    protected $authType;
+    protected $primaryAuthType;
 
     /** @Column(type="string") */
-    protected $requestType;
+    protected $secondaryAuthType;
 
-    public function __construct(\User $primaryUser, \User $secondaryUser, $code, $primaryIdString, $secondaryIdString, $authType, $requestType) {
+    public function __construct(\User $primaryUser, $secondaryUser, $code, $primaryIdString, $secondaryIdString, $primaryAuthType, $secondaryAuthType) {
         $this->setPrimaryUser($primaryUser);
         $this->setSecondaryUser($secondaryUser);
         $this->setConfirmCode($code);
         $this->setPrimaryIdString($primaryIdString);
         $this->setSecondaryIdString($secondaryIdString);
-        $this->setAuthType($authType);
-        $this->setRequestType($requestType);
+        $this->setPrimaryAuthType($primaryAuthType);
+        $this->setSecondaryAuthType($secondaryAuthType);
     }
 
     /**
@@ -103,19 +103,19 @@ class LinkAccountRequest {
     }
 
     /**
-     * Get the auth type to be added to the primary user.
+     * Get the auth type of the primary user.
      * @return string
      */
-    public function getAuthType() {
-        return $this->authType;
+    public function getPrimaryAuthType() {
+        return $this->primaryAuthType;
     }
 
     /**
-     * Get the request type (recover or link).
+     * Get the auth type of the secondary user.
      * @return string
      */
-    public function getRequestType() {
-        return $this->requestType;
+    public function getSecondaryAuthType() {
+        return $this->secondaryAuthType;
     }
 
     /**
@@ -161,18 +161,18 @@ class LinkAccountRequest {
     }
 
     /**
-     * Set the auth type of the secondary user account.
-     * @param string $authType
+     * Set the auth type of the primary user account.
+     * @param string $primaryAuthType
      */
-    public function setAuthType($authType) {
-        $this->authType = $authType;
+    public function setPrimaryAuthType($primaryAuthType) {
+        $this->primaryAuthType = $primaryAuthType;
     }
 
     /**
-     * Set the request type.
-     * @param string $requestType
+     * Set the auth type of the secondary user account.
+     * @param string $secondaryAuthType
      */
-    public function setRequestType($requestType) {
-        $this->requestType = $requestType;
+    public function setSecondaryAuthType($secondaryAuthType) {
+        $this->secondaryAuthType = $secondaryAuthType;
     }
 }
