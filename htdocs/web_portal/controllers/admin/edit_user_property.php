@@ -1,9 +1,9 @@
 <?php
 /*______________________________________________________
  *======================================================
- * File: edit_user_dn.php
+ * File: edit_user_property.php
  * Author: George Ryall, John Casson, David Meredith
- * Description: Allows GOCD Admins to update a users DN.
+ * Description: Allows GOCD Admins to update a user's id.
  *
  * License information
  *
@@ -26,7 +26,7 @@ require_once __DIR__ . '/../utils.php';
  * @global array $_POST only set if the browser has POSTed data
  * @return null
  */
-function edit_dn() {
+function edit_property() {
     //The following line will be needed if this controller is ever used for non administrators:
     //checkPortalIsNotReadOnlyOrUserIsAdmin($user);
 
@@ -64,7 +64,7 @@ function draw() {
     $params["CertDN"]=$user->getCertificateDn();
 
     //show the edit user dn view
-    show_view("admin/edit_user_dn.php", $params, "Edit Certificate DN");
+    show_view("admin/edit_user_property.php", $params, "Edit ID string");
 }
 
 /**

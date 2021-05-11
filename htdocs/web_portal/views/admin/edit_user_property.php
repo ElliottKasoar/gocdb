@@ -9,7 +9,7 @@
     <?php xecho($params['CertDN']) ?>
     <br />
     <br />
-    <form class="inputForm" method="post" action="index.php?Page_Type=Admin_Edit_User_DN" name="editSType">
+    <form class="inputForm" method="post" action="index.php?Page_Type=Admin_Edit_User_Property" name="editSType">
         <span class="input_name">New Certificate DN</span>
         <input type="text" value="<?php xecho($params['CertDN']) ?>" name="DN" class="input_input_text">
         <input class="input_input_hidden" type="hidden" name="ID" value="<?php echo $params['ID'] ?>" />

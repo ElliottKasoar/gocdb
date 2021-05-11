@@ -103,7 +103,7 @@
                     <td class="site_table">
                         <div style="background-color: inherit;">
                             <span style="vertical-align: middle;">
-                                <a href="index.php?Page_Type=Admin_Edit_User_DN&amp;id=<?php echo $user->getId() ?>">
+                                <a href="index.php?Page_Type=Admin_Edit_User_Property&amp;id=<?php echo $user->getId() ?>">
                                     <?php xecho($user->getCertificateDn()); ?>
                                 </a>
                             </span>
