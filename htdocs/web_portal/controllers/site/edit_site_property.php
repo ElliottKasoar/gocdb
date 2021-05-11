@@ -28,8 +28,8 @@ require_once __DIR__ . '/../utils.php';
  * @return null
  */
 function edit_property() {
-    $dn = Get_User_Principle();
-    $user = \Factory::getUserService()->getUserByPrinciple($dn);
+    $idString = Get_User_Principle();
+    $user = \Factory::getUserService()->getUserByPrinciple($idString);
 
     //Check the portal is not in read only mode, returns exception if it is and user is not an admin
     checkPortalIsNotReadOnlyOrUserIsAdmin($user);
