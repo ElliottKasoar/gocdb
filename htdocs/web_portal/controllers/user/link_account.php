@@ -53,6 +53,12 @@ function submit() {
         die();
     }
 
+    // Check id string of account to be linked is different to current id
+    if($currentId === $primaryId) {
+        show_view('error.php', "The id string entered must differ to your current id string");
+        die();
+    }
+
     try {
         $linkReq = \Factory::getLinkAccountService()->newLinkAccountRequest($currentId, $givenEmail, $primaryId, $authType);
     } catch(\Exception $e) {
