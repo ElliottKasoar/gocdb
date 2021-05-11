@@ -26,6 +26,7 @@ function link_account() {
  */
 function draw() {
     $id = Get_User_Principle();
+    $authType = Get_User_AuthType();
     if(empty($id)){
         show_view('error.php', "Could not authenticate user - null user principle");
         die();
@@ -37,17 +38,23 @@ function draw() {
     //     die();
     // }
 
-    $params['DN'] = $id;
+    $params['IDSTRING'] = $id;
+    $params['CURRENTAUTHTYPE'] = $authType;
+    $params['AUTHTYPES'] = ['IGTF', 'FAKE'];
 
     show_view('user/link_account.php', $params, 'Link Account');
 }
 
 function submit() {
+
+    // "Primary" account info
     $primaryId = $_REQUEST['PRIMARYID'];
-    $givenEmail =$_REQUEST['EMAIL'];
+    $givenEmail = $_REQUEST['EMAIL'];
+    $oldAuthType = $_REQUEST['AUTHTYPE'];
+
+    // "Secondary" account info
     $currentId = Get_User_Principle();
-    $authType = Get_User_AuthType();
-    $requestType = 'link';
+    $currentAuthType = Get_User_AuthType();
 
     if(empty($currentId)){
         show_view('error.php', "Could not authenticate user - null user principle");
@@ -61,7 +68,7 @@ function submit() {
     }
 
     try {
-        $linkReq = \Factory::getLinkAccountService()->newLinkAccountRequest($currentId, $givenEmail, $primaryId, $authType, $requestType);
+        $linkReq = \Factory::getLinkAccountService()->newLinkAccountRequest($currentId, $givenEmail, $primaryId, $oldAuthType, $currentAuthType);
     } catch(\Exception $e) {
         show_view('error.php', $e->getMessage());
         die();

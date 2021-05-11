@@ -4,7 +4,18 @@
             <form name="Link_Cert_Req" action="index.php?Page_Type=Link_Account"
                   method="post" class="inputForm">
                 <h1>Link An Account</h1>
-                Your current Account ID (e.g. certificate DN) is: <?php echo $params['DN'];?>
+                Your current Account ID (e.g. certificate DN) is: <?php echo $params['IDSTRING'];?>
+                <br/>
+                <br/>
+
+                <span class="">Authentication type:</span>
+                <select class="" name="AUTHTYPE">
+                    <?php
+                        foreach ($params['AUTHTYPES'] as $authType) {
+                            echo "<option value=\"" . $authType . "\">" . $authType . "</option>";
+                        }
+                    ?>
+                </select>
                 <br/>
                 <br/>
                 <span class="input_name">Account ID to be linked *
