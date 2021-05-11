@@ -49,12 +49,12 @@ class User extends AbstractEntityService{
     }
 
     /**
-     * Lookup a User object by user's principle id string.
+     * Lookup a User object by user's certificateDn.
      * @param string $userPrinciple the user's principle id string, e.g. DN.
      * @return User object or null if no user can be found with the specified principle
      */
-    public function getUserFromDn($userPrinciple){
-        if(empty($userPrinciple)){
+    public function getUserFromDn($userPrinciple) {
+        if(empty($userPrinciple)) {
             return null;
         }
         $dql = "SELECT u from User u WHERE u.certificateDn = :certDn";
@@ -69,8 +69,8 @@ class User extends AbstractEntityService{
      * @param string $userPrinciple the user's principle id string, e.g. DN.
      * @return User object or null if no user can be found with the specified principle
      */
-    public function getUserByPrinciple($userPrinciple){
-        if(empty($userPrinciple)){
+    public function getUserByPrinciple($userPrinciple) {
+        if(empty($userPrinciple)) {
             return null;
         }
 
@@ -88,12 +88,14 @@ class User extends AbstractEntityService{
      * @param string $authType the authorisation type e.g. IGTF.
      * @return User object or null if no user can be found with the specified principle
      */
-    public function getUserByPrincipleAndType($userPrinciple, $authType){
-        if(empty($userPrinciple) || empty($authType)){
+    public function getUserByPrincipleAndType($userPrinciple, $authType) {
+        if(empty($userPrinciple) || empty($authType)) {
             return null;
         }
 
-        $dql = "SELECT u FROM User u JOIN u.userProperties up WHERE up.keyName = :keyname AND up.keyValue = :keyvalue";
+        $dql = "SELECT u FROM User u JOIN u.userProperties up
+                WHERE up.keyName = :keyname
+                AND up.keyValue = :keyvalue";
         $user = $this->em->createQuery($dql)
                   ->setParameters(array('keyname' => $authType, 'keyvalue' => $userPrinciple))
                   ->getOneOrNullResult();
