@@ -25,7 +25,7 @@
  * Controller for user to confirm their DN change
  * @return null
  */
-function validate_dn_change() {
+function validate_id_change() {
     require_once __DIR__ . '/../../../../lib/Gocdb_Services/Factory.php';
     require_once __DIR__ . '/../../../../htdocs/web_portal/components/Get_User_Principle.php';
     require_once __DIR__ . '/utils.php';
@@ -38,14 +38,14 @@ function validate_dn_change() {
     }
     $confirmationCode = $_REQUEST['c'];
 
-    $currentDn = Get_User_Principle();
-    if(empty($currentDn)){
+    $currentId = Get_User_Principle();
+    if(empty($currentId)){
         show_view('error.php', "Could not authenticate user - null user principle");
         die();
     }
 
     try {
-        Factory::getRetrieveAccountService()->confirmAccountRetrieval($confirmationCode, $currentDn);
+        Factory::getLinkAccountService()->confirmAccountLinking($confirmationCode, $currentId);
     } catch(\Exception $e) {
         show_view('error.php', $e->getMessage());
         die();

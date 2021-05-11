@@ -43,34 +43,37 @@ function retrieve() {
  * @return null
  */
 function draw() {
-    $dn = Get_User_Principle();
-    if(empty($dn)){
+    $id = Get_User_Principle();
+    if(empty($id)){
         show_view('error.php', "Could not authenticate user - null user principle");
         die();
     }
-    $user = \Factory::getUserService()->getUserByPrinciple($dn);
 
-    if(!is_null($user)) {
-        show_view('error.php', "Only unregistered users can retrieve an account.");
-        die();
-    }
-
-    $params['DN'] = $dn;
+    $params['DN'] = $id;
 
     show_view('user/retrieve_account.php', $params, 'Retrieve Account');
 }
 
 function submit() {
-    $oldDn = $_REQUEST['OLDDN'];
+    $oldId = $_REQUEST['OLDID'];
     $givenEmail =$_REQUEST['EMAIL'];
-    $currentDn = Get_User_Principle();
-    if(empty($currentDn)){
+    $currentId = Get_User_Principle();
+    $authType = Get_User_AuthType();
+    $requestType = 'recover';
+
+    if(empty($currentId)){
         show_view('error.php', "Could not authenticate user - null user principle");
         die();
     }
 
+    // Check id string of account to be linked is different to current id
+    if($currentId === $oldId) {
+        show_view('error.php', "The id string entered must differ to your current id string");
+        die();
+    }
+
     try {
-        $changeReq = \Factory::getRetrieveAccountService()->newRetrieveAccountRequest($currentDn, $givenEmail, $oldDn);
+        $changeReq = \Factory::getLinkAccountService()->newLinkAccountRequest($currentId, $givenEmail, $oldId, $authType, $requestType);
     } catch(\Exception $e) {
         show_view('error.php', $e->getMessage());
         die();

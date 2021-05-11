@@ -47,6 +47,7 @@ function submit() {
     $givenEmail =$_REQUEST['EMAIL'];
     $currentId = Get_User_Principle();
     $authType = Get_User_AuthType();
+    $requestType = 'link';
 
     if(empty($currentId)){
         show_view('error.php', "Could not authenticate user - null user principle");
@@ -60,7 +61,7 @@ function submit() {
     }
 
     try {
-        $linkReq = \Factory::getLinkAccountService()->newLinkAccountRequest($currentId, $givenEmail, $primaryId, $authType);
+        $linkReq = \Factory::getLinkAccountService()->newLinkAccountRequest($currentId, $givenEmail, $primaryId, $authType, $requestType);
     } catch(\Exception $e) {
         show_view('error.php', $e->getMessage());
         die();
