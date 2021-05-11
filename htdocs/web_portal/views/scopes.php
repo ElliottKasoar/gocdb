@@ -5,10 +5,10 @@
                 Scopes
         </h1>
         <span style="clear: both; float: left; padding-bottom: 0.4em;">
-        Click on the name of a scope to <?= $params['UserIsAdmin'] ? "edit it and " : ""; ?> view objects with that scope tag.
+            Click on the name of a scope to <?= $params['UserIsAdmin'] ? "edit it and " : ""; ?> view objects with that scope tag.
         </span>
     </div>
-   <!-- hide add when read only -->
+   <!-- hide add when read only or user is not admin-->
    <?php if(!$params['portalIsReadOnly'] && $params['UserIsAdmin']):?>
         <div style="float: right;">
             <center>
