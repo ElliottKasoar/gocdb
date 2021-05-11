@@ -733,14 +733,14 @@ class Role extends AbstractEntityService{
      * @param \User $primaryUser
      * @param \User $currentUser
      */
-    public function mergeRole(\User $primaryUser, \User $currentUser){
+    public function mergeRoles(\User $primaryUser, \User $currentUser) {
 
         //Check the portal is not in read only mode, throws exception if it is
         $this->checkPortalIsNotReadOnlyOrUserIsAdmin($currentUser);
 
         $this->em->getConnection()->beginTransaction();
         try {
-            $this->mergeRoleLogic($primaryUser, $currentUser);
+            $this->mergeRolesLogic($primaryUser, $currentUser);
             $this->em->flush();
             $this->em->getConnection()->commit();
         } catch (\Exception $e) {
@@ -761,7 +761,7 @@ class Role extends AbstractEntityService{
      * @param \User $primaryUser
      * @param \User $currentUser
      */
-    protected function mergeRoleLogic(\User $primaryUser, \User $currentUser){
+    protected function mergeRolesLogic(\User $primaryUser, \User $currentUser) {
 
         $roles = $currentUser->getRoles();
         foreach ($roles as $role){
