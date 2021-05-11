@@ -25,17 +25,18 @@ class LinkAccount extends AbstractEntityService {
             }
         }
 
+        // Check the given email address matches the one given
         if(strcasecmp($user->getEmail(), $email)) {
             throw new \Exception("E-mail address doesn't match id");
         }
     }
 
     /**
-     * Processes an account link request for the passed user
+     * Processes an account link request
      * @param \User $primaryUser
      * @param \User $currentUser
      */
-    public function newLinkAccountRequest($currentIdString, $givenEmail, $primaryIdString, $primaryAuthType, $secondaryAuthType) {
+    public function newLinkAccountRequest($currentIdString, $givenEmail, $primaryIdString, $primaryAuthType, $currentAuthType) {
 
         $serv = \Factory::getUserService();
 
@@ -66,16 +67,14 @@ class LinkAccount extends AbstractEntityService {
         // remove it. This must be in a seperate try catch block to the new one,
         // to prevent constraint violations
         // Currently request to link multiple ids to one primary id are permitted
-        // Consider checking user ids etc. too?
-        // May need to check account recovery requests too?
         $previousRequest = $this->getLinkAccountRequestByIdString($currentIdString);
-        if(!is_null($previousRequest)){
+        if(!is_null($previousRequest)) {
             try{
                 $this->em->getConnection()->beginTransaction();
                 $this->em->remove($previousRequest);
                 $this->em->flush();
                 $this->em->getConnection()->commit();
-            } catch(\Exception $e){
+            } catch(\Exception $e) {
                 $this->em->getConnection()->rollback();
                 $this->em->close();
                 throw $e;
@@ -86,10 +85,10 @@ class LinkAccount extends AbstractEntityService {
         $code = $this->generateConfirmationCode($primaryIdString);
 
         // Create link account request
-        $linkAccountReq = new \LinkAccountRequest($primaryUser, $currentUser, $code, $primaryIdString, $currentIdString, $primaryAuthType, $secondaryAuthType);
+        $linkAccountReq = new \LinkAccountRequest($primaryUser, $currentUser, $code, $primaryIdString, $currentIdString, $primaryAuthType, $currentAuthType);
 
         // Recovery or account linking
-        if ($primaryAuthType === $secondaryAuthType){
+        if ($primaryAuthType === $currentAuthType) {
             $requestType = 'recover';
         } else {
             $requestType = 'link';
@@ -106,15 +105,14 @@ class LinkAccount extends AbstractEntityService {
             $this->sendConfirmationEmail($primaryUser, $code, $primaryIdString, $currentIdString, $requestType);
 
             $this->em->getConnection()->commit();
-        } catch(\Exception $ex){
+        } catch(\Exception $ex) {
             $this->em->getConnection()->rollback();
             $this->em->close();
             throw $ex;
         }
-
     }
 
-    private function generateConfirmationCode($idString){
+    private function generateConfirmationCode($idString) {
         $confirm_code = rand(1, 10000000);
         $confirm_hash = sha1($idString.$confirm_code);
         return $confirm_hash;
@@ -126,7 +124,7 @@ class LinkAccount extends AbstractEntityService {
      * @param integer $userId userid of the request to be linked
      * @return arraycollection
      */
-    public function getLinkAccountRequestByUserId($userId){
+    public function getLinkAccountRequestByUserId($userId) {
         $dql = "SELECT l
                 FROM LinkAccountRequest l
                 JOIN l.primaryUser u
@@ -146,7 +144,7 @@ class LinkAccount extends AbstractEntityService {
      * @param string $idString id string of user to be linked in primary account
      * @return arraycollection
      */
-    public function getLinkAccountRequestByIdString($idString){
+    public function getLinkAccountRequestByIdString($idString) {
         $dql = "SELECT l
                 FROM LinkAccountRequest l
                 WHERE l.primaryIdString = :idString
@@ -165,7 +163,7 @@ class LinkAccount extends AbstractEntityService {
      * @param string $code confirmation code of the request being retrieved
      * @return arraycollection
      */
-    public function getLinkAccountRequestByConfirmationCode($code){
+    public function getLinkAccountRequestByConfirmationCode($code) {
         $dql = "SELECT l
                 FROM LinkAccountRequest l
                 WHERE l.confirmCode = :code";
@@ -188,9 +186,9 @@ class LinkAccount extends AbstractEntityService {
      * @param type $link to be clicked
      * @return arraycollection
      */
-    private function composeEmail($primaryIdString, $currentIdString, $requestType, $link){
+    private function composeEmail($primaryIdString, $currentIdString, $requestType, $link) {
 
-        if ($requestType === 'link'){
+        if ($requestType === 'link') {
 
             $subject = "Validation of linking your GOCDB account";
 
@@ -202,7 +200,7 @@ class LinkAccount extends AbstractEntityService {
             ."$link".
             "\n\nIf you did not create this request in GOCDB, please immediately contact gocdb-admins@mailman.egi.eu";
 
-        } elseif ($requestType === 'recover'){
+        } elseif ($requestType === 'recover') {
 
             $subject = "Validation of recovering your GOCDB account";
 
@@ -229,7 +227,7 @@ class LinkAccount extends AbstractEntityService {
      * @param type $currentIdString id string for current user
      * @throws \Exception
      */
-    private function sendConfirmationEmail(\User $primaryUser, $confirmationCode, $primaryIdString, $currentIdString, $requestType){
+    private function sendConfirmationEmail(\User $primaryUser, $confirmationCode, $primaryIdString, $currentIdString, $requestType) {
         $portalUrl = \Factory::getConfigService()->GetPortalURL();
         $link = $portalUrl."/index.php?Page_Type=User_Validate_Account_Link&c=".$confirmationCode;
         $composedEmail = $this->composeEmail($primaryIdString, $currentIdString, $requestType, $link);
@@ -240,22 +238,31 @@ class LinkAccount extends AbstractEntityService {
         $headers = "From: no-reply@goc.egi.eu";
 
         // Mail command returns boolean. False if message not accepted for delivery.
-        if (!mail($primaryUser->getEmail(), $subject, $body, $headers)){
+        if (!mail($primaryUser->getEmail(), $subject, $body, $headers)) {
             throw new \Exception("Unable to send email message");
         }
     }
 
-    public function confirmAccountLinking ($code, $currentId){
+    public function confirmAccountLinking ($code, $currentId) {
+
         // Get the request
         $request = $this->getLinkAccountRequestByConfirmationCode($code);
 
         // Check there is a result
-        if(is_null($request)){
+        if(is_null($request)) {
             throw new \Exception("Confirmation URL invalid. If you have submitted multiple requests for the same account, please ensure you have used the link in the most recent email");
         }
 
         $primaryUser = $request->getPrimaryUser();
         $secondaryUser = $request->getSecondaryUser();
+
+        // Check the portal is not in read only mode, throws exception if it is. If portal is read only, but the user whose id is being changed is an admin, we will still be able to proceed.
+        $this->checkPortalIsNotReadOnlyOrUserIsAdmin($primaryUser);
+
+        // Check the id currently being used by the user is same as in the request
+        if($currentId !== $request->getSecondaryIdString()) {
+            throw new \Exception("Your current ID does not match the one to which requested be linked. The link will only work once, if you have refreshed the page or clicked the link a second time you will see this messaage"); //TODO: reword
+        }
 
         // Does primary user have user properties?
         $oldUser = false;
@@ -264,26 +271,16 @@ class LinkAccount extends AbstractEntityService {
             $propArrOld = array(array($request->getPrimaryAuthType(), $request->getPrimaryIdString()));
         }
 
-        // Check the portal is not in read only mode, throws exception if it is. If portal is read only, but the user whos DN is being changed is an admin, we will still be able to proceed.
-        $this->checkPortalIsNotReadOnlyOrUserIsAdmin($primaryUser);
+        // Create new user property array to be added
+        $propArr = array(array($request->getSecondaryAuthType(), $request->getSecondaryIdString()));
+        require_once __DIR__ . '/User.php';
 
-        // Check the id currently being used by the user is same as in the request
-        if($currentId !== $request->getSecondaryIdString()){
-            throw new \Exception("Your current ID does not match the one to which requested be linked. The link will only work once, if you have refreshed the page or clicked the link a second time you will see this messaage"); //TODO: reword
-        }
-
-        if ($request->getPrimaryAuthType() === $request->getSecondaryAuthType()){
+        // If recovering account overwrite user property
+        if ($request->getPrimaryAuthType() === $request->getSecondaryAuthType()) {
             $preventOverwrite = false;
         } else {
             $preventOverwrite = true;
         }
-
-        // Create user property array to be added
-        $propArr = array(array($request->getSecondaryAuthType(), $request->getSecondaryIdString()));
-        require_once __DIR__ . '/User.php';
-
-        // deleteUser function - but won't work if not that user
-        // deleteUser(\User $user, \User $currentUser = null)
 
         // Update user, remove request from table
         try{
@@ -303,15 +300,15 @@ class LinkAccount extends AbstractEntityService {
 
             $this->em->persist($primaryUser);
 
-            if ($secondaryUser !== null){
-                $mergeRoles = \Factory::getRoleService()->mergeRole($primaryUser, $secondaryUser);
+            if ($secondaryUser !== null) {
+                \Factory::getRoleService()->mergeRoles($primaryUser, $secondaryUser);
                 $this->em->remove($secondaryUser);
             }
 
             $this->em->remove($request);
             $this->em->flush();
             $this->em->getConnection()->commit();
-        } catch(\Exception $e){
+        } catch(\Exception $e) {
             $this->em->getConnection()->rollback();
             $this->em->close();
             throw $e;
