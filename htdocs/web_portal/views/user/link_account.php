@@ -15,11 +15,12 @@
                     <div class="controls">
                         <select
                             class="form-control"
-                            name="AUTHTYPE" id="authType" size=<?=sizeof($params['AUTHTYPES']);?>
-                            onchange="updateWarningMessage(); formatAuthType(); formatIdFromAuth();">
+                            name="AUTHTYPE" id="authType"
+                            size=<?=sizeof($params['AUTHTYPES']);?>>
                             <?php
                                 foreach ($params['AUTHTYPES'] as $authType) {
-                                    echo "<option value=\"" . $authType . "\">" . $authType . "</option>";
+                                    echo "<option onclick=\"updateWarningMessage(); formatAuthType(); formatIdFromAuth();\" value=\"";
+                                    echo $authType . "\">" . $authType . "</option>";
                                 }
                             ?>
                         </select>
