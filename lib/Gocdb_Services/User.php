@@ -448,6 +448,148 @@ class User extends AbstractEntityService{
     }
 
     /**
+     * Adds sets of extension property key/value pairs to a user.
+     * @param \Uuser $user
+     * @param array $propArr
+     * @param bool $preventOverwrite
+     * @throws \Exception
+     */
+    public function addProperties(\User $user, array $propArr, \User $currentUser = null, $preventOverwrite = false) {
+        //Check the portal is not in read only mode, throws exception if it is
+        $this->checkPortalIsNotReadOnlyOrUserIsAdmin($user);
+
+        // Validate the user has permission to add properties
+        // Check to see whether the current user can edit this user?
+        $this->editUserAuthorization($user, $currentUser);
+
+        //Add the properties
+        $this->em->getConnection()->beginTransaction();
+        try {
+            $this->addPropertiesLogic($user, $propArr, $preventOverwrite);
+            $this->em->flush();
+            $this->em->getConnection()->commit();
+        } catch (\Exception $e) {
+            $this->em->getConnection()->rollback();
+            $this->em->close();
+            throw $e;
+        }
+    }
+
+    /**
+     * Adds sets of extension property key/value pairs to a user, following a request through the API
+     * @param \User $user
+     * @param array $propArr
+     * @param bool $preventOverwrite
+     * @param string $authenticationType
+     * @param string $authenticationIdentifier
+     * @throws \Exception
+     */
+    public function addPropertiesAPI(\User $user, array $propArr, $preventOverwrite, \User $currentUser = null, $authenticationType, $authenticationIdentifier) {
+        //Check the portal is not in read only mode, throws exception if it is
+        $this->checkGOCDBIsNotReadOnly();
+
+        // Validate the user has permission to add properties
+        // Check to see whether the current user can edit this user?
+        $this->editUserAuthorization($user, $currentUser);
+
+        //Convert the property array into the format used by the webportal logic
+        #TODO: make the web portal use a more sensible format (e.g. array(key=> value), rather than array([1]=>key,array[2]=>value))
+        $propArr=array();
+        foreach ($propArr as $key => $value) {
+            $propArr[]= array(0=>$key,1=>$value);
+        }
+
+        //Add the properties
+        $this->em->getConnection()->beginTransaction();
+        try {
+            $this->addPropertiesLogic($user, $propArr, $preventOverwrite);
+            $this->em->flush();
+            $this->em->getConnection()->commit();
+        } catch (\Exception $e) {
+            $this->em->getConnection()->rollback();
+            $this->em->close();
+            throw $e;
+        }
+    }
+
+    /**
+     * Logic to add extension properties to a user.
+     * @param \User $user
+     * @param array $propArr
+     * @param bool $preventOverwrite
+     * @throws \Exception
+     */
+    protected function addPropertiesLogic(\User $user, array $propArr, $preventOverwrite = false) {
+        $existingProperties = $user->getUserProperties();
+
+        //We will use this variable to track the keys as we go along, this will be used check they are all unique later
+        $keys=array();
+
+        //We will use this variable to track the final number of properties and ensure we do not exceede the specified limit
+        $propertyCount = sizeof($existingProperties);
+
+        foreach ($propArr as $i => $prop) {
+            /*Trim off trailing and leading whitspace - as we currently don't want this.
+            *The input array is awkwardly formatted as keys didn't use to have to be unique.
+            */
+            $key = trim($prop[0]);
+            $value = trim($prop[1]);
+
+            /*Find out if a property with the provided key already exists, if
+            *we are preventing overwrites, this will be a problem. If we are not,
+            *we will want to edit the existing property later, rather than create it.
+            */
+            $property = null;
+            foreach ($existingProperties as $existProp) {
+                if ($existProp->getKeyName() == $key) {
+                    $property = $existProp;
+                }
+            }
+
+            /*If the property doesn't already exist, we add it. If it exists
+            *and we are not preventing overwrites, we edit the existing one.
+            *If it exists and we are preventing overwrites, we throw an exception
+            */
+            if (is_null($property)) {
+                //validate key value
+                $validateArray['NAME'] = $key;
+                $validateArray['VALUE'] = $value;
+                // $validateArray['USER'] = $user->getId(); // Need to figure out validation?
+                // $this->validate($validateArray, 'userproperty'); // Need to figure out validation?
+
+                $property = new \UserProperty();
+                $property->setKeyName($key);
+                $property->setKeyValue($value);
+                $user->addUserPropertyDoJoin($property);
+                $this->em->persist($property);
+
+                //increment the property counter to enable check against property limit
+                $propertyCount++;
+            } elseif (!$preventOverwrite) {
+                $this->editUserPropertyLogic($user, $property, array('USERPROPERTIES'=>array('NAME'=>$key,'VALUE'=>$value)));
+            } else {
+                throw new \Exception("A property with name \"$key\" already exists for this object, no properties were added.");
+            }
+
+            //Add the key to the keys array, to enable unique check
+            $keys[]=$key;
+        }
+
+        //Keys should be unique, create an exception if they are not
+        if(count(array_unique($keys))!=count($keys)) {
+            throw new \Exception(
+                "Property names should be unique. The requested new properties include multiple properties with the same name."
+            );
+        }
+
+        //Check to see if adding the new properties will exceed the max limit defined in local_info.xml, and throw an exception if so
+        $extensionLimit = \Factory::getConfigService()->getExtensionsLimit();
+        if ($propertyCount > $extensionLimit){
+            throw new \Exception("Property(s) could not be added due to the property limit of $extensionLimit");
+        }
+    }
+
+    /**
      * Changes the isAdmin user property.
      * @param \User $user           The user who's admin status is to change
      * @param \User $currentUser    The user making the change, who themselvess must be an admin
