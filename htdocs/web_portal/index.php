@@ -192,6 +192,14 @@ function Draw_Page($Page_Type) {
             require_once __DIR__ . '/controllers/scope_help.php';
             show_help();
             break;
+        case "Scopes":
+            require_once __DIR__ . '/controllers/scopes.php';
+            show_scopes();
+            break;
+        case "Scope":
+            require_once __DIR__ . '/controllers/scope.php';
+            view_scope();
+            break;
         case "Site_Geo_xml" :
             //rejectIfNotAuthenticated();
             require_once __DIR__ . '/controllers/sitesForMapXML.php';
