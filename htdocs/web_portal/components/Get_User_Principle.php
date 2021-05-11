@@ -155,6 +155,23 @@ function Get_User_Principle(){
         $user = \Factory::getUserService()->getUserByPrinciple($principleString);
         if($user != null){
             \Factory::getUserService()->updateLastLoginTime($user);
+
+            // Check if auth is stored as a property of the user
+            // No longer needed as getUserByPrinciple should return null?
+            foreach ($user->getUserProperties() as $userProp){
+                if ($userProp->getKeyName() === $authType){
+                    $authExists = True;
+                }
+            }
+
+            // If property for current auth does not exist, add to user
+            if (!$authExists){
+                // Get type of auth logged in with e.g. IGTF (X509)
+                $authType = $auth->getDetails()['AuthenticationRealm'][0];
+                $propArr = array(array($authType, $principleString));
+                $serv = \Factory::getUserService();
+                $serv->addProperties($user, $propArr, $user);
+            }
         }
         return $principleString;
     }
