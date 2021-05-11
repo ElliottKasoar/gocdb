@@ -29,8 +29,10 @@
         <table class="vSiteResults" id="selectedSETable">
             <tr class="site_table_row_1">
                 <th class="site_table">Name</th>
+                <th class="site_table">Description</th>
+                <th class="site_table">Reserved?</th>
                 <?php if(!$params['portalIsReadOnly'] && $params['UserIsAdmin']):?>
-                    <th class="site_table">Remove</th>
+                    <th class="site_table" style="width: 10%">Remove</th>
                 <?php endif; ?>
             </tr>
             <?php
@@ -39,17 +41,19 @@
                 foreach($params['Scopes'] as $scope) {
                 ?>
                 <tr class="site_table_row_<?php echo $num ?>">
-                    <td class="site_table" style="width: 90%">
+                    <td class="site_table">
                         <div style="background-color: inherit;">
                             <span style="vertical-align: middle;">
-                                <a href="index.php?Page_Type=Admin_Scope&amp;id=<?php echo $scope->getId() ?>">
+                                <a href="index.php?Page_Type=Scope&amp;id=<?php echo $scope->getId() ?>">
                                     <?php xecho($scope->getName()); ?>
                                 </a>
                             </span>
                         </div>
                     </td>
+                    <td class="site_table"><?php xecho($scope->getDescription()); ?></td>
+                    <td class="site_table"><?= in_array($scope, $params['reservedScopes']) ? '&check;': '&cross;';?></td>
                     <?php if(!$params['portalIsReadOnly'] && $params['UserIsAdmin']):?>
-                        <td class="site_table">
+                        <td class="site_table"  style="width: 10%">
                              <script type="text/javascript" src="<?php echo \GocContextPath::getPath()?>javascript/confirm.js"></script>
                              <a onclick="return confirmSubmit()" href="index.php?Page_Type=Admin_Remove_Scope&id=<?php echo $scope->getId() ?>">
                                 <img src="<?php echo \GocContextPath::getPath()?>img/trash.png" height="22px" style="vertical-align: middle;" />
