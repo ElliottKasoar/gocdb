@@ -490,12 +490,13 @@ class User extends AbstractEntityService{
 
     /**
      * Adds sets of extension property key/value pairs to a user.
-     * @param \Uuser $user
+     * @param \User $user
      * @param array $propArr
+     * @param \User $currentUser
      * @param bool $preventOverwrite
      * @throws \Exception
      */
-    public function addProperties(\User $user, array $propArr, \User $currentUser, $preventOverwrite = true) {
+    public function addProperties(\User $user, array $propArr, \User $currentUser, $preventOverwrite=true) {
         //Check the portal is not in read only mode, throws exception if it is
         $this->checkPortalIsNotReadOnlyOrUserIsAdmin($user);
 
@@ -523,7 +524,7 @@ class User extends AbstractEntityService{
      * @param bool $preventOverwrite
      * @throws \Exception
      */
-    protected function addPropertiesLogic(\User $user, array $propArr, $preventOverwrite = true) {
+    protected function addPropertiesLogic(\User $user, array $propArr, $preventOverwrite=true) {
         $existingProperties = $user->getUserProperties();
 
         //We will use this variable to track the keys as we go along, this will be used check they are all unique later
@@ -596,6 +597,78 @@ class User extends AbstractEntityService{
         if ($propertyCount > $extensionLimit){
             throw new \Exception("Property(s) could not be added due to the property limit of $extensionLimit");
         }
+    }
+
+        /**
+     * Edit a user's property.
+     *
+     * @param \User $user
+     * @param \UserProperty $prop
+     * @param \User $currentUser
+     * @param array $newValues
+     * @throws \Exception
+     */
+    public function editUserProperty(\User $user, $prop, \User $currentUser,\UserProperty $prop, $newValues) {
+        // Check the portal is not in read only mode, throws exception if it is
+        $this->checkPortalIsNotReadOnlyOrUserIsAdmin ($currentUser);
+
+        // Validate the user has permission to add properties
+        // Check to see whether the current user can edit this user?
+        $this->editUserAuthorization($user, $currentUser);
+
+        //Make the change
+        $this->em->getConnection()->beginTransaction();
+        try {
+            $this->editUserPropertyLogic($user, $prop, $newValues);
+            $this->em->flush ();
+            $this->em->getConnection ()->commit();
+        } catch ( \Exception $ex ) {
+            $this->em->getConnection ()->rollback();
+            $this->em->close ();
+            throw $ex;
+        }
+    }
+
+    /**
+     * All the logic to edit a user's property, without the user validation.
+     * A check is performed to confirm the given property is from the parent user
+     * specified by the request, and an exception is thrown if this is not the case.
+     *
+     * @param \User $user
+     * @param \UserProperty $prop
+     * @param array $newValues
+     * @throws \Exception
+     */
+    protected function editUserPropertyLogic(\User $user, \UserProperty $prop, $newValues) {
+
+        // Add validation?
+        // $this->validate($newValues['USERPROPERTIES'], 'userproperty');
+
+        //We don't currently want trailing or leading whitespace, so we trim it
+        $keyname = trim($newValues['USERPROPERTIES']['NAME']);
+        $keyvalue = trim($newValues ['USERPROPERTIES'] ['VALUE']);
+
+        //Check that the prop is from the user
+        if ($prop->getParentUser() != $user){
+            $id = $prop->getId();
+            throw new \Exception("Property {$id} does not belong to the specified user");
+        }
+
+        //If the properties key has changed, check there isn't an existing property with that key
+        if ($keyname != $prop->getKeyName()){
+            $existingProperties = $user->getUserProperties();
+            foreach ($existingProperties as $existingProp) {
+                if ($existingProp->getKeyName() == $keyname) {
+                    throw new \Exception("A property with that name already exists for this object");
+                }
+            }
+        }
+
+        // Set the user propertys new member variables
+        $prop->setKeyName ($keyname);
+        $prop->setKeyValue ($keyvalue);
+
+        $this->em->merge ($prop);
     }
 
     /**
