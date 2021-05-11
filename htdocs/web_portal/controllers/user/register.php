@@ -77,12 +77,13 @@ function submit() {
     // todo: on registering, we also want to persist the authAttributes, this
     // will require new UserProperty records owned by the User.php entity.
     /* @var $authToken \org\gocdb\security\authentication\IAuthentication */
-    //$authToken = Get_User_AuthToken();
-    //$params['authAttributes'] = $authToken->getDetails();
+    $authToken = Get_User_AuthToken();
+    $params['authAttributes'] = $authToken->getDetails();
+    $authType = $params['authAttributes']['AuthenticationRealm'][0];
 
     $serv = \Factory::getUserService();
     try {
-        $user = $serv->register($values);
+        $user = $serv->register($values, $authType);
         $params = array('user' => $user);
         show_view('user/registered.php', $params);
     } catch(Exception $e) {

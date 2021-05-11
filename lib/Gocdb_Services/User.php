@@ -360,7 +360,7 @@ class User extends AbstractEntityService{
      * )
      * @param array $values User details, defined above
      */
-    public function register($values) {
+    public function register($values, $authType) {
         // validate the input fields for the user
         $this->validateUser($values);
 
@@ -389,6 +389,10 @@ class User extends AbstractEntityService{
             $this->em->close();
             throw $ex;
         }
+        $propArr = array(array($authType, $values['CERTIFICATE_DN']));
+        $serv = \Factory::getUserService();
+        $serv->addProperties($user, $propArr, $user);
+        $user->setCertificateDn($user->getId());
         return $user;
     }
 
@@ -513,43 +517,6 @@ class User extends AbstractEntityService{
     }
 
     /**
-     * Adds sets of extension property key/value pairs to a user, following a request through the API
-     * @param \User $user
-     * @param array $propArr
-     * @param bool $preventOverwrite
-     * @param string $authenticationType
-     * @param string $authenticationIdentifier
-     * @throws \Exception
-     */
-    public function addPropertiesAPI(\User $user, array $propArr, $preventOverwrite, \User $currentUser = null, $authenticationType, $authenticationIdentifier) {
-        //Check the portal is not in read only mode, throws exception if it is
-        $this->checkGOCDBIsNotReadOnly();
-
-        // Validate the user has permission to add properties
-        // Check to see whether the current user can edit this user?
-        $this->editUserAuthorization($user, $currentUser);
-
-        //Convert the property array into the format used by the webportal logic
-        #TODO: make the web portal use a more sensible format (e.g. array(key=> value), rather than array([1]=>key,array[2]=>value))
-        $propArr=array();
-        foreach ($propArr as $key => $value) {
-            $propArr[]= array(0=>$key,1=>$value);
-        }
-
-        //Add the properties
-        $this->em->getConnection()->beginTransaction();
-        try {
-            $this->addPropertiesLogic($user, $propArr, $preventOverwrite);
-            $this->em->flush();
-            $this->em->getConnection()->commit();
-        } catch (\Exception $e) {
-            $this->em->getConnection()->rollback();
-            $this->em->close();
-            throw $e;
-        }
-    }
-
-    /**
      * Logic to add extension properties to a user.
      * @param \User $user
      * @param array $propArr
@@ -599,6 +566,11 @@ class User extends AbstractEntityService{
                 $property->setKeyValue($value);
                 $user->addUserPropertyDoJoin($property);
                 $this->em->persist($property);
+
+                if ($user->getCertificateDn() === $value) {
+                    $user->setCertificateDn($user->getId());
+                    $this->em->persist($user);
+                }
 
                 //increment the property counter to enable check against property limit
                 $propertyCount++;
