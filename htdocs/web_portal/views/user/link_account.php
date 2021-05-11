@@ -107,7 +107,7 @@
         var authTypeText1 = "";
         var authTypeText2 = "";
         var authTypeText3 = "";
-        if (selectedAuthType !== null || selectedAuthType !== "") {
+        if (selectedAuthType !== null && selectedAuthType !== "") {
             $('#authTypeLabel1').removeClass("hidden");
             $('#authTypeLabel2').removeClass("hidden");
         } else {
