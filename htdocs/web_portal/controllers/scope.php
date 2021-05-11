@@ -3,14 +3,17 @@ require_once __DIR__ . '/utils.php';
 require_once __DIR__ . '/../../web_portal/components/Get_User_Principle.php';
 
 function view_scope() {
-    //Check the user has permission to see the page, will throw exception
-    //if correct permissions are lacking
-    checkUserIsAdmin();
-    if (!isset($_REQUEST['id']) || !is_numeric($_REQUEST['id']) ){
-        throw new Exception("An id must be specified");
+
+    if (!isset($_REQUEST['id']) || !is_numeric($_REQUEST['id']) ) {
+        throw new \Exception("An id must be specified");
     }
-    $dn = Get_User_Principle();
-    $user = \Factory::getUserService()->getUserByPrinciple($dn);
+    $idString = Get_User_Principle();
+    $user = \Factory::getUserService()->getUserByPrinciple($idString);
+
+    $params['UserIsAdmin'] = false;
+    if(!is_null($user)) {
+        $params['UserIsAdmin'] = $user->isAdmin();
+    }
 
     $serv= \Factory::getScopeService();
     $scope =$serv ->getScope($_REQUEST['id']);
