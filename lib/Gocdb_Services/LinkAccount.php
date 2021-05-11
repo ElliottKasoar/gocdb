@@ -261,6 +261,13 @@ class LinkAccount extends AbstractEntityService {
         $primaryUser = $request->getPrimaryUser();
         $secondaryUser = $request->getSecondaryUser();
 
+        // Does primary user have user properties?
+        $oldUser = false;
+        if ($primaryUser->getCertificateDn() === $request->getPrimaryIdString()) {
+            $oldUser = true;
+            $propArrOld = array(array($request->getPrimaryAuthType(), $request->getPrimaryIdString()));
+        }
+
         // Check the portal is not in read only mode, throws exception if it is. If portal is read only, but the user whos DN is being changed is an admin, we will still be able to proceed.
         $this->checkPortalIsNotReadOnlyOrUserIsAdmin($primaryUser);
 
@@ -289,13 +296,23 @@ class LinkAccount extends AbstractEntityService {
             $userService = new \org\gocdb\services\User();
             $userService->setEntityManager($this->em);
             $userService->addProperties($primaryUser, $propArr, $primaryUser, $preventOverwrite);
-            $primaryUser->setCertificateDn($primaryUser->getId());
+
+            // If the primary user does not have user properties, need to overwrite certificateDn
+            if ($oldUser) {
+                $primaryUser->setCertificateDn($primaryUser->getId());
+                // If linking (so not overwriting), add old id string as property
+                if ($preventOverwrite) {
+                    $userService->addProperties($primaryUser, $propArrOld, $primaryUser);
+                }
+            }
+
             $this->em->persist($primaryUser);
 
             if ($secondaryUser !== null){
                 $mergeRoles = \Factory::getRoleService()->mergeRole($primaryUser, $secondaryUser);
                 $this->em->remove($secondaryUser);
             }
+
             $this->em->remove($request);
             $this->em->flush();
             $this->em->getConnection()->commit();
@@ -304,6 +321,5 @@ class LinkAccount extends AbstractEntityService {
             $this->em->close();
             throw $e;
         }
-
     }
 }
