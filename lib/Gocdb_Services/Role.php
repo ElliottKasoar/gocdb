@@ -726,6 +726,27 @@ class Role extends AbstractEntityService{
     }
 
     /**
+     * Processes role request for user
+     * Similar functionality in request_role.php
+     *
+     * @param string $roleTypeName
+     * @param \User $user
+     * @param \OwnedEntity $entity
+     * @return \Role pending Role
+     */
+    public function requestRole($roleTypeName, \User $user, \OwnedEntity $entity) {
+
+        // Create a new Role linking user, entity and roletype
+        // addRole perfoms role validation and throws exceptions accordingly
+        $newRole = $this->addRole($roleTypeName, $user, $entity);
+
+        if(\Factory::getConfigService()->getSendEmails()) {
+            \Factory::getNotificationService()->roleRequest($entity);
+        }
+        return $newRole;
+    }
+
+    /**
      * Calling (current) user attempts to merge roles with another
      * (primary) user.
      * Logic is handled by a seperate function.
