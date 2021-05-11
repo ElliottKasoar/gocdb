@@ -166,8 +166,12 @@
             var regExId = /^.+@iris\.iam\.ac.uk$/;
 
         // Remove later
-        } else {
+        } else if (authType === "FAKE") {
             var regExId = /^[^`'\";<>]{0,4000}$/;
+
+        // Remove later?
+        } else {
+            var regExId = /^$/;
         }
         return regExId;
     }
