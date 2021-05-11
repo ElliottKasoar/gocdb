@@ -374,6 +374,8 @@ class User extends AbstractEntityService{
         //Explicity demarcate our tx boundary
         $this->em->getConnection()->beginTransaction();
         $user = new \User();
+        $propArr = array(array($authType, $values['CERTIFICATE_DN']));
+        $serv = \Factory::getUserService();
         try {
             $user->setTitle($values['TITLE']);
             $user->setForename($values['FORENAME']);
@@ -384,16 +386,15 @@ class User extends AbstractEntityService{
             $user->setAdmin(false);
             $this->em->persist($user);
             $this->em->flush();
+            $serv->addProperties($user, $propArr, $user);
+            $user->setCertificateDn($user->getId());
+            $this->em->flush();
             $this->em->getConnection()->commit();
         } catch (\Exception $ex) {
             $this->em->getConnection()->rollback();
             $this->em->close();
             throw $ex;
         }
-        $propArr = array(array($authType, $values['CERTIFICATE_DN']));
-        $serv = \Factory::getUserService();
-        $serv->addProperties($user, $propArr, $user);
-        $user->setCertificateDn($user->getId());
         return $user;
     }
 
