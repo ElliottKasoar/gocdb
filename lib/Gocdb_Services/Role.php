@@ -777,39 +777,44 @@ class Role extends AbstractEntityService{
      * to the primary user.
      * It is logged that the roles are revoked from current user
      * and granted to the primary user.
-     * Todo: change the updatedby for both logs e.g. to GOCDB.
      *
      * @param \User $primaryUser
      * @param \User $currentUser
      */
     protected function mergeRolesLogic(\User $primaryUser, \User $currentUser) {
 
-        $roles = $currentUser->getRoles();
-        foreach ($roles as $role){
+        $currentRoles = $currentUser->getRoles();
+        foreach ($currentRoles as $currentRole) {
 
-            $roleTypeName = $role->getRoleType()->getName();
-            $entity = $role->getOwnedEntity();
-            $status = $role->getStatus();
+            $roleTypeName = $currentRole->getRoleType()->getName();
+            $entity = $currentRole->getOwnedEntity();
 
-            // Check to see if user already has the same type of role GRANTED over entity
+            // If primary user already has the same type of role GRANTED over entity, revoke from current user
             if (in_array($roleTypeName, $this->getUserRoleNamesOverEntity($entity, $primaryUser, \RoleStatus::GRANTED))) {
+                $this->revokeRole($currentRole, $currentUser);
                 continue;
             }
-            // Check to see if user already has the same type of role PENDING over entity
+            // If primary user already has the same type of role PENDING over entity, revoke from current user
+            // and attempt to approve existing request?
             if (in_array($roleTypeName, $this->getUserRoleNamesOverEntity($entity, $primaryUser, \RoleStatus::PENDING))) {
-                continue;
+                // continue;
+                $newRole = $this->getRoleByUserEntityType($primaryUser, $entity, $roleTypeName);
+            } else {
+                $newRole = $this->requestRole($roleTypeName, $primaryUser, $entity);
             }
 
-            // create a RoleActionRecord after role has been persisted (to get id)
-            $revokedRecord = \RoleActionRecord::construct($currentUser, $role, \RoleStatus::REVOKED);
-            $this->em->persist($revokedRecord);
-
-            $role->setUser($primaryUser);
-            $this->em->persist($role);
-
-            // create a RoleActionRecord after role has been persisted (to get id)
-            $grantedRecord = \RoleActionRecord::construct($primaryUser, $role, $status);
-            $this->em->persist($grantedRecord);
+            // Attempt to self-grant role
+            try {
+                $this->grantRole($newRole, $primaryUser);
+            } catch (\Exception $e) {
+                try {
+                    $this->grantRole($newRole, $currentUser);
+                } catch (\Exception $e) {
+                    // continue;
+                }
+            }
+            // Revoke roles (after granting)
+            $this->revokeRole($currentRole, $currentUser);
         }
     }
 
