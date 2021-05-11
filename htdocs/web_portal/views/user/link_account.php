@@ -11,23 +11,27 @@
                 <br/>
 
                 <div class="form-group" id="authTypeGroup">
-                    <label for="authType">Authentication type:</label> <select class="form-control"
-                        name="AUTHTYPE" id="selectedAuthType" onchange="updateWarningMessage(); formatAuthType(); formatIdFromAuth();"
-                        size=<?=sizeof($params['AUTHTYPES']);?>>
-                        <?php
-                            foreach ($params['AUTHTYPES'] as $authType) {
-                                echo "<option value=\"" . $authType . "\">" . $authType . "</option>";
-                            }
-                        ?>
-                    </select>
+                    <label for="authType">Authentication type:</label>
+                    <div class="controls">
+                        <select class="form-control"
+                            name="AUTHTYPE" id="selectedAuthType" onchange="updateWarningMessage(); formatAuthType(); formatIdFromAuth();"
+                            size=<?=sizeof($params['AUTHTYPES']);?>>
+                            <?php
+                                foreach ($params['AUTHTYPES'] as $authType) {
+                                    echo "<option value=\"" . $authType . "\">" . $authType . "</option>";
+                                }
+                            ?>
+                        </select>
+                    </div>
                     <span id="authTypeError" class="label label-danger hidden"></span>
+                    </br>
+                    <span class="auth-message hidden" id="authTypeLabel1"></span>
+                    </br>
+                    <span class="auth-message hidden" id="authTypeLabel2"></span>
+                    </br>
+                    <span class="auth-message auth-warning-extreme hidden" id="authTypeLabel3"></span>
+                    <br class="authPlaceholder" id="authPlaceholder3" />
                 </div>
-
-                <div><label class="auth-message" id="authTypeLabel1"></label></div>
-                <div><label class="auth-message" id="authTypeLabel2"></label></div>
-                <div><label class="auth-message" id="authTypeLabel3"></label></div>
-
-                </br>
 
                 <div class="form-group" id="primaryIdGroup">
                     <label class="control-label" for="primaryId">Account ID to be linked *
@@ -38,6 +42,7 @@
                         <input class="form-control" type="text" name="PRIMARYID" id="primaryId" onchange="formatId();" disabled/>
                     </div>
                     <span id="idError" class="label label-danger hidden"></span>
+                    <br id="idPlaceholder" />
                 </div>
 
                 <br/>
@@ -51,17 +56,16 @@
                         <input class="form-control" type="text" name="EMAIL" id="email" onchange="formatEmail();"/>
                     </div>
                     <span id="emailError" class="label label-danger hidden"></span>
+                    <br id="emailPlaceholder" />
                 </div>
 
                 <span class="input_name">
                     Once you have submitted this form, you will receive a confirmation
                     e-mail containing instructions on how to validate the request.
                 </span>
-
                 <br/>
 
-                <!-- <input class="input_button" type="submit" value="Execute" /> -->
-                <button type="submit" id="submitRequest_btn" class="btn btn-default" style="width: 100%" disabled>Submit</button>
+                <button type="submit" id="submitRequest_btn" class="btn btn-default" style="width: 100%" value="Execute" disabled>Submit</button>
 
             </form>
         </div>
@@ -104,16 +108,28 @@
         var authTypeText2 = "";
         var authTypeText3 = "";
 
+        if (selectedAuthType !== null || selectedAuthType !== "") {
+            $('#authTypeLabel1').removeClass("hidden");
+            $('#authTypeLabel2').removeClass("hidden");
+        } else {
+            $('#authTypeLabel1').addClass("hidden");
+            $('#authTypeLabel2').addClass("hidden");
+        }
+
+        // Different warnings if selected auth type is same as method currently in use
         if (selectedAuthType === currentAuthType) {
             authTypeText1 += selectedAuthType + ' is the same as your current authentication method. ';
             authTypeText2 += 'If you submit and confirm this request, your old id will be overwritten and ';
             authTypeText2 += 'you will no longer be able to login using it. Are you sure you wish to proceed?';
 
+            // Stronger warning for certain types. Certificates will be less extreme?
             if (selectedAuthType === "IGTF") {
                 authTypeText3 += 'Certificates sometimes expire...';
-                $('#authTypeLabel3').addClass("auth-warning-extreme");
+                $('#authTypeLabel3').removeClass("hidden");
+                $('#authPlaceholder3').addClass("hidden");
             } else {
-                $('#authTypeLabel3').removeClass("auth-warning-extreme");
+                $('#authTypeLabel3').addClass("hidden");
+                $('#authPlaceholder3').removeClass("hidden");
             }
             $('.auth-message').addClass("auth-warning");
 
@@ -122,7 +138,8 @@
             authTypeText2 += 'If you submit and confirm this request, your current id will be added ';
             authTypeText2 += 'as a login method to the account associated with the id you enter.';
             $('.auth-message').removeClass("auth-warning");
-            $('#authTypeLabel3').removeClass("auth-warning-extreme");
+            $('#authTypeLabel3').addClass("hidden");
+            $('#authPlaceholder3').removeClass("hidden");
         }
 
         $('#authTypeLabel1').text(authTypeText1);
@@ -230,18 +247,21 @@
 
         if (!empty) {
             if (valid) {
-                $("#idError").addClass("hidden");
                 $('#primaryIdGroup').addClass("has-success");
                 $('#primaryIdGroup').removeClass("has-error");
+                $("#idError").addClass("hidden");
+                $("#idPlaceholder").removeClass("hidden");
             } else {
-                $("#idError").removeClass("hidden");
                 $('#primaryIdGroup').removeClass("has-success");
                 $('#primaryIdGroup').addClass("has-error");
+                $("#idError").removeClass("hidden");
+                $("#idPlaceholder").addClass("hidden");
                 $("#idError").text("You have entered an invalid id for the selected authentication method");
             }
         } else {
             $('#primaryIdGroup').removeClass("has-error");
             $("#idError").addClass("hidden");
+            $("#idPlaceholder").removeClass("hidden");
         }
     }
 
@@ -255,10 +275,12 @@
             $('#primaryIdGroup').addClass("has-success");
             $('#primaryIdGroup').removeClass("has-error");
             $("#idError").addClass("hidden");
+            $("#idPlaceholder").removeClass("hidden");
         } else {
             $('#primaryIdGroup').removeClass("has-success");
             $('#primaryIdGroup').addClass("has-error");
             $("#idError").removeClass("hidden");
+            $("#idPlaceholder").addClass("hidden");
         }
         if (!valid && !empty) {
             $("#idError").text("You have entered an invalid id for this authentication type");
@@ -277,10 +299,12 @@
             $('#emailGroup').addClass("has-success");
             $('#emailGroup').removeClass("has-error");
             $("#emailError").addClass("hidden");
+            $("#emailPlaceholder").removeClass("hidden");
         } else {
             $('#emailGroup').removeClass("has-success");
             $('#emailGroup').addClass("has-error");
             $("#emailError").removeClass("hidden");
+            $("#emailPlaceholder").addClass("hidden");
         }
         if(!valid && !empty) {
             $("#emailError").text("Please enter a valid email");
