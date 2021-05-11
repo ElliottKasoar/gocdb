@@ -16,7 +16,8 @@
                         <select
                             class="form-control"
                             name="AUTHTYPE" id="authType"
-                            size=<?=sizeof($params['AUTHTYPES']);?>>
+                            size=<?=sizeof($params['AUTHTYPES']);?>
+                            onchange="updateWarningMessage(); formatAuthType(); formatIdFromAuth();">
                             <?php
                                 foreach ($params['AUTHTYPES'] as $authType) {
                                     echo "<option onclick=\"updateWarningMessage(); formatAuthType(); formatIdFromAuth();\" value=\"";
