@@ -26,11 +26,11 @@
                             ?>
                         </select>
                     </div>
-                    </br>
+                    <br/>
                     <span class="auth-message hidden" id="authTypeLabel1"></span>
-                    </br>
+                    <br/>
                     <span class="auth-message hidden" id="authTypeLabel2"></span>
-                    </br>
+                    <br/>
                     <span class="auth-message auth-warning-severe hidden" id="authTypeLabel3"></span>
                     <br class="authPlaceholder" id="authPlaceholder3" />
                 </div>
