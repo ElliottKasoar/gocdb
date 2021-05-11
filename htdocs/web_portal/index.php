@@ -187,11 +187,11 @@ function Draw_Page($Page_Type) {
             require_once __DIR__ . '/controllers/project/view_project.php';
             show_project();
             break;
-        case "Scope_Help":
-            //rejectIfNotAuthenticated();
-            require_once __DIR__ . '/controllers/scope_help.php';
-            show_help();
-            break;
+        // case "Scope_Help":
+        //     //rejectIfNotAuthenticated();
+        //     require_once __DIR__ . '/controllers/scope_help.php';
+        //     show_help();
+        //     break;
         case "Scopes":
             require_once __DIR__ . '/controllers/scopes.php';
             show_scopes();
@@ -510,11 +510,11 @@ function Draw_Page($Page_Type) {
             require_once __DIR__.'/controllers/admin/add_project.php';
             add_project();
             break;
-        case "Admin_Scopes":
-            rejectIfNotAuthenticated();
-            require_once __DIR__.'/controllers/admin/scopes.php';
-            show_scopes();
-            break;
+        // case "Admin_Scopes":
+        //     rejectIfNotAuthenticated();
+        //     require_once __DIR__.'/controllers/admin/scopes.php';
+        //     show_scopes();
+        //     break;
         case "Admin_Remove_Scope":
             rejectIfNotAuthenticated();
             require_once __DIR__.'/controllers/admin/delete_scope.php';
