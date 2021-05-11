@@ -525,11 +525,11 @@ function Draw_Page($Page_Type) {
             require_once __DIR__.'/controllers/admin/add_scope.php';
             add_scope();
             break;
-        case "Admin_Scope":
-            rejectIfNotAuthenticated();
-            require_once __DIR__.'/controllers/admin/scope.php';
-            view_scope();
-            break;
+        // case "Admin_Scope":
+        //     rejectIfNotAuthenticated();
+        //     require_once __DIR__.'/controllers/admin/scope.php';
+        //     view_scope();
+        //     break;
         case "Admin_Edit_Scope":
             rejectIfNotAuthenticated();
             require_once __DIR__.'/controllers/admin/edit_scope.php';
