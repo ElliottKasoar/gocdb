@@ -153,11 +153,19 @@
     function getRegExId() {
         var inputAuthType = '#authType';
         var authType = $(inputAuthType).val();
+
+        // Start with slash only?
         if (authType === "IGTF") {
-            var regExId = /^(\/[a-zA-Z]+=[a-zA-Z0-9\-\_\s\.@,'\/]+)+$/;
-            // var regExId = /^(\/[a-zA-Z]+=[a-zA-Z0-9\-\_\s\.@,'\/\)\(]+)+$/;
+            // var regExId = /^(\/[a-zA-Z]+=[a-zA-Z0-9\-\_\s\.@,'\/]+)+$/;
+            // var regExId = /^(\/[a-zA-Z]+=[a-zA-Z0-9\-\_\s\.@,'\/]+)+$/;
+            var regExId = /^\/.+$/;
+
+        // End with @iris.iam.ac.uk only?
         } else if (authType === "IRIS IAM - OIDC") {
-            var regExId = /^([a-f0-9]{8}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{12})@iris\.iam\.ac.uk$/;
+            // var regExId = /^([a-f0-9]{8}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{12})@iris\.iam\.ac.uk$/;
+            var regExId = /^.+@iris\.iam\.ac.uk$/;
+
+        // Remove later
         } else {
             var regExId = /^[^`'\";<>]{0,4000}$/;
         }
@@ -307,7 +315,7 @@
             $("#idPlaceholder").addClass("hidden");
         }
         if (!valid && !empty) {
-            $("#idError").text("You have entered an invalid id for this authentication type");
+            $("#idError").text("You have entered an invalid id for the selected authentication method");
         } else if (empty) {
             $("#idError").text("Please enter the id of the account you want to link to");
         }
