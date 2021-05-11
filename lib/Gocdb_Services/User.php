@@ -559,7 +559,6 @@ class User extends AbstractEntityService{
                 // Validate key value
                 $validateArray['NAME'] = $key;
                 $validateArray['VALUE'] = $value;
-                // $validateArray['USER'] = $user->getId(); // Need to figure out validation?
                 $this->validate($validateArray, 'userproperty');
 
                 $property = new \UserProperty();
