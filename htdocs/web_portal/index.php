@@ -532,7 +532,7 @@ function Draw_Page($Page_Type) {
             require_once __DIR__.'/controllers/admin/delete_ngi.php';
             delete_ngi();
             break;
-        case "User_Validate_ID_Change" :
+        case "User_Validate_DN_Change" :
             rejectIfNotAuthenticated();
             require_once __DIR__ . '/controllers/user/retrieve_account_user_validate.php';
             validate_id_change ();
