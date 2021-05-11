@@ -12,15 +12,14 @@ class LinkAccount extends AbstractEntityService {
      * @param string $email
      */
     public function validate($idString, $authType, $email) {
-        require_once __DIR__ . '/User.php';
-        $userService = new \org\gocdb\services\User();
-        $userService->setEntityManager($this->em);
+
+        $serv = \Factory::getUserService();
 
         // Ideally, the id string and auth type match a user property
-        $user = $userService->getUserByPrincipleAndType($idString, $authType);
+        $user = $serv->getUserByPrincipleAndType($idString, $authType);
         if($user === null) {
             // If no valid user properties, check certificateDNs
-            $user = $userService->getUserFromDn($idString);
+            $user = $serv->getUserFromDn($idString);
             if($user === null) {
                 throw new \Exception("Cannot find user with id $idString and auth type $authType");
             }
@@ -38,16 +37,13 @@ class LinkAccount extends AbstractEntityService {
      */
     public function newLinkAccountRequest($currentIdString, $givenEmail, $primaryIdString, $primaryAuthType, $secondaryAuthType) {
 
-        // Get user who will have the current log-in method added, throw exception if they don't exist
-        require_once __DIR__ . '/User.php';
-        $userService = new \org\gocdb\services\User();
-        $userService->setEntityManager($this->em);
-        
+        $serv = \Factory::getUserService();
+
         // Ideally, the id string and auth type match a user property
-        $primaryUser = $userService->getUserByPrincipleAndType($primaryIdString, $primaryAuthType);
+        $primaryUser = $serv->getUserByPrincipleAndType($primaryIdString, $primaryAuthType);
         if($primaryUser === null) {
             // If no valid user properties, check certificateDNs
-            $primaryUser = $userService->getUserFromDn($primaryIdString);
+            $primaryUser = $serv->getUserFromDn($primaryIdString);
             if($primaryUser === null) {
                 throw new \Exception("Cannot find user with id $primaryIdString and auth type $primaryAuthType");
             }
@@ -61,7 +57,7 @@ class LinkAccount extends AbstractEntityService {
         // $currentUser is user making request
         // Referred to as "secondaryUser" in LinkAccountRequest
         // User may not be registered so don't throw exception if null/no email
-        $currentUser = $userService->getUserByPrinciple($currentIdString);
+        $currentUser = $serv->getUserByPrinciple($currentIdString);
         
         // Check the portal is not in read only mode, throws exception if it is. If portal is read only, but the user linking to another account is an admin, we will still be able to proceed.
         $this->checkPortalIsNotReadOnlyOrUserIsAdmin($currentUser);
@@ -293,16 +289,15 @@ class LinkAccount extends AbstractEntityService {
         try{
             $this->em->getConnection()->beginTransaction();
 
-            $userService = new \org\gocdb\services\User();
-            $userService->setEntityManager($this->em);
-            $userService->addProperties($primaryUser, $propArr, $primaryUser, $preventOverwrite);
+            $serv = \Factory::getUserService();
+            $serv->addProperties($primaryUser, $propArr, $primaryUser, $preventOverwrite);
 
             // If the primary user does not have user properties, need to overwrite certificateDn
             if ($oldUser) {
                 $primaryUser->setCertificateDn($primaryUser->getId());
                 // If linking (so not overwriting), add old id string as property
                 if ($preventOverwrite) {
-                    $userService->addProperties($primaryUser, $propArrOld, $primaryUser);
+                    $serv->addProperties($primaryUser, $propArrOld, $primaryUser);
                 }
             }
 
