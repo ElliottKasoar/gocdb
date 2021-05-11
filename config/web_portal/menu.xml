@@ -42,10 +42,16 @@
       <link>index.php?Page_Type=Services</link>
     </Services>
 
-    <Scopes>
+    <!-- <Scopes>
       <show_on_instance>all</show_on_instance>
       <name>Scopes</name>
       <link>index.php?Page_Type=Scope_Help</link>
+    </Scopes> -->
+
+    <Scopes>
+      <show_on_instance>all</show_on_instance>
+      <name>Scopes</name>
+      <link>index.php?Page_Type=Scopes</link>
     </Scopes>
 
     <RoleActionMappings>
@@ -149,11 +155,11 @@
       <link>index.php?Page_Type=Admin_Move_Site</link>
     </MoveSite>
     
-    <AdminScopes>
+    <!-- <AdminScopes>
 	  <show_on_instance>admin</show_on_instance>
       <name>Scopes</name>
       <link>index.php?Page_Type=Admin_Scopes</link>
-    </AdminScopes>
+    </AdminScopes> -->
     
     <ServiceTypes>
 	  <show_on_instance>admin</show_on_instance>
