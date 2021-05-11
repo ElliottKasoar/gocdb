@@ -11,11 +11,12 @@
                 <br/>
 
                 <div class="form-group" id="authTypeGroup">
-                    <label for="authType">Authentication type:</label>
+                    <label class="control-label" for="authType">Authentication type:</label>
                     <div class="controls">
-                        <select class="form-control"
-                            name="AUTHTYPE" id="selectedAuthType" onchange="updateWarningMessage(); formatAuthType(); formatIdFromAuth();"
-                            size=<?=sizeof($params['AUTHTYPES']);?>>
+                        <select
+                            class="form-control"
+                            name="AUTHTYPE" id="authType" size=<?=sizeof($params['AUTHTYPES']);?>
+                            onchange="updateWarningMessage(); formatAuthType(); formatIdFromAuth();">
                             <?php
                                 foreach ($params['AUTHTYPES'] as $authType) {
                                     echo "<option value=\"" . $authType . "\">" . $authType . "</option>";
@@ -23,7 +24,6 @@
                             ?>
                         </select>
                     </div>
-                    <span id="authTypeError" class="label label-danger hidden"></span>
                     </br>
                     <span class="auth-message hidden" id="authTypeLabel1"></span>
                     </br>
@@ -89,7 +89,6 @@
     $(document).ready(function() {
         // Add the jQuery form change event handlers
         $("#linkAccountForm").find(":input").change(function() {
-            //updateWarningMessage();
             validate();
         });
     });
@@ -97,17 +96,17 @@
     /**
      * Updates the authentication type message
      * Message depends on whether the selected auth type is the same as the auth type currently in use
+     * If auth types are the same, different severity of warnings depending on which type
      *
      * @returns {null}
      */
     function updateWarningMessage() {
-        var selectedAuthType = $('#selectedAuthType').val();
+        var selectedAuthType = $('#authType').val();
         var currentAuthType = "<?=$params['CURRENTAUTHTYPE'];?>";
 
         var authTypeText1 = "";
         var authTypeText2 = "";
         var authTypeText3 = "";
-
         if (selectedAuthType !== null || selectedAuthType !== "") {
             $('#authTypeLabel1').removeClass("hidden");
             $('#authTypeLabel2').removeClass("hidden");
@@ -152,7 +151,7 @@
     }
 
     function getRegExId() {
-        var inputAuthType = '#selectedAuthType';
+        var inputAuthType = '#authType';
         var authType = $(inputAuthType).val();
         if (authType === "IGTF") {
             var regExId = /^(\/[a-zA-Z]+=[a-zA-Z0-9\-\_\s\.@,'\/]+)+$/;
@@ -169,6 +168,9 @@
         return regExEmail = /^(([0-9a-zA-Z]+[-._])*[0-9a-zA-Z]+@([-0-9a-zA-Z]+[.])+[a-zA-Z]{2,6}){1}$/;
     }
 
+    // Validate all inputs on any change
+    // Enable/disabled id string input based on selection of auth type
+    // Enable/disable and format submit button based on all other inputs
     function validate() {
         var idValid = false;
         var emailValid = false;
@@ -176,7 +178,7 @@
 
         // Validate auth type
         var regExAuthType = getRegExAuthType();
-        var inputAuthType = '#selectedAuthType';
+        var inputAuthType = '#authType';
         authTypeValid = isInputValid(regExAuthType, inputAuthType);
         authTypeEmpty = isInputEmpty(inputAuthType);
 
@@ -203,6 +205,9 @@
         }
     }
 
+    // Check if user input is valid based on regex
+    // Input is regex and a selector e.g. '#id'
+    // Returns boolean flag (true if valid)
     function isInputValid(regEx, input) {
         var inputValue = $(input).val();
         var inputValid = false;
@@ -212,6 +217,9 @@
         return inputValid;
     }
 
+    // Check if user input is empty
+    // Input is selector e.g. '#id'
+    // Returns boolean flag (true if empty)
     function isInputEmpty(input) {
         var inputValue = $(input).val();
         var inputEmpty = true;
@@ -221,26 +229,38 @@
         return inputEmpty;
     }
 
+    // Enable id string input if auth type is valid
+    function enableId(valid, empty) {
+        // Disable/enable id string based on auth type validity
+        if(valid && !empty) {
+            $('#primaryId').prop('disabled', false);
+        } else {
+            $('#primaryId').prop('disabled', true);
+        }
+    }
+
+    // Format authentication type input on selecting a value based on validation
+    // Selections should be successful, but invalid/empty formating retained
     function formatAuthType() {
         var regEx = getRegExAuthType();
-        var input = '#selectedAuthType';
+        var input = '#authType';
         var valid = isInputValid(regEx, input);
         var empty = isInputEmpty(input);
 
         if(valid && !empty) {
             $('#authTypeGroup').addClass("has-success");
             $('#authTypeGroup').removeClass("has-error");
-            $('#primaryId').prop('disabled', false);
-            $("#authTypeError").addClass("hidden");
-            $("#authTypeError").text("You have entered an invalid authentication type");
         } else {
             $('#authTypeGroup').removeClass("has-success");
             $('#authTypeGroup').addClass("has-error");
-            $('#primaryId').prop('disabled', true);
-            $("#authTypeError").removeClass("hidden");
         }
+
+        // Enable id string input if auth type is valid
+        enableId(valid, empty);
     }
 
+    // Format id string input on selection of auth type based on validation
+    // Only apply if value has been entered (valid/invalid based on regex)
     function formatIdFromAuth() {
         var regEx = getRegExId();
         var input = '#primaryId';
@@ -267,6 +287,8 @@
         }
     }
 
+    // Format id string input on entering value based on validation
+    // Error if invalid (regex) format or if nothing entered
     function formatId() {
         var regEx = getRegExId();
         var input = '#primaryId';
@@ -291,6 +313,8 @@
         }
     }
 
+    // Format email input on entering a value based on validation
+    // Error if invalid (regex) format or if nothing entered
     function formatEmail() {
         var regEx = getRegExEmail();
         var input = '#email';
