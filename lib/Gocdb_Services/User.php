@@ -364,10 +364,11 @@ class User extends AbstractEntityService{
         // validate the input fields for the user
         $this->validateUser($values);
 
-        // Check the DN isn't already registered
-        $user = $this->getUserByPrinciple($values['CERTIFICATE_DN']);
-        if(!is_null($user)) {
-            throw new \Exception("DN is already registered in GOCDB");
+        // Check the id isn't already registered as certificateDn or user property
+        $oldUser = $this->getUserFromDn($values['CERTIFICATE_DN']);
+        $newUser = $this->getUserByPrinciple($values['CERTIFICATE_DN']);
+        if(!is_null($oldUser) || !is_null($newUser)) {
+            throw new \Exception("Id string is already registered in GOCDB");
         }
 
         //Explicity demarcate our tx boundary
