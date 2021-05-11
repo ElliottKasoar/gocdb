@@ -283,7 +283,7 @@ class User extends AbstractEntityService{
         $this->editUserAuthorization($user, $currentUser);
 
         // validate the input fields for the user
-        $this->validateUser($newValues);
+        $this->validate($newValues, 'user');
 
         //Explicity demarcate our tx boundary
         $this->em->getConnection()->beginTransaction();
@@ -338,11 +338,11 @@ class User extends AbstractEntityService{
      *                   validated. The \Exception message will contain a human
      *                   readable description of which field failed validation.
      * @return null */
-    private function validateUser($userData) {
+    private function validate($userData, $type) {
         require_once __DIR__ .'/Validate.php';
         $serv = new \org\gocdb\services\Validate();
         foreach($userData as $field => $value) {
-            $valid = $serv->validate('user', $field, $value);
+            $valid = $serv->validate($type, $field, $value);
             if(!$valid) {
                 $error = "$field contains an invalid value: $value";
                 throw new \Exception($error);
@@ -364,7 +364,7 @@ class User extends AbstractEntityService{
      */
     public function register($values, $authType) {
         // validate the input fields for the user
-        $this->validateUser($values);
+        $this->validate($values, 'user');
 
         // Check the id isn't already registered as certificateDn or user property
         $oldUser = $this->getUserFromDn($values['CERTIFICATE_DN']);
@@ -423,7 +423,7 @@ class User extends AbstractEntityService{
 
         //Validate the DN
         $dnInAnArray['CERTIFICATE_DN']= $dn;
-        $this->validateUser($dnInAnArray);
+        $this->validate($dnInAnArray, 'user');
 
         //Explicity demarcate our tx boundary
         $this->em->getConnection()->beginTransaction();
@@ -560,7 +560,7 @@ class User extends AbstractEntityService{
                 $validateArray['NAME'] = $key;
                 $validateArray['VALUE'] = $value;
                 // $validateArray['USER'] = $user->getId(); // Need to figure out validation?
-                // $this->validate($validateArray, 'userproperty'); // Need to figure out validation?
+                $this->validate($validateArray, 'userproperty');
 
                 $property = new \UserProperty();
                 $property->setKeyName($key);
@@ -640,8 +640,7 @@ class User extends AbstractEntityService{
      */
     protected function editUserPropertyLogic(\User $user, \UserProperty $prop, $newValues) {
 
-        // Add validation?
-        // $this->validate($newValues['USERPROPERTIES'], 'userproperty');
+        $this->validate($newValues['USERPROPERTIES'], 'userproperty');
 
         // Trim off trailing and leading whitespace
         $keyname = trim($newValues['USERPROPERTIES']['NAME']);
