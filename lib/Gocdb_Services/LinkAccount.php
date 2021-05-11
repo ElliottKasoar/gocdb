@@ -33,7 +33,7 @@ class LinkAccount extends AbstractEntityService {
      * @param \User $primaryUser
      * @param \User $currentUser
      */
-    public function newLinkAccountRequest($currentIdString, $givenEmail, $primaryIdString, $authType) {
+    public function newLinkAccountRequest($currentIdString, $givenEmail, $primaryIdString, $authType, $requestType) {
 
         // Get user who will have the current log-in method added, throw exception if they don't exist
         require_once __DIR__ . '/User.php';
@@ -52,6 +52,15 @@ class LinkAccount extends AbstractEntityService {
         // Check the given email address matches the one given
         if(strcasecmp($primaryUser->getEmail(), $givenEmail)) {
             throw new \Exception("E-mail address doesn't match id");
+        }
+
+        // Check auth types not the same?
+        if ($requestType === 'link'){
+            foreach ($primaryUser->getUserProperties() as $prop){
+                if ($prop->getKeyName() === $authType){
+                    throw new \Exception("$authType id is already set. Use recovery to change it");
+                }
+            }
         }
 
         // $currentUser is user making request
@@ -86,7 +95,7 @@ class LinkAccount extends AbstractEntityService {
         $code = $this->generateConfirmationCode($primaryIdString);
 
         // Create link account request
-        $linkAccountReq = new \LinkAccountRequest($primaryUser, $currentUser, $code, $primaryIdString, $currentIdString, $authType);
+        $linkAccountReq = new \LinkAccountRequest($primaryUser, $currentUser, $code, $primaryIdString, $currentIdString, $authType, $requestType);
 
         //apply change
         try {
@@ -95,7 +104,7 @@ class LinkAccount extends AbstractEntityService {
             $this->em->flush();
 
             // Send email (before commit - if it fails we'll need a rollback)
-            $this->sendConfirmationEmail($primaryUser, $code, $primaryIdString, $currentIdString);
+            $this->sendConfirmationEmail($primaryUser, $code, $primaryIdString, $currentIdString, $requestType);
 
             $this->em->getConnection()->commit();
         } catch(\Exception $ex){
@@ -170,6 +179,49 @@ class LinkAccount extends AbstractEntityService {
         return $request;
     }
 
+
+    /**
+     * Composes confimation email to be sent to the user
+     *
+     * @param type $primaryIdString id string $primaryUser
+     * @param type $currentIdString id string for current user
+     * @param type $requestType account recovery or linking
+     * @param type $portalUrl portalUrl to be clicked
+     * @param type $confirmationCode generated confirmation code
+     * @return arraycollection
+     */
+    private function composeEmail($primaryIdString, $currentIdString, $requestType, $portalUrl, $confirmationCode){
+
+        if ($requestType === 'link'){
+
+            $link = $portalUrl."/index.php?Page_Type=User_Validate_Account_Link&c=".$confirmationCode;
+
+            $subject = "Validation of linking your GOCDB account";
+            $body = "Dear GOCDB User,\n\n"
+            ."A request to link your GOCDB account (account ID: $primaryIdString) and privileges with another "
+                . "account ID has just been made on GOCDB."
+            ."\n\nThe second account ID is: $currentIdString"
+            ."\n\nIf you wish to associate your GOCDB account with this account ID, please validate your request by clicking on the link below:\n"
+            ."$link".
+            "\n\nIf you did not create this request in GOCDB, please immediately contact gocdb-admins@mailman.egi.eu";
+        } elseif ($requestType === 'recover'){
+
+            $link = $portalUrl."/index.php?Page_Type=User_Validate_ID_Change&c=".$confirmationCode;
+
+            $subject = "Validation of recovering your GOCDB account";
+            $body = "Dear GOCDB User,\n\n"
+            ."A request to retrieve and associate your GOCDB account (account ID: $primaryIdString) and privileges with a new "
+                . "account ID has just been made on GOCDB."
+            ."\n\nThe new account ID is: $currentIdString"
+            ."\n\nIf you wish to associate your GOCDB account with this account ID, please validate your request by clicking on the link below:\n"
+            ."$link".
+            "\n\nIf you did not create this request in GOCDB, please immediately contact gocdb-admins@mailman.egi.eu";
+        } else {
+            throw new \Exception("Invalid request type");
+        }
+        return array('subject'=>$subject, 'body'=>$body);
+    }
+
     /**
      * Sends a confimation email to the user
      *
@@ -179,31 +231,20 @@ class LinkAccount extends AbstractEntityService {
      * @param type $currentIdString id string for current user
      * @throws \Exception
      */
-    private function sendConfirmationEmail(\User $primaryUser, $confirmationCode, $primaryIdString, $currentIdString){
-        $portal_url = \Factory::getConfigService()->GetPortalURL();
-        // echo $portal_url;
-       // die();
+    private function sendConfirmationEmail(\User $primaryUser, $confirmationCode, $primaryIdString, $currentIdString, $requestType){
+        $portalUrl = \Factory::getConfigService()->GetPortalURL();
 
-        $link = $portal_url."/index.php?Page_Type=User_Validate_Account_Link&c=".$confirmationCode;
-        $subject = "Validation of linking your GOCDB account";
-        $body = "Dear GOCDB User,\n\n"
-            ."A request to link your GOCDB account (account ID: $primaryIdString) and privileges with another "
-                . "account ID has just been made on GOCDB."
-            ."\n\nThe second account ID is: $currentIdString"
-            ."\n\nIf you wish to associate your GOCDB account with this account ID, please validate your request by clicking on the link below:\n"
-            ."$link".
-            "\n\nIf you did not create this request in GOCDB, please immediately contact gocdb-admins@mailman.egi.eu" ;
-            ;
+        $composedEmail = $this->composeEmail($primaryIdString, $currentIdString, $requestType, $portalUrl, $confirmationCode);
+        $subject = $composedEmail['subject'];
+        $body = $composedEmail['body'];
+
         // If "sendmail_from" is set in php.ini, use second line ($headers = '';):
         $headers = "From: no-reply@goc.egi.eu";
-        // $headers = "";
 
         // Mail command returns boolean. False if message not accepted for delivery.
         if (!mail($primaryUser->getEmail(), $subject, $body, $headers)){
             throw new \Exception("Unable to send email message");
         }
-
-        // echo $body;
     }
 
     public function confirmAccountLinking ($code, $currentId){
@@ -223,7 +264,16 @@ class LinkAccount extends AbstractEntityService {
 
         // Check the id currently being used by the user is same as in the request
         if($currentId !== $request->getSecondaryIdString()){
-            // throw new Exception("Your current ID does not match the one to which requested be linked. The link will only work once, if you have refreshed the page or clicked the link a second time you will see this messaage"); //TODO: reword
+            throw new Exception("Your current ID does not match the one to which requested be linked. The link will only work once, if you have refreshed the page or clicked the link a second time you will see this messaage"); //TODO: reword
+        }
+
+        $requestType = $request->getRequestType();
+        if ($requestType === 'link'){
+            $preventOverwrite = true;
+        } elseif ($requestType === 'recover'){
+            $preventOverwrite = false;
+        } else {
+            throw new \Exception("Invalid request type");
         }
 
         // Add property array
@@ -240,14 +290,18 @@ class LinkAccount extends AbstractEntityService {
 
             $userService = new \org\gocdb\services\User();
             $userService->setEntityManager($this->em);
-            $userService->addProperties($primaryUser, $propArr, $primaryUser);
+            $userService->addProperties($primaryUser, $propArr, $primaryUser, $preventOverwrite);
+            $primaryUser->setCertificateDn($primaryUser->getId());
+            $this->em->persist($primaryUser);
 
             if ($secondaryUser !== null){
+                // What if they register and add roles after requesting the link?
                 $roles = $secondaryUser->getRoles();
                 foreach ($roles as $role){
                     $roleTypeName = $role->getRoleType()->getName();
                     $entity = $role->getOwnedEntity();
                     $oldRole = \Factory::getRoleService()->revokeRole($role, $secondaryUser);
+                    // Need to check if already added
                     $newRole = \Factory::getRoleService()->addRole($roleTypeName, $primaryUser, $entity);
                 }
                 $this->em->remove($secondaryUser);

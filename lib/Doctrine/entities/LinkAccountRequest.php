@@ -39,13 +39,17 @@ class LinkAccountRequest {
     /** @Column(type="string") */
     protected $authType;
 
-    public function __construct(\User $primaryUser, $secondaryUser, $code, $primaryIdString, $secondaryIdString, $authType) {
+    /** @Column(type="string") */
+    protected $requestType;
+
+    public function __construct(\User $primaryUser, \User $secondaryUser, $code, $primaryIdString, $secondaryIdString, $authType, $requestType) {
         $this->setPrimaryUser($primaryUser);
         $this->setSecondaryUser($secondaryUser);
         $this->setConfirmCode($code);
         $this->setPrimaryIdString($primaryIdString);
         $this->setSecondaryIdString($secondaryIdString);
         $this->setAuthType($authType);
+        $this->setRequestType($requestType);
     }
 
     /**
@@ -107,6 +111,14 @@ class LinkAccountRequest {
     }
 
     /**
+     * Get the request type (recover or link).
+     * @return string
+     */
+    public function getRequestType() {
+        return $this->requestType;
+    }
+
+    /**
      * Set the primary user.
      * @param \User $primaryUser
      */
@@ -154,5 +166,13 @@ class LinkAccountRequest {
      */
     public function setAuthType($authType) {
         $this->authType = $authType;
+    }
+
+    /**
+     * Set the request type.
+     * @param string $requestType
+     */
+    public function setRequestType($requestType) {
+        $this->requestType = $requestType;
     }
 }
