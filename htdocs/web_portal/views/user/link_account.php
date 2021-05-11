@@ -29,7 +29,7 @@
                     </br>
                     <span class="auth-message hidden" id="authTypeLabel2"></span>
                     </br>
-                    <span class="auth-message auth-warning-extreme hidden" id="authTypeLabel3"></span>
+                    <span class="auth-message auth-warning-severe hidden" id="authTypeLabel3"></span>
                     <br class="authPlaceholder" id="authPlaceholder3" />
                 </div>
 
@@ -79,7 +79,7 @@
     .auth-warning {
         color: red;
     }
-    .auth-warning-extreme {
+    .auth-warning-severe {
         font-style: italic;
     }
 </style>
@@ -122,7 +122,7 @@
             authTypeText2 += 'If you submit and confirm this request, your old id will be overwritten and ';
             authTypeText2 += 'you will no longer be able to login using it. Are you sure you wish to proceed?';
 
-            // Stronger warning for certain types. Certificates will be less extreme?
+            // Stronger warning for certain types. Certificates will be less severe?
             if (selectedAuthType === "IGTF") {
                 authTypeText3 += 'Certificates sometimes expire...';
                 $('#authTypeLabel3').removeClass("hidden");
@@ -155,8 +155,10 @@
         var inputAuthType = '#selectedAuthType';
         var authType = $(inputAuthType).val();
         if (authType === "IGTF") {
-            // var regExId = /^(([0-9a-zA-Z]+[-._])*[0-9a-zA-Z]+@([-0-9a-zA-Z]+[.])+[a-zA-Z]{2,6}){1}$/;
-            var regExId = /^(\/[a-zA-Z]+=[a-zA-Z0-9\-\_\s\.@,'\/\)\(]+)+$/;
+            var regExId = /^(\/[a-zA-Z]+=[a-zA-Z0-9\-\_\s\.@,'\/]+)+$/;
+            // var regExId = /^(\/[a-zA-Z]+=[a-zA-Z0-9\-\_\s\.@,'\/\)\(]+)+$/;
+        } else if (authType === "IRIS IAM - OIDC") {
+            var regExId = /^([a-f0-9]{8}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{12})@iris\.iam\.ac.uk$/;
         } else {
             var regExId = /^[^`'\";<>]{0,4000}$/;
         }

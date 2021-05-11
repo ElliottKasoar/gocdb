@@ -40,7 +40,7 @@ function draw() {
 
     $params['IDSTRING'] = $id;
     $params['CURRENTAUTHTYPE'] = $authType;
-    $params['AUTHTYPES'] = ['IGTF', 'FAKE'];
+    $params['AUTHTYPES'] = ['IGTF', 'IRIS IAM - OIDC', 'FAKE'];
 
     show_view('user/link_account.php', $params, 'Link Account');
 }
