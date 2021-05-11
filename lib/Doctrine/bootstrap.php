@@ -40,6 +40,7 @@ require_once $entitiesPath."/EndpointProperty.php";
 require_once $entitiesPath."/RoleActionRecord.php";
 require_once $entitiesPath."/APIAuthentication.php";
 require_once $entitiesPath."/UserProperty.php";
+require_once $entitiesPath."/LinkAccountRequest.php";
 
 //if (!class_exists("Doctrine\Common\Version", false)) {
 //    require_once __DIR__."/bootstrap_doctrine.php";
