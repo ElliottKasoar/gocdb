@@ -185,17 +185,15 @@ class LinkAccount extends AbstractEntityService {
      * @param type $primaryIdString id string $primaryUser
      * @param type $currentIdString id string for current user
      * @param type $requestType account recovery or linking
-     * @param type $portalUrl portalUrl to be clicked
-     * @param type $confirmationCode generated confirmation code
+     * @param type $link to be clicked
      * @return arraycollection
      */
-    private function composeEmail($primaryIdString, $currentIdString, $requestType, $portalUrl, $confirmationCode){
+    private function composeEmail($primaryIdString, $currentIdString, $requestType, $link){
 
         if ($requestType === 'link'){
 
-            $link = $portalUrl."/index.php?Page_Type=User_Validate_Account_Link&c=".$confirmationCode;
-
             $subject = "Validation of linking your GOCDB account";
+
             $body = "Dear GOCDB User,\n\n"
             ."A request to link your GOCDB account (account ID: $primaryIdString) and privileges with another "
                 . "account ID has just been made on GOCDB."
@@ -203,11 +201,11 @@ class LinkAccount extends AbstractEntityService {
             ."\n\nIf you wish to associate your GOCDB account with this account ID, please validate your request by clicking on the link below:\n"
             ."$link".
             "\n\nIf you did not create this request in GOCDB, please immediately contact gocdb-admins@mailman.egi.eu";
+
         } elseif ($requestType === 'recover'){
 
-            $link = $portalUrl."/index.php?Page_Type=User_Validate_ID_Change&c=".$confirmationCode;
-
             $subject = "Validation of recovering your GOCDB account";
+
             $body = "Dear GOCDB User,\n\n"
             ."A request to retrieve and associate your GOCDB account (account ID: $primaryIdString) and privileges with a new "
                 . "account ID has just been made on GOCDB."
@@ -215,6 +213,7 @@ class LinkAccount extends AbstractEntityService {
             ."\n\nIf you wish to associate your GOCDB account with this account ID, please validate your request by clicking on the link below:\n"
             ."$link".
             "\n\nIf you did not create this request in GOCDB, please immediately contact gocdb-admins@mailman.egi.eu";
+
         } else {
             throw new \Exception("Invalid request type");
         }
@@ -232,8 +231,8 @@ class LinkAccount extends AbstractEntityService {
      */
     private function sendConfirmationEmail(\User $primaryUser, $confirmationCode, $primaryIdString, $currentIdString, $requestType){
         $portalUrl = \Factory::getConfigService()->GetPortalURL();
-
-        $composedEmail = $this->composeEmail($primaryIdString, $currentIdString, $requestType, $portalUrl, $confirmationCode);
+        $link = $portalUrl."/index.php?Page_Type=User_Validate_Account_Link&c=".$confirmationCode;
+        $composedEmail = $this->composeEmail($primaryIdString, $currentIdString, $requestType, $link);
         $subject = $composedEmail['subject'];
         $body = $composedEmail['body'];
 
@@ -266,7 +265,6 @@ class LinkAccount extends AbstractEntityService {
             throw new \Exception("Your current ID does not match the one to which requested be linked. The link will only work once, if you have refreshed the page or clicked the link a second time you will see this messaage"); //TODO: reword
         }
 
-
         if ($request->getPrimaryAuthType() === $request->getSecondaryAuthType()){
             $preventOverwrite = false;
         } else {
@@ -291,15 +289,7 @@ class LinkAccount extends AbstractEntityService {
             $this->em->persist($primaryUser);
 
             if ($secondaryUser !== null){
-                // What if they register and add roles after requesting the link?
-                $roles = $secondaryUser->getRoles();
-                foreach ($roles as $role){
-                    $roleTypeName = $role->getRoleType()->getName();
-                    $entity = $role->getOwnedEntity();
-                    $oldRole = \Factory::getRoleService()->revokeRole($role, $secondaryUser);
-                    // Need to check if already added
-                    $newRole = \Factory::getRoleService()->addRole($roleTypeName, $primaryUser, $entity);
-                }
+                $mergeRoles = \Factory::getRoleService()->mergeRole($primaryUser, $secondaryUser);
                 $this->em->remove($secondaryUser);
             }
             $this->em->remove($request);

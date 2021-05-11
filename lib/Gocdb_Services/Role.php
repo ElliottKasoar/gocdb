@@ -521,6 +521,9 @@ class Role extends AbstractEntityService{
             $r = new \Role($roleType, $user, $entity, $roleStatus);
             $this->em->persist($r);
 
+            // Ensure roleId has been generated
+            $this->em->flush();
+
             // create a RoleActionRecord after role has been persisted (to get id)
             $rar = \RoleActionRecord::construct($user, $r, \RoleStatus::PENDING);
             $this->em->persist($rar);
@@ -697,6 +700,73 @@ class Role extends AbstractEntityService{
             $this->em->getConnection()->rollback();
             $this->em->close();
             throw $e;
+        }
+    }
+
+    /**
+     * Calling (current) user attempts to merge roles with another
+     * (primary) user.
+     * Logic is handled by a seperate function.
+     *
+     * @param \User $primaryUser
+     * @param \User $currentUser
+     */
+    public function mergeRole(\User $primaryUser, \User $currentUser){
+
+        //Check the portal is not in read only mode, throws exception if it is
+        $this->checkPortalIsNotReadOnlyOrUserIsAdmin($currentUser);
+
+        $this->em->getConnection()->beginTransaction();
+        try {
+            $this->mergeRoleLogic($primaryUser, $currentUser);
+            $this->em->flush();
+            $this->em->getConnection()->commit();
+        } catch (\Exception $e) {
+            $this->em->getConnection()->rollback();
+            $this->em->close();
+            throw $e;
+        }
+    }
+
+    /**
+     * Logic to merge current user's roles with another user
+     * If successful, any roles the current user has are given
+     * to the primary user.
+     * It is logged that the roles are revoked from current user
+     * and granted to the primary user.
+     * Todo: change the updatedby for both logs e.g. to GOCDB.
+     *
+     * @param \User $primaryUser
+     * @param \User $currentUser
+     */
+    protected function mergeRoleLogic(\User $primaryUser, \User $currentUser){
+
+        $roles = $currentUser->getRoles();
+        foreach ($roles as $role){
+
+            $roleTypeName = $role->getRoleType()->getName();
+            $entity = $role->getOwnedEntity();
+            $status = $role->getStatus();
+
+            // Check to see if user already has the same type of role GRANTED over entity
+            if (in_array($roleTypeName, $this->getUserRoleNamesOverEntity($entity, $primaryUser, \RoleStatus::GRANTED))) {
+                continue;
+            }
+            // Check to see if user already has the same type of role PENDING over entity
+            if (in_array($roleTypeName, $this->getUserRoleNamesOverEntity($entity, $primaryUser, \RoleStatus::PENDING))) {
+                continue;
+            }
+
+            // create a RoleActionRecord after role has been persisted (to get id)
+            $revokedRecord = \RoleActionRecord::construct($currentUser, $role, \RoleStatus::REVOKED);
+            $this->em->persist($revokedRecord);
+
+            $role->setUser($primaryUser);
+            $this->em->persist($role);
+
+            // create a RoleActionRecord after role has been persisted (to get id)
+            $grantedRecord = \RoleActionRecord::construct($primaryUser, $role, $status);
+            $this->em->persist($grantedRecord);
         }
     }
 
