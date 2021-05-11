@@ -33,7 +33,7 @@ class LinkAccount extends AbstractEntityService {
      * @param \User $primaryUser
      * @param \User $currentUser
      */
-    public function newLinkAccountRequest($currentIdString, $givenEmail, $primaryIdString, $authType, $requestType) {
+    public function newLinkAccountRequest($currentIdString, $givenEmail, $primaryIdString, $primaryAuthType, $secondaryAuthType) {
 
         // Get user who will have the current log-in method added, throw exception if they don't exist
         require_once __DIR__ . '/User.php';
@@ -52,15 +52,6 @@ class LinkAccount extends AbstractEntityService {
         // Check the given email address matches the one given
         if(strcasecmp($primaryUser->getEmail(), $givenEmail)) {
             throw new \Exception("E-mail address doesn't match id");
-        }
-
-        // Check auth types not the same?
-        if ($requestType === 'link'){
-            foreach ($primaryUser->getUserProperties() as $prop){
-                if ($prop->getKeyName() === $authType){
-                    throw new \Exception("$authType id is already set. Use recovery to change it");
-                }
-            }
         }
 
         // $currentUser is user making request
@@ -95,7 +86,14 @@ class LinkAccount extends AbstractEntityService {
         $code = $this->generateConfirmationCode($primaryIdString);
 
         // Create link account request
-        $linkAccountReq = new \LinkAccountRequest($primaryUser, $currentUser, $code, $primaryIdString, $currentIdString, $authType, $requestType);
+        $linkAccountReq = new \LinkAccountRequest($primaryUser, $currentUser, $code, $primaryIdString, $currentIdString, $primaryAuthType, $secondaryAuthType);
+
+        // Recovery or account linking
+        if ($primaryAuthType === $secondaryAuthType){
+            $requestType = 'recover';
+        } else {
+            $requestType = 'link';
+        }
 
         //apply change
         try {
@@ -104,6 +102,7 @@ class LinkAccount extends AbstractEntityService {
             $this->em->flush();
 
             // Send email (before commit - if it fails we'll need a rollback)
+            // Todo: add auth types to email?
             $this->sendConfirmationEmail($primaryUser, $code, $primaryIdString, $currentIdString, $requestType);
 
             $this->em->getConnection()->commit();
@@ -264,21 +263,18 @@ class LinkAccount extends AbstractEntityService {
 
         // Check the id currently being used by the user is same as in the request
         if($currentId !== $request->getSecondaryIdString()){
-            throw new Exception("Your current ID does not match the one to which requested be linked. The link will only work once, if you have refreshed the page or clicked the link a second time you will see this messaage"); //TODO: reword
+            throw new \Exception("Your current ID does not match the one to which requested be linked. The link will only work once, if you have refreshed the page or clicked the link a second time you will see this messaage"); //TODO: reword
         }
 
-        $requestType = $request->getRequestType();
-        if ($requestType === 'link'){
-            $preventOverwrite = true;
-        } elseif ($requestType === 'recover'){
+
+        if ($request->getPrimaryAuthType() === $request->getSecondaryAuthType()){
             $preventOverwrite = false;
         } else {
-            throw new \Exception("Invalid request type");
+            $preventOverwrite = true;
         }
 
-        // Add property array
-        // Move addProperties into try?
-        $propArr = array(array($request->getAuthType(), $request->getSecondaryIdString()));
+        // Create user property array to be added
+        $propArr = array(array($request->getSecondaryAuthType(), $request->getSecondaryIdString()));
         require_once __DIR__ . '/User.php';
 
         // deleteUser function - but won't work if not that user
