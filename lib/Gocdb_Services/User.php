@@ -389,13 +389,12 @@ class User extends AbstractEntityService{
             $this->em->persist($user);
             $this->em->flush();
             $serv->addProperties($user, $propArr, $user);
-            $user->setCertificateDn($user->getId());
             $this->em->flush();
             $this->em->getConnection()->commit();
-        } catch (\Exception $ex) {
+        } catch (\Exception $e) {
             $this->em->getConnection()->rollback();
             $this->em->close();
-            throw $ex;
+            throw $e;
         }
         return $user;
     }
@@ -504,8 +503,7 @@ class User extends AbstractEntityService{
         //Check the portal is not in read only mode, throws exception if it is
         $this->checkPortalIsNotReadOnlyOrUserIsAdmin($user);
 
-        // Validate the user has permission to add properties
-        // Check to see whether the current user can edit this user?
+        // Check to see whether the current user can edit this user
         $this->editUserAuthorization($user, $currentUser);
 
         //Add the properties
@@ -531,36 +529,34 @@ class User extends AbstractEntityService{
     protected function addPropertiesLogic(\User $user, array $propArr, $preventOverwrite=true) {
         $existingProperties = $user->getUserProperties();
 
-        //We will use this variable to track the keys as we go along, this will be used check they are all unique later
-        $keys=array();
+        // We will use this variable to track the keys as we go along, this will be used check they are all unique later
+        $keys = array();
 
-        //We will use this variable to track the final number of properties and ensure we do not exceede the specified limit
+        // We will use this variable to track the final number of properties and ensure we do not exceede the specified limit
         $propertyCount = sizeof($existingProperties);
 
         foreach ($propArr as $i => $prop) {
-            /*Trim off trailing and leading whitspace - as we currently don't want this.
-            *The input array is awkwardly formatted as keys didn't use to have to be unique.
-            */
+            // Trim off trailing and leading whitespace
             $key = trim($prop[0]);
             $value = trim($prop[1]);
 
-            /*Find out if a property with the provided key already exists, if
-            *we are preventing overwrites, this will be a problem. If we are not,
-            *we will want to edit the existing property later, rather than create it.
+            /* Find out if a property with the provided key already exists, if
+            * we are preventing overwrites, this will be a problem. If we are not,
+            * we will want to edit the existing property later, rather than create it.
             */
             $property = null;
             foreach ($existingProperties as $existProp) {
-                if ($existProp->getKeyName() == $key) {
+                if ($existProp->getKeyName() === $key) {
                     $property = $existProp;
                 }
             }
 
-            /*If the property doesn't already exist, we add it. If it exists
-            *and we are not preventing overwrites, we edit the existing one.
-            *If it exists and we are preventing overwrites, we throw an exception
+            /* If the property doesn't already exist, we add it. If it exists
+            * and we are not preventing overwrites, we edit the existing one.
+            * If it exists and we are preventing overwrites, we throw an exception
             */
             if (is_null($property)) {
-                //validate key value
+                // Validate key value
                 $validateArray['NAME'] = $key;
                 $validateArray['VALUE'] = $value;
                 // $validateArray['USER'] = $user->getId(); // Need to figure out validation?
@@ -577,7 +573,7 @@ class User extends AbstractEntityService{
                     $this->em->persist($user);
                 }
 
-                //increment the property counter to enable check against property limit
+                // Increment the property counter to enable check against property limit
                 $propertyCount++;
             } elseif (!$preventOverwrite) {
                 $this->editUserPropertyLogic($user, $property, array('USERPROPERTIES'=>array('NAME'=>$key,'VALUE'=>$value)));
@@ -585,25 +581,25 @@ class User extends AbstractEntityService{
                 throw new \Exception("A property with name \"$key\" already exists for this object, no properties were added.");
             }
 
-            //Add the key to the keys array, to enable unique check
-            $keys[]=$key;
+            // Add the key to the keys array, to enable unique check
+            $keys[] = $key;
         }
 
-        //Keys should be unique, create an exception if they are not
-        if(count(array_unique($keys))!=count($keys)) {
+        // Keys should be unique, create an exception if they are not
+        if(count(array_unique($keys)) !== count($keys)) {
             throw new \Exception(
                 "Property names should be unique. The requested new properties include multiple properties with the same name."
             );
         }
 
-        //Check to see if adding the new properties will exceed the max limit defined in local_info.xml, and throw an exception if so
+        // Check to see if adding the new properties will exceed the max limit defined in local_info.xml, and throw an exception if so
         $extensionLimit = \Factory::getConfigService()->getExtensionsLimit();
-        if ($propertyCount > $extensionLimit){
+        if ($propertyCount > $extensionLimit) {
             throw new \Exception("Property(s) could not be added due to the property limit of $extensionLimit");
         }
     }
 
-        /**
+    /**
      * Edit a user's property.
      *
      * @param \User $user
@@ -612,29 +608,28 @@ class User extends AbstractEntityService{
      * @param array $newValues
      * @throws \Exception
      */
-    public function editUserProperty(\User $user, $prop, \User $currentUser,\UserProperty $prop, $newValues) {
+    public function editUserProperty(\User $user, $prop, \User $currentUser, \UserProperty $prop, $newValues) {
         // Check the portal is not in read only mode, throws exception if it is
-        $this->checkPortalIsNotReadOnlyOrUserIsAdmin ($currentUser);
+        $this->checkPortalIsNotReadOnlyOrUserIsAdmin($currentUser);
 
-        // Validate the user has permission to add properties
-        // Check to see whether the current user can edit this user?
+        // Check to see whether the current user can edit this user
         $this->editUserAuthorization($user, $currentUser);
 
-        //Make the change
+        // Make the change
         $this->em->getConnection()->beginTransaction();
         try {
             $this->editUserPropertyLogic($user, $prop, $newValues);
             $this->em->flush ();
             $this->em->getConnection ()->commit();
-        } catch ( \Exception $ex ) {
+        } catch (\Exception $e) {
             $this->em->getConnection ()->rollback();
             $this->em->close ();
-            throw $ex;
+            throw $e;
         }
     }
 
     /**
-     * All the logic to edit a user's property, without the user validation.
+     * Logic to edit a user's property, without the user validation.
      * A check is performed to confirm the given property is from the parent user
      * specified by the request, and an exception is thrown if this is not the case.
      *
@@ -648,31 +643,31 @@ class User extends AbstractEntityService{
         // Add validation?
         // $this->validate($newValues['USERPROPERTIES'], 'userproperty');
 
-        //We don't currently want trailing or leading whitespace, so we trim it
+        // Trim off trailing and leading whitespace
         $keyname = trim($newValues['USERPROPERTIES']['NAME']);
-        $keyvalue = trim($newValues ['USERPROPERTIES'] ['VALUE']);
+        $keyvalue = trim($newValues['USERPROPERTIES']['VALUE']);
 
-        //Check that the prop is from the user
-        if ($prop->getParentUser() != $user){
+        // Check that the prop is from the user
+        if ($prop->getParentUser() !== $user) {
             $id = $prop->getId();
             throw new \Exception("Property {$id} does not belong to the specified user");
         }
 
-        //If the properties key has changed, check there isn't an existing property with that key
-        if ($keyname != $prop->getKeyName()){
+        // If the properties key has changed, check there isn't an existing property with that key
+        if ($keyname !== $prop->getKeyName()) {
             $existingProperties = $user->getUserProperties();
             foreach ($existingProperties as $existingProp) {
-                if ($existingProp->getKeyName() == $keyname) {
+                if ($existingProp->getKeyName() === $keyname) {
                     throw new \Exception("A property with that name already exists for this object");
                 }
             }
         }
 
-        // Set the user propertys new member variables
-        $prop->setKeyName ($keyname);
-        $prop->setKeyValue ($keyvalue);
+        // Set the user property values
+        $prop->setKeyName($keyname);
+        $prop->setKeyValue($keyvalue);
 
-        $this->em->merge ($prop);
+        $this->em->merge($prop);
     }
 
     /**
