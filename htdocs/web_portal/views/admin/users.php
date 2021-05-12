@@ -52,10 +52,10 @@
             </div>
 
             <div class="topMargin leftFloat siteFilter">
-                <span class="middle" style="margin-right: 0.4em">Certificate DN: </span>
-                <input class="middle" style="width: 11em;" type="text" name="DN"
-                    <?php if(isset($params['DN']))
-                        xecho("value=".$params['DN']);
+                <span class="middle" style="margin-right: 0.4em">ID String: </span>
+                <input class="middle" style="width: 11em;" type="text" name="IdString"
+                    <?php if(isset($params['IdString']))
+                        xecho("value=".$params['IdString']);
                     ?>
                 />
             </div>
@@ -80,7 +80,7 @@
             <table class="vSiteResults" id="selectedSETable">
                 <tr class="site_table_row_1">
                     <th class="site_table">Name</th>
-                    <th class="site_table">Certificate DN</th>
+                    <th class="site_table">ID String</th>
                     <th class="site_table">GOCDB<br>Admin.?</th>
                 </tr>
                 <?php
@@ -140,7 +140,7 @@
             <div style="margin-right: 0.4em">
                 <br>
                 &nbsp; Click on a user's name to view more details, or to edit or
-                delete them. Click on their DN to update it.
+                delete them. Click on their ID string to update it.
                 <!-- Click on the tick or cross to promote them to or demote them from GOCDB admin status-->
             </div>
 

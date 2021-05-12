@@ -61,7 +61,7 @@ function draw() {
     $params["Title"] = $user->getTitle();
     $params["Forename"] = $user->getForename();
     $params["Surname"] = $user->getSurname();
-    $params["CertDN"] = $user->getCertificateDn();
+    $params["IdString"] = $user->getCertificateDn();
 
     //show the edit user property view
     show_view("admin/edit_user_property.php", $params, "Edit ID string");
@@ -80,7 +80,7 @@ function submit() {
 
     //Get the posted service type data
    $userID = $_REQUEST['ID'];
-   $newIdString = $_REQUEST['IDSTRING'];
+   $newIdString = $_REQUEST['IdString'];
    $user = $serv->getUser($userID);
 
     //get the user data for the edit user property function (so it can check permissions)
