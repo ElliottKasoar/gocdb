@@ -117,8 +117,16 @@ function submit() {
     $newAuthType = $_REQUEST['authType'];
 
     $user = $serv->getUser($userID);
-    $property = $serv->getProperty($propertyID);
-    $newValues = array('USERPROPERTIES'=>array('NAME'=>$newAuthType,'VALUE'=>$newIdString));
+
+    // If property exists, fetch and prepare updated values for edit
+    $property = null;
+    if ($propertyID !== "") {
+        $property = $serv->getProperty($propertyID);
+        $newValues = array('USERPROPERTIES' => array('NAME' => $newAuthType, 'VALUE' => $newIdString));
+    } else {
+        // Prepare new values to add
+        $propArr = array(array($newAuthType, $newIdString));
+    }
 
     // Get the user data for the edit user property function (so it can check permissions)
     $currentIdString = Get_User_Principle();
@@ -126,7 +134,11 @@ function submit() {
 
     try {
         // Function will through error if user does not have the correct permissions
-        $serv->editUserProperty($user, $currentUser, $property, $newValues);
+        if ($property !== null) {
+            $serv->editUserProperty($user, $currentUser, $property, $newValues);
+        } else {
+            $serv->addProperties($user, $propArr, $currentUser);
+        }
 
         $params = array('Name' => $user->getForename() . " " . $user->getSurname(),
                         'ID' => $user->getId());
