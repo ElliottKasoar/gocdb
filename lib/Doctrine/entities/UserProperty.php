@@ -31,7 +31,7 @@ class UserProperty {
     /** @Column(type="string", nullable=false) */
     protected $keyName = null;
 
-    /** @Column(type="string", nullable=true) */
+    /** @Column(type="string", nullable=true, unique=true) */
     protected $keyValue = null;
 
     public function __construct(){
