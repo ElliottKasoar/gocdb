@@ -100,15 +100,29 @@
                         </div>
                     </td>
 
+                    <?php if (sizeof($user->getUserProperties()) > 0) { ?>
+                    <?php foreach ($user->getUserProperties() as $i => $prop) { ?>
                     <td class="site_table">
                         <div style="background-color: inherit;">
                             <span style="vertical-align: middle;">
-                                <a href="index.php?Page_Type=Admin_Edit_User_Property&amp;id=<?php echo $user->getId() ?>">
-                                    <?php xecho($user->getCertificateDn()); ?>
+                                <a href="index.php?Page_Type=Admin_Edit_User_Property&amp;id=<?=$user->getId();?>">
+                                    <?php xecho($prop->getKeyName() . ": " . $prop->getKeyValue());?>
+                                    <?php echo '<br>'; ?>
                                 </a>
                             </span>
                         </div>
                     </td>
+                    <?php }} else { ?>
+                    <td class="site_table">
+                        <div style="background-color: inherit;">
+                            <span style="vertical-align: middle;">
+                                <a href="index.php?Page_Type=Admin_Edit_User_Property&amp;id=<?=$user->getId();?>">
+                                    <?php xecho("Certificate DN (legacy): " . $user->getCertificateDn()); ?>
+                                </a>
+                            </span>
+                        </div>
+                    </td>
+                    <?php } ?>
 
                     <td class="site_table">
                         <!--<a href="index.php?Page_Type=Admin_Change_User_Admin_Status&amp;id=<?php echo $user->getId() ?>">-->
