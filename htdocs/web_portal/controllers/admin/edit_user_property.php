@@ -78,6 +78,11 @@ function draw() {
         $params["IdString"] = $property->getKeyValue();
         $params["authType"] = $property->getKeyName();
 
+        // Check property belongs to user
+        if ($user !== $serv->getUserByPrinciple($params["IdString"])) {
+            throw new \Exception("The ID string must belong to the user");
+        }
+
     } else {
         // Use certificateDN
         $params["propertyId"] = null;
