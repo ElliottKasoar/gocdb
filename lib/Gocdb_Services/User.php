@@ -74,9 +74,9 @@ class User extends AbstractEntityService{
             return null;
         }
 
-        $dql = "SELECT u FROM User u JOIN u.userProperties up WHERE up.keyValue = :keyvalue";
+        $dql = "SELECT u FROM User u JOIN u.userProperties up WHERE up.keyValue = :keyValue";
         $user = $this->em->createQuery($dql)
-                  ->setParameters(array('keyvalue' => $userPrinciple))
+                  ->setParameters(array('keyValue' => $userPrinciple))
                   ->getOneOrNullResult();
 
         return $user;
@@ -94,10 +94,10 @@ class User extends AbstractEntityService{
         }
 
         $dql = "SELECT u FROM User u JOIN u.userProperties up
-                WHERE up.keyName = :keyname
-                AND up.keyValue = :keyvalue";
+                WHERE up.keyName = :keyName
+                AND up.keyValue = :keyValue";
         $user = $this->em->createQuery($dql)
-                  ->setParameters(array('keyname' => $authType, 'keyvalue' => $userPrinciple))
+                  ->setParameters(array('keyName' => $authType, 'keyValue' => $userPrinciple))
                   ->getOneOrNullResult();
 
         return $user;
@@ -653,16 +653,16 @@ class User extends AbstractEntityService{
         $this->validate($newValues['USERPROPERTIES'], 'userproperty');
 
         // Trim off trailing and leading whitespace
-        $keyname = trim($newValues['USERPROPERTIES']['NAME']);
-        $keyvalue = trim($newValues['USERPROPERTIES']['VALUE']);
+        $keyName = trim($newValues['USERPROPERTIES']['NAME']);
+        $keyValue = trim($newValues['USERPROPERTIES']['VALUE']);
 
         // Check the property has changed
-        if($keyname === $prop->getKeyName() && $keyvalue === $prop->getKeyValue()) {
+        if($keyName === $prop->getKeyName() && $keyValue === $prop->getKeyValue()) {
             throw new \Exception("The specified user property is the same as the current user property");
         }
 
         // Check the ID string is unique
-        if(!is_null($this->getUserByPrinciple($keyvalue))) {
+        if(!is_null($this->getUserByPrinciple($keyValue))) {
             throw new \Exception("ID string is already registered in GOCDB");
         }
 
@@ -673,18 +673,18 @@ class User extends AbstractEntityService{
         }
 
         // If the properties key has changed, check there isn't an existing property with that key
-        if ($keyname !== $prop->getKeyName()) {
+        if ($keyName !== $prop->getKeyName()) {
             $existingProperties = $user->getUserProperties();
             foreach ($existingProperties as $existingProp) {
-                if ($existingProp->getKeyName() === $keyname) {
+                if ($existingProp->getKeyName() === $keyName) {
                     throw new \Exception("A property with that name already exists for this object");
                 }
             }
         }
 
         // Set the user property values
-        $prop->setKeyName($keyname);
-        $prop->setKeyValue($keyvalue);
+        $prop->setKeyName($keyName);
+        $prop->setKeyValue($keyValue);
 
         $this->em->merge($prop);
     }
