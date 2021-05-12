@@ -656,6 +656,16 @@ class User extends AbstractEntityService{
         $keyname = trim($newValues['USERPROPERTIES']['NAME']);
         $keyvalue = trim($newValues['USERPROPERTIES']['VALUE']);
 
+        // Check the property has changed
+        if($keyname === $prop->getKeyName() && $keyvalue === $prop->getKeyValue()) {
+            throw new \Exception("The specified user property is the same as the current user property");
+        }
+
+        // Check the ID string is unique
+        if(!is_null($this->getUserByPrinciple($keyvalue))) {
+            throw new \Exception("ID string is already registered in GOCDB");
+        }
+
         // Check that the prop is from the user
         if ($prop->getParentUser() !== $user) {
             $id = $prop->getId();
