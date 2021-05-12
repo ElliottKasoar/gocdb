@@ -8,7 +8,9 @@ if ($params['propertyId'] === null) {
     <h1>Update User Property</h1>
     <br />
     <br />
-    The ID string for
+    The
+    <b><?php echo xssafe($params['authType'])?></b>
+    ID string for
     <b><?php echo xssafe($params['Title']) ." ". xssafe($params['Forename']) ." ". xssafe($params['Surname']) ?></b>
     is:
     <br />
