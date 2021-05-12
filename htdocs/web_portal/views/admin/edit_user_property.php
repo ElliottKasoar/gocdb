@@ -1,3 +1,9 @@
+<?php
+$dnWarning = false;
+if ($params['propertyId'] === null) {
+    $dnWarning = true;
+}
+?>
 <div class="rightPageContainer">
     <h1>Update User Property</h1>
     <br />
@@ -9,6 +15,11 @@
     <?php xecho($params['IdString']) ?>
     <br />
     <br />
+    <div class=<?= $dnWarning ? "" : "hidden"; ?>>
+        <span style="color: red">Warning: This user does not have user properties!</span>
+        <br />
+        <br />
+    </div>
     <form class="inputForm" method="post" action="index.php?Page_Type=Admin_Edit_User_Property" name="editSType">
         <span class="input_name">New ID String</span>
         <input type="text" value="<?php xecho($params['IdString']) ?>" name="IdString" class="input_input_text">
