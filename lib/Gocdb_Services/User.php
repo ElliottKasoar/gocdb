@@ -618,7 +618,7 @@ class User extends AbstractEntityService{
      * @param array $newValues
      * @throws \Exception
      */
-    public function editUserProperty(\User $user, $prop, \User $currentUser, \UserProperty $prop, $newValues) {
+    public function editUserProperty(\User $user, \User $currentUser, \UserProperty $prop, $newValues) {
         // Check the portal is not in read only mode, throws exception if it is
         $this->checkPortalIsNotReadOnlyOrUserIsAdmin($currentUser);
 
