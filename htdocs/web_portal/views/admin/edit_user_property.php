@@ -13,6 +13,7 @@
         <span class="input_name">New ID String</span>
         <input type="text" value="<?php xecho($params['IdString']) ?>" name="IdString" class="input_input_text">
         <input class="input_input_hidden" type="hidden" name="ID" value="<?php echo $params['ID'] ?>" />
+        <input class="input_input_hidden" type="hidden" name="propertyId" value="<?php echo $params['propertyId'] ?>" />
         <br />
         <input type="submit" value="Update ID String" class="input_button">
     </form>
