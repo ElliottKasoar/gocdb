@@ -105,7 +105,7 @@
                     <td class="site_table">
                         <div style="background-color: inherit;">
                             <span style="vertical-align: middle;">
-                                <a href="index.php?Page_Type=Admin_Edit_User_Property&amp;id=<?=$user->getId();?>">
+                                <a href="index.php?Page_Type=Admin_Edit_User_Property&amp;id=<?=$user->getId();?>&amp;propertyId=<?=$prop->getId();?>">
                                     <?php xecho($prop->getKeyName() . ": " . $prop->getKeyValue());?>
                                     <?php echo '<br>'; ?>
                                 </a>
