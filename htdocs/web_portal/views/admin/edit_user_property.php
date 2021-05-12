@@ -25,6 +25,9 @@ if ($params['propertyId'] === null) {
     <form class="inputForm" method="post" action="index.php?Page_Type=Admin_Edit_User_Property" name="editSType">
         <span class="input_name">New ID String</span>
         <input type="text" value="<?php xecho($params['IdString']) ?>" name="IdString" class="input_input_text">
+        <br />
+        <span class="input_name">New Authentication Type</span>
+        <input type="text" value="<?php xecho($params['authType']) ?>" name="authType" class="input_input_text">
         <input class="input_input_hidden" type="hidden" name="ID" value="<?php echo $params['ID'] ?>" />
         <input class="input_input_hidden" type="hidden" name="propertyId" value="<?php echo $params['propertyId'] ?>" />
         <br />
