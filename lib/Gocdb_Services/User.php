@@ -661,8 +661,8 @@ class User extends AbstractEntityService{
             throw new \Exception("The specified user property is the same as the current user property");
         }
 
-        // Check the ID string is unique
-        if(!is_null($this->getUserByPrinciple($keyValue))) {
+        // Check the ID string is unique if it is being changed
+        if(!is_null($this->getUserByPrinciple($keyValue)) && $keyValue !== $prop->getKeyValue()) {
             throw new \Exception("ID string is already registered in GOCDB");
         }
 
