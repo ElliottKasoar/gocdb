@@ -27,8 +27,8 @@ require_once __DIR__ . '/../utils.php';
  * @return null
  */
 function edit_property() {
-    //The following line will be needed if this controller is ever used for non administrators:
-    //checkPortalIsNotReadOnlyOrUserIsAdmin($user);
+    // The following line will be needed if this controller is ever used for non administrators:
+    // checkPortalIsNotReadOnlyOrUserIsAdmin($user);
 
     if($_POST) {     // If we receive a POST request it's to edit a user property
         submit();
@@ -42,9 +42,10 @@ function edit_property() {
  * @return null
  */
 function draw() {
-    //Check the user has permission to see the page, will throw exception
-    //if correct permissions are lacking
+    // Check the user has permission to see the page, will throw exception
+    // if correct permissions are lacking
     checkUserIsAdmin();
+
     if (!isset($_REQUEST['id']) || !is_numeric($_REQUEST['id']) ) {
         throw new Exception("An id must be specified");
     }
@@ -53,13 +54,13 @@ function draw() {
         throw new \Exception("A property id must be specified");
     }
 
-    //Get user details
+    // Get user details
     $serv = \Factory::getUserService();
     $user = $serv->getUser($_REQUEST['id']);
 
-    //Throw exception if not a valid user id
+    // Throw exception if not a valid user id
     if(is_null($user)) {
-        throw new \Exception("A user with ID '".$_REQUEST['id']."' Can not be found");
+        throw new \Exception("A user with ID '" . $_REQUEST['id'] . "' cannot be found");
     }
 
     // Get property
@@ -74,11 +75,10 @@ function draw() {
     $params["Title"] = $user->getTitle();
     $params["Forename"] = $user->getForename();
     $params["Surname"] = $user->getSurname();
-    // $params["IdString"] = $user->getCertificateDn();
     $params["IdString"] = $property->getKeyValue();
     $params["propertyId"] = $property->getId();
 
-    //show the edit user property view
+    // Show the edit user property view
     show_view("admin/edit_user_property.php", $params, "Edit ID string");
 }
 
@@ -90,10 +90,10 @@ function draw() {
 function submit() {
     require_once __DIR__ . '/../../../../htdocs/web_portal/components/Get_User_Principle.php';
 
-    //Get a user service
+    // Get a user service
     $serv = \Factory::getUserService();
 
-    //Get the posted service type data
+    // Get the posted service type data
     $userID = $_REQUEST['ID'];
     $newIdString = $_REQUEST['IdString'];
     $propertyID = $_REQUEST['propertyId'];
@@ -102,13 +102,12 @@ function submit() {
     $property = $serv->getProperty($propertyID);
     $newValues = array('USERPROPERTIES'=>array('NAME'=>$property->getKeyName(),'VALUE'=>$newIdString));
 
-    //get the user data for the edit user property function (so it can check permissions)
+    // Get the user data for the edit user property function (so it can check permissions)
     $currentIdString = Get_User_Principle();
     $currentUser = $serv->getUserByPrinciple($currentIdString);
 
     try {
-        //function will through error if user does not have the correct permissions
-        // $serv->editUserDN($user, $newIdString, $currentUser);
+        // Function will through error if user does not have the correct permissions
         $serv->editUserProperty($user, $currentUser, $property, $newValues);
 
         $params = array('Name' => $user->getForename() . " " . $user->getSurname(),
