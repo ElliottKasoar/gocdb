@@ -59,13 +59,14 @@ function draw() {
 
     // Get property
     $property = $serv->getProperty($_REQUEST['propertyId']);
-    $params["IdString"] = $property->getKeyValue();
 
     $params["ID"] = $user->getId();
     $params["Title"] = $user->getTitle();
     $params["Forename"] = $user->getForename();
     $params["Surname"] = $user->getSurname();
     // $params["IdString"] = $user->getCertificateDn();
+    $params["IdString"] = $property->getKeyValue();
+    $params["propertyId"] = $property->getId();
 
     //show the edit user property view
     show_view("admin/edit_user_property.php", $params, "Edit ID string");
@@ -83,9 +84,13 @@ function submit() {
     $serv = \Factory::getUserService();
 
     //Get the posted service type data
-   $userID = $_REQUEST['ID'];
-   $newIdString = $_REQUEST['IdString'];
-   $user = $serv->getUser($userID);
+    $userID = $_REQUEST['ID'];
+    $newIdString = $_REQUEST['IdString'];
+    $propertyID = $_REQUEST['propertyId'];
+
+    $user = $serv->getUser($userID);
+    $property = $serv->getProperty($propertyID);
+    $newValues = array('USERPROPERTIES'=>array('NAME'=>$property->getKeyName(),'VALUE'=>$newIdString));
 
     //get the user data for the edit user property function (so it can check permissions)
     $currentIdString = Get_User_Principle();
@@ -93,7 +98,8 @@ function submit() {
 
     try {
         //function will through error if user does not have the correct permissions
-        $serv->editUserDN($user, $newIdString, $currentUser);
+        // $serv->editUserDN($user, $newIdString, $currentUser);
+        $serv->editUserProperty($user, $currentUser, $property, $newValues);
 
         $params = array('Name' => $user->getForename() . " " . $user->getSurname(),
                         'ID' => $user->getId());
