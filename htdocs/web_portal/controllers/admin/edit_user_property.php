@@ -48,6 +48,11 @@ function draw() {
     if (!isset($_REQUEST['id']) || !is_numeric($_REQUEST['id']) ) {
         throw new Exception("An id must be specified");
     }
+
+    if (!isset($_REQUEST['propertyId']) || !is_numeric($_REQUEST['propertyId']) ) {
+        throw new \Exception("A property id must be specified");
+    }
+
     //Get user details
     $serv = \Factory::getUserService();
     $user = $serv->getUser($_REQUEST['id']);
@@ -59,6 +64,11 @@ function draw() {
 
     // Get property
     $property = $serv->getProperty($_REQUEST['propertyId']);
+
+    // Throw exception if not a valid property id
+    if(is_null($property)) {
+        throw new \Exception("A property with ID '" . $_REQUEST['propertyId'] . "' cannot be found");
+    }
 
     $params["ID"] = $user->getId();
     $params["Title"] = $user->getTitle();
