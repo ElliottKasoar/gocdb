@@ -57,11 +57,15 @@ function draw() {
         throw new \Exception("A user with ID '".$_REQUEST['id']."' Can not be found");
     }
 
+    // Get property
+    $property = $serv->getProperty($_REQUEST['propertyId']);
+    $params["IdString"] = $property->getKeyValue();
+
     $params["ID"] = $user->getId();
     $params["Title"] = $user->getTitle();
     $params["Forename"] = $user->getForename();
     $params["Surname"] = $user->getSurname();
-    $params["IdString"] = $user->getCertificateDn();
+    // $params["IdString"] = $user->getCertificateDn();
 
     //show the edit user property view
     show_view("admin/edit_user_property.php", $params, "Edit ID string");
