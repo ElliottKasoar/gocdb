@@ -114,10 +114,11 @@ function submit() {
     $userID = $_REQUEST['ID'];
     $newIdString = $_REQUEST['IdString'];
     $propertyID = $_REQUEST['propertyId'];
+    $newAuthType = $_REQUEST['authType'];
 
     $user = $serv->getUser($userID);
     $property = $serv->getProperty($propertyID);
-    $newValues = array('USERPROPERTIES'=>array('NAME'=>$property->getKeyName(),'VALUE'=>$newIdString));
+    $newValues = array('USERPROPERTIES'=>array('NAME'=>$newAuthType,'VALUE'=>$newIdString));
 
     // Get the user data for the edit user property function (so it can check permissions)
     $currentIdString = Get_User_Principle();
