@@ -76,11 +76,13 @@ function draw() {
 
         $params["propertyId"] = $property->getId();
         $params["IdString"] = $property->getKeyValue();
+        $params["authType"] = $property->getKeyName();
 
     } else {
         // Use certificateDN
         $params["propertyId"] = null;
         $params["IdString"] = $user->getCertificateDn();
+        $params["authType"] = null;
     }
 
     $params["ID"] = $user->getId();
