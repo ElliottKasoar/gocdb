@@ -50,10 +50,6 @@ function draw() {
         throw new Exception("An id must be specified");
     }
 
-    if (!isset($_REQUEST['propertyId']) || !is_numeric($_REQUEST['propertyId']) ) {
-        throw new \Exception("A property id must be specified");
-    }
-
     // Get user details
     $serv = \Factory::getUserService();
     $user = $serv->getUser($_REQUEST['id']);
@@ -63,20 +59,34 @@ function draw() {
         throw new \Exception("A user with ID '" . $_REQUEST['id'] . "' cannot be found");
     }
 
-    // Get property
-    $property = $serv->getProperty($_REQUEST['propertyId']);
+    // Only use property ID if user has properties
+    if (sizeof($user->getUserProperties()) !== 0) {
 
-    // Throw exception if not a valid property id
-    if(is_null($property)) {
-        throw new \Exception("A property with ID '" . $_REQUEST['propertyId'] . "' cannot be found");
+        // Throw exception if property ID not set or invalid
+        if (!isset($_REQUEST['propertyId']) || !is_numeric($_REQUEST['propertyId'])) {
+            throw new \Exception("A property id must be specified for this user");
+        }
+
+        $property = $serv->getProperty($_REQUEST['propertyId']);
+
+        // Throw exception if not property doesn't exist
+        if(is_null($property)) {
+            throw new \Exception("A property with ID '" . $_REQUEST['propertyId'] . "' cannot be found");
+        }
+
+        $params["propertyId"] = $property->getId();
+        $params["IdString"] = $property->getKeyValue();
+
+    } else {
+        // Use certificateDN
+        $params["propertyId"] = null;
+        $params["IdString"] = $user->getCertificateDn();
     }
 
     $params["ID"] = $user->getId();
     $params["Title"] = $user->getTitle();
     $params["Forename"] = $user->getForename();
     $params["Surname"] = $user->getSurname();
-    $params["IdString"] = $property->getKeyValue();
-    $params["propertyId"] = $property->getId();
 
     // Show the edit user property view
     show_view("admin/edit_user_property.php", $params, "Edit ID string");
