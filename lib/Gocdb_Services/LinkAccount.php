@@ -280,7 +280,7 @@ class LinkAccount extends AbstractEntityService {
         $preventOverwrite = $linking;
 
         // If linking, does primary user have user properties? If not, we will add this using the request info
-        $oldUser = ($linking && $primaryUser->getCertificateDn() === $request->getPrimaryIdString());
+        $oldUser = ($primaryUser->getCertificateDn() === $request->getPrimaryIdString());
         if ($linking && $oldUser) {
             $propArrOld = array(array($request->getPrimaryAuthType(), $request->getPrimaryIdString()));
         }
@@ -291,9 +291,14 @@ class LinkAccount extends AbstractEntityService {
         try{
             $this->em->getConnection()->beginTransaction();
 
-            // If the primary user does not have user properties, add their certificateDn
-            if ($linking && $oldUser) {
-                $serv->addProperties($primaryUser, $propArrOld, $primaryUser);
+            // If the primary user does not have user properties, set placeholder certificateDn
+            if ($oldUser) {
+                $primaryUser->setCertificateDn($primaryUser->getId());
+                $this->em->persist($primaryUser);
+                // Add old certificateDn as property
+                if ($linking) {
+                    $serv->addProperties($primaryUser, $propArrOld, $primaryUser);
+                }
             }
             // Merge roles and remove secondary user so their ID string is free to be added
             if ($secondaryUser !== null) {
@@ -306,7 +311,6 @@ class LinkAccount extends AbstractEntityService {
 
             // Add (or update if recovering i.e. $preventOverwrite=false) the ID string
             $serv->addProperties($primaryUser, $propArr, $primaryUser, $preventOverwrite);
-            $this->em->persist($primaryUser);
 
             $this->em->flush();
             $this->em->getConnection()->commit();
