@@ -264,48 +264,46 @@ class LinkAccount extends AbstractEntityService {
             throw new \Exception("Your current ID does not match the one to which requested be linked. The link will only work once, if you have refreshed the page or clicked the link a second time you will see this messaage"); //TODO: reword
         }
 
-        // Does primary user have user properties?
-        $oldUser = false;
-        if ($primaryUser->getCertificateDn() === $request->getPrimaryIdString()) {
-            $oldUser = true;
-            $propArrOld = array(array($request->getPrimaryAuthType(), $request->getPrimaryIdString()));
-        }
-
-        // Create new user property array to be added
+        // Create property array from the secondary user's credentials
         $propArr = array(array($request->getSecondaryAuthType(), $request->getSecondaryIdString()));
         require_once __DIR__ . '/User.php';
 
-        // If recovering account overwrite user property
-        if ($request->getPrimaryAuthType() === $request->getSecondaryAuthType()) {
-            $preventOverwrite = false;
-        } else {
-            $preventOverwrite = true;
+        // Are we recovering or linking an account? True if linking
+        $linking = ($request->getPrimaryAuthType() !== $request->getSecondaryAuthType());
+
+        // Recovering: Allow overwrite in addProperties, which will edit the property id string
+        // Linking: Prevent overwriting, as we want to add a new property
+        $preventOverwrite = $linking;
+
+        // If linking, does primary user have user properties? If not, we will add this using the request info
+        $oldUser = ($linking && $primaryUser->getCertificateDn() === $request->getPrimaryIdString());
+        if ($linking && $oldUser) {
+            $propArrOld = array(array($request->getPrimaryAuthType(), $request->getPrimaryIdString()));
         }
 
-        // Update user, remove request from table
+        $serv = \Factory::getUserService();
+
+        // Update primary user, remove request (and secondary user)
         try{
             $this->em->getConnection()->beginTransaction();
 
-            $serv = \Factory::getUserService();
-            $serv->addProperties($primaryUser, $propArr, $primaryUser, $preventOverwrite);
-
-            // If the primary user does not have user properties, need to overwrite certificateDn
-            if ($oldUser) {
-                $primaryUser->setCertificateDn($primaryUser->getId());
-                // If linking (so not overwriting), add old id string as property
-                if ($preventOverwrite) {
-                    $serv->addProperties($primaryUser, $propArrOld, $primaryUser);
-                }
+            // If the primary user does not have user properties, add their certificateDn
+            if ($linking && $oldUser) {
+                $serv->addProperties($primaryUser, $propArrOld, $primaryUser);
             }
-
-            $this->em->persist($primaryUser);
-
+            // Merge roles and remove secondary user so their ID string is free to be added
             if ($secondaryUser !== null) {
                 \Factory::getRoleService()->mergeRoles($primaryUser, $secondaryUser);
                 $this->em->remove($secondaryUser);
             }
 
             $this->em->remove($request);
+            $this->em->flush();
+
+            // Add (or update if recovering i.e. $preventOverwrite=false) the ID string
+            $serv->addProperties($primaryUser, $propArr, $primaryUser, $preventOverwrite);
+            $this->em->persist($primaryUser);
+
             $this->em->flush();
             $this->em->getConnection()->commit();
         } catch(\Exception $e) {
