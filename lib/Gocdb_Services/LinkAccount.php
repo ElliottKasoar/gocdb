@@ -60,6 +60,10 @@ class LinkAccount extends AbstractEntityService {
         // User may not be registered so don't throw exception if null/no email
         $currentUser = $serv->getUserByPrinciple($currentIdString);
         
+        if($primaryUser === $currentUser) {
+            throw new \Exception("The details entered are already associated with this account");
+        }
+
         // Check the portal is not in read only mode, throws exception if it is. If portal is read only, but the user linking to another account is an admin, we will still be able to proceed.
         $this->checkPortalIsNotReadOnlyOrUserIsAdmin($currentUser);
 
