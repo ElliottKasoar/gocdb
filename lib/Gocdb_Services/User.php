@@ -551,8 +551,13 @@ class User extends AbstractEntityService{
             $key = trim($prop[0]);
             $value = trim($prop[1]);
 
-            /* Find out if a property with the provided key already exists, if
-            * we are preventing overwrites, this will be a problem. If we are not,
+            // Check the ID string does not already exist
+            if (!is_null($this->getUserByPrinciple($value))) {
+                throw new \Exception("An ID string with value \"$value\" already exists. No properties were added.");
+            }
+
+            /* Find out if a property with the provided key already exists for this user.
+            * If we are preventing overwrites, this will be a problem. If we are not,
             * we will want to edit the existing property later, rather than create it.
             */
             $property = null;
