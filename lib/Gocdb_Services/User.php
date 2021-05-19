@@ -695,6 +695,56 @@ class User extends AbstractEntityService{
     }
 
     /**
+     * Deletes user properties: validates the user has permission then calls the
+     * required logic
+     * @param \User $user
+     * @param \UserProperty $prop
+     * @param \User $currentUser
+     */
+    public function removeUserProperty(\User $user, \UserProperty $prop, \User $currentUser) {
+        //Check the portal is not in read only mode, throws exception if it is
+        $this->checkPortalIsNotReadOnlyOrUserIsAdmin($user);
+
+        // Check to see whether the current user can edit this user
+        $this->editUserAuthorization($user, $currentUser);
+
+        // Make the change
+        $this->em->getConnection()->beginTransaction();
+        try {
+            $this->removeUserPropertyLogic($user, $prop);
+            $this->em->flush();
+            $this->em->getConnection()->commit();
+        } catch (\Exception $e) {
+            $this->em->getConnection()->rollback();
+            $this->em->close();
+            throw $e;
+        }
+    }
+
+    /**
+     * All the logic to delete a user's property, before deletion a check is done to confirm the property
+     * is from the parent user specified by the request, and an exception is thrown if this is
+     * not the case
+     * @param \User $user
+     * @param \UserProperty $prop
+     */
+    protected function removeUserPropertyLogic(\User $user, \UserProperty $prop) {
+        // Check that the property's parent user the same as the one given
+        if ($prop->getParentUser() !== $user) {
+            $id = $prop->getId();
+            throw new \Exception("Property {$id} does not belong to the specified user");
+        }
+        // Check the user has more than one property
+        if (sizeof($user->getUserProperties()) < 2) {
+            throw new \Exception("Cannot remove all properties from a user.");
+        }
+        // User is the owning side so remove elements from the user
+        $user->getUserProperties()->removeElement($prop);
+        // Once relationship is removed delete the actual element
+        $this->em->remove($prop);
+    }
+
+    /**
      * Changes the isAdmin user property.
      * @param \User $user           The user who's admin status is to change
      * @param \User $currentUser    The user making the change, who themselvess must be an admin
