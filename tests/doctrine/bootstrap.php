@@ -25,7 +25,6 @@ require_once $entitiesPath."/Downtime.php";
 require_once $entitiesPath."/Project.php";
 require_once $entitiesPath."/ServiceGroup.php";
 require_once $entitiesPath."/ServiceGroupProperty.php";
-require_once $entitiesPath."/RetrieveAccountRequest.php";
 require_once $entitiesPath."/PrimaryKey.php";
 require_once $entitiesPath."/ArchivedNGI.php";
 require_once $entitiesPath."/ArchivedService.php";

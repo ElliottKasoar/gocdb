@@ -42,7 +42,6 @@ class Factory {
     private static $configService = null;
     private static $validateService = null;
     private static $certStatusService = null;
-    private static $retrieveAccountService = null;
     private static $serviceTypeService = null;
     private static $projectService = null;
     private static $OwnedEntityService = null;
@@ -333,19 +332,6 @@ class Factory {
             self::$projectService->setRoleActionAuthorisationService(self::getRoleActionAuthorisationService());
         }
         return self::$projectService;
-    }
-
-    /**
-     * Singleton Retrieve Account service
-     * @return org\gocdb\services\RetrieveAccount
-     */
-    public static function getRetrieveAccountService() {
-        if (self::$retrieveAccountService == null) {
-            require_once __DIR__ . '/RetrieveAccount.php';
-            self::$retrieveAccountService = new org\gocdb\services\RetrieveAccount();
-            self::$retrieveAccountService->setEntityManager(self::getEntityManager());
-        }
-        return self::$retrieveAccountService;
     }
 
     /**
