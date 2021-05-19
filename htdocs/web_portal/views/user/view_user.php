@@ -108,7 +108,48 @@
         </div>
     </div>
 
+    <!-- ID strings from user properties -->
+    <div class="listContainer" style="width: 99.5%; float: left; margin-top: 3em; margin-right: 10px;">
+        <span class="header" style="vertical-align:middle; float: left; padding-top: 0.9em; padding-left: 1em;">
+            ID Strings
+        </span>
 
+        <table style="clear: both; width: 100%;">
+            <tr class="site_table_row_1">
+                <th class="site_table">ID String</th>
+                <th class="site_table">Authentication type</th>
+                <?php if(!$params['portalIsReadOnly'] && $params['ShowEdit']):?>
+                    <th class="site_table">Unlink</th>
+                <?php endif; ?>
+            </tr>
+            <?php
+            $num = 2;
+            // foreach user property
+            foreach($params['user']->getUserProperties() as $prop): ?>
+
+                <tr class="site_table_row_<?php echo $num ?>">
+                    <td class="site_table" style="width: 40%">
+                        <div style="background-color: inherit;">
+                            <?php xecho($prop->getKeyValue())?>
+                        </div>
+                    </td>
+                    <td class="site_table">
+                        <div style="background-color: inherit;">
+                            <?php xecho($prop->getKeyName())?>
+                        </div>
+                    </td>
+                    <?php if(!$params['portalIsReadOnly'] && $params['ShowEdit']):?>
+                        <td class="site_table">
+                            <form action="index.php?Page_Type=Remove_User_Property&amp;id=<?=$params['user']->getId();?>&amp;propertyId=<?=$prop->getId();?>" method="post">
+                                <input id="revokeButton" type="submit" value="Remove" class="btn btn-sm btn-danger" onclick="return confirmSubmit()">
+                            </form>
+                        </td>
+                    <?php endif;?>
+                </tr>
+                <?php if($num == 1) { $num = 2; } else { $num = 1; }
+            endforeach;?>
+        </table>
+    </div>
 
     <div class="listContainer">
         <b>Authentication Attributes:</b>
