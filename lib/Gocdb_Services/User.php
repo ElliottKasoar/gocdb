@@ -49,7 +49,7 @@ class User extends AbstractEntityService{
     }
 
     /**
-     * Lookup a User object by user's certificateDn.
+     * Lookup a User object by user's id string, stored in certificateDn.
      * @param string $userPrinciple the user's principle id string, e.g. DN.
      * @return User object or null if no user can be found with the specified principle
      */
@@ -358,17 +358,23 @@ class User extends AbstractEntityService{
      *     [SURNAME] => TestFace
      *     [EMAIL] => JCasson@gmail.com
      *     [TELEPHONE] => 01235 44 5010
-     *     [CERTIFICATE_DN] => /C=UK/O=eScience/OU=CLRC/L=RAL/CN=claire devereuxxxx
      * )
-     * @param array $values User details, defined above
+     * Array
+     * (
+     *     [NAME] => Testing
+     *     [VALUE] => /C=UK/O=eScience/OU=CLRC/L=RAL/CN=claire devereuxxxx
+     * )
+     * @param array $userValues User details, defined above
+     * @param array $userPropertyValues User Property details, defined above
      */
-    public function register($values, $authType) {
+    public function register($userValues, $userPropertyValues) {
         // validate the input fields for the user
-        $this->validate($values, 'user');
+        $this->validate($userValues, 'user');
+        $this->validate($userPropertyValues, 'userproperty');
 
         // Check the id isn't already registered as certificateDn or user property
-        $oldUser = $this->getUserFromDn($values['CERTIFICATE_DN']);
-        $newUser = $this->getUserByPrinciple($values['CERTIFICATE_DN']);
+        $oldUser = $this->getUserFromDn($userPropertyValues['VALUE']);
+        $newUser = $this->getUserByPrinciple($userPropertyValues['VALUE']);
         if(!is_null($oldUser) || !is_null($newUser)) {
             throw new \Exception("Id string is already registered in GOCDB");
         }
@@ -376,15 +382,15 @@ class User extends AbstractEntityService{
         //Explicity demarcate our tx boundary
         $this->em->getConnection()->beginTransaction();
         $user = new \User();
-        $propArr = array(array($authType, $values['CERTIFICATE_DN']));
+        $propArr = array(array($userPropertyValues['NAME'], $userPropertyValues['VALUE']));
         $serv = \Factory::getUserService();
         try {
-            $user->setTitle($values['TITLE']);
-            $user->setForename($values['FORENAME']);
-            $user->setSurname($values['SURNAME']);
-            $user->setEmail($values['EMAIL']);
-            $user->setTelephone($values['TELEPHONE']);
-            $user->setCertificateDn($values['CERTIFICATE_DN']);
+            $user->setTitle($userValues['TITLE']);
+            $user->setForename($userValues['FORENAME']);
+            $user->setSurname($userValues['SURNAME']);
+            $user->setEmail($userValues['EMAIL']);
+            $user->setTelephone($userValues['TELEPHONE']);
+            $user->setCertificateDn($userPropertyValues['VALUE']);
             $user->setAdmin(false);
             $this->em->persist($user);
             $this->em->flush();
