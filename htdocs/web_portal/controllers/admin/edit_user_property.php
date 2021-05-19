@@ -113,15 +113,15 @@ function submit() {
     // Get the posted service type data
     $userID = $_REQUEST['ID'];
     $newIdString = $_REQUEST['IdString'];
-    $propertyID = $_REQUEST['propertyId'];
+    $propertyId = $_REQUEST['propertyId'];
     $newAuthType = $_REQUEST['authType'];
 
     $user = $serv->getUser($userID);
 
     // If property exists, fetch and prepare updated values for edit
     $property = null;
-    if ($propertyID !== "") {
-        $property = $serv->getProperty($propertyID);
+    if ($propertyId !== "") {
+        $property = $serv->getProperty($propertyId);
         $newValues = array('USERPROPERTIES' => array('NAME' => $newAuthType, 'VALUE' => $newIdString));
     } else {
         // Prepare new values to add
@@ -133,7 +133,7 @@ function submit() {
     $currentUser = $serv->getUserByPrinciple($currentIdString);
 
     try {
-        // Function will through error if user does not have the correct permissions
+        // Function will throw error if user does not have the correct permissions
         if ($property !== null) {
             $serv->editUserProperty($user, $currentUser, $property, $newValues);
         } else {
@@ -144,8 +144,8 @@ function submit() {
                         'ID' => $user->getId());
         show_view("admin/edited_user_property.php", $params, "Success");
     } catch (Exception $e) {
-         show_view('error.php', $e->getMessage());
-         die();
+        show_view('error.php', $e->getMessage());
+        die();
     }
 }
 
