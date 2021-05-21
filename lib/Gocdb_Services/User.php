@@ -469,38 +469,26 @@ class User extends AbstractEntityService{
     }
 
     /**
-     * Return a user's property with a specified key
-     * @return \UserProperty
-     */
-    public function getPropertyByKeyAndParent($key, $parentUser) {
-        $parentUserID = $parentUser->getId();
-
-        $dql = "SELECT p FROM UserProperty p WHERE p.keyName = :KEY AND p.parentUser = :PARENTUSERID";
-        $property = $this->em
-                    ->createQuery($dql)
-                    ->setParameter('KEY', $key)
-                    ->setParameter('PARENTUSERID', $parentUserID)
-                    ->getOneOrNullResult();
-        return $property;
-    }
-
-    /**
      * Get one of the user's unique ID strings
      * Favours certain types of ID, linked to supported auth methods in MyConfig1
+     * If user does not have user properties, returns certificateDn
      * @param \User $user User whose ID string we want
      * @return string
      */
     public function getIdString($user) {
 
         $authTypes = ['FAKE', 'IGTF'];
+        $props = $user->getUserProperties();
+        // For each ordered auth type, check if a property matches
         foreach ($authTypes as $authType) {
-            $prop = $this->getPropertyByKeyAndParent($authType, $user);
-            if ($prop !== null) {
-                $idString = $prop->getKeyValue();
-                break;
+            foreach ($props as $prop) {
+                if ($prop->getKeyName() === $authType) {
+                    $idString = $prop->getKeyValue();
+                    return $idString;
+                }
             }
         }
-        return $idString;
+        return $user->getCertificateDn();
     }
 
     /**
