@@ -485,6 +485,25 @@ class User extends AbstractEntityService{
     }
 
     /**
+     * Get one of the user's unique ID strings
+     * Favours certain types of ID, linked to supported auth methods in MyConfig1
+     * @param \User $user User whose ID string we want
+     * @return string
+     */
+    public function getIdString($user) {
+
+        $authTypes = ['FAKE', 'IGTF'];
+        foreach ($authTypes as $authType) {
+            $prop = $this->getPropertyByKeyAndParent($authType, $user);
+            if ($prop !== null) {
+                $idString = $prop->getKeyValue();
+                break;
+            }
+        }
+        return $idString;
+    }
+
+    /**
      * Adds sets of extension property key/value pairs to a user.
      * @param \User $user
      * @param array $propArr
