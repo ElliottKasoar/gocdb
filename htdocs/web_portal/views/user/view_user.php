@@ -72,10 +72,7 @@
                     <td class="site_table">Identity String</td>
                     <td class="site_table">
                         <div style="word-wrap: break-word;">
-                            <?php foreach($params['user']->getUserProperties() as $prop){
-                                 xecho($prop->getKeyName() . ": " . $prop->getKeyValue());
-                                 echo '<br>';
-                             } ?>
+                            <?php xecho($params['idString']) ?>
                         </div>
                     </td>
                 </tr>
