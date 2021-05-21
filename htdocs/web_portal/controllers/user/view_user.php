@@ -117,6 +117,8 @@ function view_user() {
     $authToken = Get_User_AuthToken();
     $params['authAttributes'] = $authToken->getDetails();
 
+    $params['idString'] = \Factory::getUserService()->getIdString($user);
+
     $params['projectNamesIds'] = $projectNamesIds;
     $params['role_ProjIds'] = $role_ProjIds;
     $params['portalIsReadOnly'] = \Factory::getConfigService()->IsPortalReadOnly();
