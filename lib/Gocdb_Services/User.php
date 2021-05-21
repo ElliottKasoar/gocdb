@@ -469,6 +469,22 @@ class User extends AbstractEntityService{
     }
 
     /**
+     * Return a user's property with a specified key
+     * @return \UserProperty
+     */
+    public function getPropertyByKeyAndParent($key, $parentUser) {
+        $parentUserID = $parentUser->getId();
+
+        $dql = "SELECT p FROM UserProperty p WHERE p.keyName = :KEY AND p.parentUser = :PARENTUSERID";
+        $property = $this->em
+                    ->createQuery($dql)
+                    ->setParameter('KEY', $key)
+                    ->setParameter('PARENTUSERID', $parentUserID)
+                    ->getOneOrNullResult();
+        return $property;
+    }
+
+    /**
      * Adds sets of extension property key/value pairs to a user.
      * @param \User $user
      * @param array $propArr
