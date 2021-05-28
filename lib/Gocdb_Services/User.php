@@ -390,7 +390,6 @@ class User extends AbstractEntityService{
             $user->setSurname($userValues['SURNAME']);
             $user->setEmail($userValues['EMAIL']);
             $user->setTelephone($userValues['TELEPHONE']);
-            $user->setCertificateDn($userPropertyValues['VALUE']);
             $user->setAdmin(false);
             $this->em->persist($user);
             $this->em->flush();
@@ -527,6 +526,13 @@ class User extends AbstractEntityService{
      * @throws \Exception
      */
     protected function addPropertiesLogic(\User $user, array $propArr, $preventOverwrite=true) {
+
+        // Set certificateDn to null if not already
+        if ($user->getCertificateDn() !== null) {
+            $user->setCertificateDn(null);
+            $this->em->persist($user);
+        }
+
         $existingProperties = $user->getUserProperties();
 
         // We will use this variable to track the keys as we go along, this will be used check they are all unique later
@@ -571,11 +577,6 @@ class User extends AbstractEntityService{
                 $property->setKeyValue($value);
                 $user->addUserPropertyDoJoin($property);
                 $this->em->persist($property);
-
-                if ($user->getCertificateDn() === $value) {
-                    $user->setCertificateDn($user->getId());
-                    $this->em->persist($user);
-                }
 
                 // Increment the property counter to enable check against property limit
                 $propertyCount++;
