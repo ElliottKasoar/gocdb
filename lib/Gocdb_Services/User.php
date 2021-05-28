@@ -535,8 +535,8 @@ class User extends AbstractEntityService{
         // We will use this variable to track the final number of properties and ensure we do not exceede the specified limit
         $propertyCount = sizeof($existingProperties);
 
-        foreach ($propArr as $i => $prop) {
-            // Trim off trailing and leading whitespace
+        foreach ($propArr as $prop) {
+            // Trim off any trailing and leading whitespace
             $key = trim($prop[0]);
             $value = trim($prop[1]);
 
