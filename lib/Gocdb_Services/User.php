@@ -382,7 +382,7 @@ class User extends AbstractEntityService{
         //Explicity demarcate our tx boundary
         $this->em->getConnection()->beginTransaction();
         $user = new \User();
-        $propArr = array(array($userPropertyValues['NAME'], $userPropertyValues['VALUE']));
+        $propArr = array($userPropertyValues['NAME'], $userPropertyValues['VALUE']);
         $serv = \Factory::getUserService();
         try {
             $user->setTitle($userValues['TITLE']);
@@ -393,7 +393,7 @@ class User extends AbstractEntityService{
             $user->setAdmin(false);
             $this->em->persist($user);
             $this->em->flush();
-            $serv->addProperties($user, $propArr, $user);
+            $serv->addProperty($user, $propArr, $user);
             $this->em->flush();
             $this->em->getConnection()->commit();
         } catch (\Exception $e) {
@@ -491,14 +491,14 @@ class User extends AbstractEntityService{
     }
 
     /**
-     * Adds sets of extension property key/value pairs to a user.
+     * Adds an extension property key/value pair to a user.
      * @param \User $user
      * @param array $propArr
      * @param \User $currentUser
      * @param bool $preventOverwrite
      * @throws \Exception
      */
-    public function addProperties(\User $user, array $propArr, \User $currentUser, $preventOverwrite=true) {
+    public function addProperty(\User $user, array $propArr, \User $currentUser, $preventOverwrite=true) {
         //Check the portal is not in read only mode, throws exception if it is
         $this->checkPortalIsNotReadOnlyOrUserIsAdmin($user);
 
@@ -508,7 +508,7 @@ class User extends AbstractEntityService{
         //Add the properties
         $this->em->getConnection()->beginTransaction();
         try {
-            $this->addPropertiesLogic($user, $propArr, $preventOverwrite);
+            $this->addPropertyLogic($user, $propArr, $preventOverwrite);
             $this->em->flush();
             $this->em->getConnection()->commit();
         } catch (\Exception $e) {
@@ -519,13 +519,13 @@ class User extends AbstractEntityService{
     }
 
     /**
-     * Logic to add extension properties to a user.
+     * Logic to add an extension property to a user.
      * @param \User $user
      * @param array $propArr
      * @param bool $preventOverwrite
      * @throws \Exception
      */
-    protected function addPropertiesLogic(\User $user, array $propArr, $preventOverwrite=true) {
+    protected function addPropertyLogic(\User $user, array $propArr, $preventOverwrite=true) {
 
         // Set certificateDn to null if not already
         if ($user->getCertificateDn() !== null) {
@@ -541,54 +541,52 @@ class User extends AbstractEntityService{
         // We will use this variable to track the final number of properties and ensure we do not exceede the specified limit
         $propertyCount = sizeof($existingProperties);
 
-        foreach ($propArr as $prop) {
-            // Trim off any trailing and leading whitespace
-            $key = trim($prop[0]);
-            $value = trim($prop[1]);
+        // Trim off any trailing and leading whitespace
+        $key = trim($propArr[0]);
+        $value = trim($propArr[1]);
 
-            // Check the ID string does not already exist
-            if (!is_null($this->getUserByPrinciple($value))) {
-                throw new \Exception("An ID string with value \"$value\" already exists. No properties were added.");
-            }
-
-            /* Find out if a property with the provided key already exists for this user.
-            * If we are preventing overwrites, this will be a problem. If we are not,
-            * we will want to edit the existing property later, rather than create it.
-            */
-            $property = null;
-            foreach ($existingProperties as $existProp) {
-                if ($existProp->getKeyName() === $key) {
-                    $property = $existProp;
-                }
-            }
-
-            /* If the property doesn't already exist, we add it. If it exists
-            * and we are not preventing overwrites, we edit the existing one.
-            * If it exists and we are preventing overwrites, we throw an exception
-            */
-            if (is_null($property)) {
-                // Validate key value
-                $validateArray['NAME'] = $key;
-                $validateArray['VALUE'] = $value;
-                $this->validate($validateArray, 'userproperty');
-
-                $property = new \UserProperty();
-                $property->setKeyName($key);
-                $property->setKeyValue($value);
-                $user->addUserPropertyDoJoin($property);
-                $this->em->persist($property);
-
-                // Increment the property counter to enable check against property limit
-                $propertyCount++;
-            } elseif (!$preventOverwrite) {
-                $this->editUserPropertyLogic($user, $property, array('USERPROPERTIES'=>array('NAME'=>$key,'VALUE'=>$value)));
-            } else {
-                throw new \Exception("A property with name \"$key\" already exists for this object, no properties were added.");
-            }
-
-            // Add the key to the keys array, to enable unique check
-            $keys[] = $key;
+        // Check the ID string does not already exist
+        if (!is_null($this->getUserByPrinciple($value))) {
+            throw new \Exception("An ID string with value \"$value\" already exists. No properties were added.");
         }
+
+        /* Find out if a property with the provided key already exists for this user.
+        * If we are preventing overwrites, this will be a problem. If we are not,
+        * we will want to edit the existing property later, rather than create it.
+        */
+        $property = null;
+        foreach ($existingProperties as $existProp) {
+            if ($existProp->getKeyName() === $key) {
+                $property = $existProp;
+            }
+        }
+
+        /* If the property doesn't already exist, we add it. If it exists
+        * and we are not preventing overwrites, we edit the existing one.
+        * If it exists and we are preventing overwrites, we throw an exception
+        */
+        if (is_null($property)) {
+            // Validate key value
+            $validateArray['NAME'] = $key;
+            $validateArray['VALUE'] = $value;
+            $this->validate($validateArray, 'userproperty');
+
+            $property = new \UserProperty();
+            $property->setKeyName($key);
+            $property->setKeyValue($value);
+            $user->addUserPropertyDoJoin($property);
+            $this->em->persist($property);
+
+            // Increment the property counter to enable check against property limit
+            $propertyCount++;
+        } elseif (!$preventOverwrite) {
+            $this->editUserPropertyLogic($user, $property, array('USERPROPERTIES'=>array('NAME'=>$key,'VALUE'=>$value)));
+        } else {
+            throw new \Exception("A property with name \"$key\" already exists for this object, no properties were added.");
+        }
+
+        // Add the key to the keys array, to enable unique check
+        $keys[] = $key;
 
         // Keys should be unique, create an exception if they are not
         if(count(array_unique($keys)) !== count($keys)) {

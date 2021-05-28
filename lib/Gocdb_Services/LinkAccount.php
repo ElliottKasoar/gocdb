@@ -269,7 +269,7 @@ class LinkAccount extends AbstractEntityService {
         }
 
         // Create property array from the secondary user's credentials
-        $propArr = array(array($request->getSecondaryAuthType(), $request->getSecondaryIdString()));
+        $propArr = array($request->getSecondaryAuthType(), $request->getSecondaryIdString());
         require_once __DIR__ . '/User.php';
 
         // Are we recovering or linking an account? True if linking
@@ -282,7 +282,7 @@ class LinkAccount extends AbstractEntityService {
         // If linking, does primary user have user properties? If not, we will add this using the request info
         $oldUser = ($primaryUser->getCertificateDn() === $request->getPrimaryIdString());
         if ($linking && $oldUser) {
-            $propArrOld = array(array($request->getPrimaryAuthType(), $request->getPrimaryIdString()));
+            $propArrOld = array($request->getPrimaryAuthType(), $request->getPrimaryIdString());
         }
 
         $serv = \Factory::getUserService();
@@ -293,7 +293,7 @@ class LinkAccount extends AbstractEntityService {
 
             // Add old certificateDn as property if linking
             if ($oldUser && $linking) {
-                $serv->addProperties($primaryUser, $propArrOld, $primaryUser);
+                $serv->addProperty($primaryUser, $propArrOld, $primaryUser);
             }
 
             // Merge roles and remove secondary user so their ID string is free to be added
@@ -306,7 +306,7 @@ class LinkAccount extends AbstractEntityService {
             $this->em->flush();
 
             // Add (or update if recovering i.e. $preventOverwrite=false) the ID string
-            $serv->addProperties($primaryUser, $propArr, $primaryUser, $preventOverwrite);
+            $serv->addProperty($primaryUser, $propArr, $primaryUser, $preventOverwrite);
 
             $this->em->flush();
             $this->em->getConnection()->commit();

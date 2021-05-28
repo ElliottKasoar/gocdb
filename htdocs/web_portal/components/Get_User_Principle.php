@@ -181,9 +181,9 @@ function Get_User_Principle(){
             if (!$authExists){
                 // Get type of auth logged in with e.g. IGTF (X509)
                 $authType = $auth->getDetails()['AuthenticationRealm'][0];
-                $propArr = array(array($authType, $principleString));
+                $propArr = array($authType, $principleString);
                 $serv = \Factory::getUserService();
-                $serv->addProperties($user, $propArr, $user);
+                $serv->addProperty($user, $propArr, $user);
             }
         }
         return $principleString;
