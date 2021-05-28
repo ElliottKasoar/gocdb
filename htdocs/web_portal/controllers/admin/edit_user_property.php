@@ -125,7 +125,7 @@ function submit() {
         $newValues = array('USERPROPERTIES' => array('NAME' => $newAuthType, 'VALUE' => $newIdString));
     } else {
         // Prepare new values to add
-        $propArr = array(array($newAuthType, $newIdString));
+        $propArr = array($newAuthType, $newIdString);
     }
 
     // Get the user data for the edit user property function (so it can check permissions)
@@ -137,7 +137,7 @@ function submit() {
         if ($property !== null) {
             $serv->editUserProperty($user, $property, $newValues, $currentUser);
         } else {
-            $serv->addProperties($user, $propArr, $currentUser);
+            $serv->addProperty($user, $propArr, $currentUser);
         }
 
         $params = array('Name' => $user->getForename() . " " . $user->getSurname(),
