@@ -535,8 +535,8 @@ class User extends AbstractEntityService{
         // We will use this variable to track the final number of properties and ensure we do not exceede the specified limit
         $propertyCount = sizeof($existingProperties);
 
-        foreach ($propArr as $i => $prop) {
-            // Trim off trailing and leading whitespace
+        foreach ($propArr as $prop) {
+            // Trim off any trailing and leading whitespace
             $key = trim($prop[0]);
             $value = trim($prop[1]);
 
@@ -608,11 +608,11 @@ class User extends AbstractEntityService{
      *
      * @param \User $user
      * @param \UserProperty $prop
-     * @param \User $currentUser
      * @param array $newValues
+     * @param \User $currentUser
      * @throws \Exception
      */
-    public function editUserProperty(\User $user, \User $currentUser, \UserProperty $prop, $newValues) {
+    public function editUserProperty(\User $user, \UserProperty $prop, $newValues, \User $currentUser) {
         // Check the portal is not in read only mode, throws exception if it is
         $this->checkPortalIsNotReadOnlyOrUserIsAdmin($currentUser);
 

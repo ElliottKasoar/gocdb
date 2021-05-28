@@ -135,7 +135,7 @@ function submit() {
     try {
         // Function will throw error if user does not have the correct permissions
         if ($property !== null) {
-            $serv->editUserProperty($user, $currentUser, $property, $newValues);
+            $serv->editUserProperty($user, $property, $newValues, $currentUser);
         } else {
             $serv->addProperties($user, $propArr, $currentUser);
         }
