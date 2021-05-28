@@ -48,7 +48,7 @@ class User {
     /** @Column(type="string", nullable=true)  */
     protected $workingHoursEnd = null;
 
-    /** @Column(type="string", unique=true)  */
+    /** @Column(type="string", nullable=true)  */
     protected $certificateDn = null;
 
     /** @Column(type="string", nullable=true)  */
