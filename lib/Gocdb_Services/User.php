@@ -527,16 +527,10 @@ class User extends AbstractEntityService{
      */
     protected function addPropertyLogic(\User $user, array $propArr, $preventOverwrite=true) {
 
-        // Set certificateDn to null if not already
-        if ($user->getCertificateDn() !== null) {
-            $user->setCertificateDn(null);
-            $this->em->persist($user);
-        }
-
-        $existingProperties = $user->getUserProperties();
-
         // We will use this variable to track the keys as we go along, this will be used check they are all unique later
         $keys = array();
+
+        $existingProperties = $user->getUserProperties();
 
         // We will use this variable to track the final number of properties and ensure we do not exceede the specified limit
         $propertyCount = sizeof($existingProperties);
@@ -544,6 +538,18 @@ class User extends AbstractEntityService{
         // Trim off any trailing and leading whitespace
         $key = trim($propArr[0]);
         $value = trim($propArr[1]);
+
+        // If certificateDn is not yet null:
+        // 1. Check the new property value matches, or is "overwriting"
+        // 2. Set certificateDn to null
+        $certificateDn = $user->getCertificateDn();
+        if ($certificateDn !== null) {
+            if ($certificateDn !== $value && $preventOverwrite) {
+                throw new \Exception("Property value does not match certificateDn");
+            }
+            $user->setCertificateDn(null);
+            $this->em->persist($user);
+        }
 
         // Check the ID string does not already exist
         if (!is_null($this->getUserByPrinciple($value))) {
