@@ -291,15 +291,11 @@ class LinkAccount extends AbstractEntityService {
         try{
             $this->em->getConnection()->beginTransaction();
 
-            // If the primary user does not have user properties, set placeholder certificateDn
-            if ($oldUser) {
-                $primaryUser->setCertificateDn($primaryUser->getId());
-                $this->em->persist($primaryUser);
-                // Add old certificateDn as property
-                if ($linking) {
-                    $serv->addProperties($primaryUser, $propArrOld, $primaryUser);
-                }
+            // Add old certificateDn as property if linking
+            if ($oldUser && $linking) {
+                $serv->addProperties($primaryUser, $propArrOld, $primaryUser);
             }
+
             // Merge roles and remove secondary user so their ID string is free to be added
             if ($secondaryUser !== null) {
                 \Factory::getRoleService()->mergeRoles($primaryUser, $secondaryUser);
