@@ -491,6 +491,33 @@ class User extends AbstractEntityService{
     }
 
     /**
+     * Get a user's ID string of specified authentication type
+     * If user does not have user properties, returns certificateDn for IGTF
+     * @param \User $user User whose ID string we want
+     * @param $authType authentication type of ID string we want
+     * @return string
+     */
+    public function getIdStringByAuthType($user, $authType) {
+
+        $props = $user->getUserProperties();
+        $idString = null;
+
+        // For each auth type, check if a property matches
+        foreach ($props as $prop) {
+            if ($prop->getKeyName() === $authType) {
+                $idString = $prop->getKeyValue();
+            }
+        }
+
+        // If no user properties and want IGTF, return certificateDn
+        if (sizeof($props) === 0 && $authType === 'IGTF') {
+            $idString = $user->getCertificateDn();
+        }
+
+        return $idString;
+    }
+
+    /**
      * Adds an extension property key/value pair to a user.
      * @param \User $user
      * @param array $propArr
