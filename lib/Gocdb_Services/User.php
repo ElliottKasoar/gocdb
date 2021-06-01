@@ -468,26 +468,32 @@ class User extends AbstractEntityService{
     }
 
     /**
-     * Get one of the user's unique ID strings
-     * Favours certain types of ID, linked to supported auth methods in MyConfig1
+     * Get one of the user's unique ID strings, favouring certain types
+     * Todo: explicitly link to supported auth methods in MyConfig1
      * If user does not have user properties, returns certificateDn
      * @param \User $user User whose ID string we want
      * @return string
      */
     public function getIdString($user) {
 
-        $authTypes = ['FAKE', 'IGTF'];
-        $props = $user->getUserProperties();
+        $authTypes = ['IGTF', 'FAKE'];
+        $idString = null;
+
         // For each ordered auth type, check if a property matches
+        // Will get certifcateDn if no user properties (and IGTF listed)
         foreach ($authTypes as $authType) {
-            foreach ($props as $prop) {
-                if ($prop->getKeyName() === $authType) {
-                    $idString = $prop->getKeyValue();
-                    return $idString;
-                }
+            $idString = $this->getIdStringByAuthType($user, $authType);
+            if ($idString !== null) {
+                break;
             }
         }
-        return $user->getCertificateDn();
+
+        // If user only has unlisted properties, return first property
+        if ($idString === null) {
+            $idString = $user->getUserProperties()[0]->getKeyValue();
+        }
+
+        return $idString;
     }
 
     /**
