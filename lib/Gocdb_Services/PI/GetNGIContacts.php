@@ -281,6 +281,7 @@ class GetNGIContacts implements IPIQuery, IPIQueryPageable, IPIQueryRenderable {
                         $xmlContact->addChild('EMAIL', $user->getEmail());
                         $xmlContact->addChild('TEL', $user->getTelephone());
                         $xmlContact->addChild('CERTDN', $serv->getIdStringByAuthType($user, 'IGTF'));
+                        $xmlContact->addChild('FAKE', $serv->getIdStringByAuthType($user, 'FAKE'));
 
                         $roleName = $role->getRoleType()->getName();
                         $xmlContact->addChild('ROLE_NAME', $roleName);
