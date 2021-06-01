@@ -132,6 +132,24 @@ function Get_User_AuthType() {
 }
 
 /**
+ * Get the token type for the user.
+ * @return string or null if can't authenticate request */
+function Get_User_TokenType() {
+    $tokenType = null;
+    $authToken = Get_User_AuthToken();
+    if ($authToken !== null) {
+        // Class name of form 'org\gocdb\security\authentication\xAuthToken'
+        $tokenClassName = get_class($authToken);
+        // Keep token name only
+        $tokenName = end(explode('\\', $tokenClassName));
+        // Cut out 'Auth[entication]Token' from name
+        $position = strpos($tokenName, 'Auth');
+        $tokenType = substr($tokenName, 0, $position);
+    }
+    return $tokenType;
+}
+
+/**
  * Get the user's principle string (x509 DN from certificate or from SAML attribute).
  * <p>
  * Called from the portal to allow authentication.
