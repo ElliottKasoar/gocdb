@@ -164,9 +164,10 @@ function Get_User_Principle(){
         MyStaticPrincipleHolder::getInstance()->setPrincipleString($principleString);
         MyStaticAuthTokenHolder::getInstance()->setAuthToken($auth);
 
-        $user = \Factory::getUserService()->getUserByPrinciple($principleString);
+        $serv = \Factory::getUserService();
+        $user = $serv->getUserByPrinciple($principleString);
         if ($user === null) {
-            $user = \Factory::getUserService()->getUserFromDn($principleString);
+            $user = $serv->getUserFromDn($principleString);
             $authExists = False;
         } else {
             $authExists = True;
@@ -175,14 +176,13 @@ function Get_User_Principle(){
         // Is user registered/known in the DB? if true, update their last login time
         // once for the current request.
         if($user !== null){
-            \Factory::getUserService()->updateLastLoginTime($user);
+            $serv->updateLastLoginTime($user);
 
             // If property for current auth does not exist, add to user
             if (!$authExists){
                 // Get type of auth logged in with e.g. IGTF (X509)
                 $authType = $auth->getDetails()['AuthenticationRealm'][0];
                 $propArr = array($authType, $principleString);
-                $serv = \Factory::getUserService();
                 $serv->addProperty($user, $propArr, $user);
             }
         }
