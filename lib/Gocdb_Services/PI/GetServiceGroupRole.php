@@ -295,6 +295,7 @@ class GetServiceGroupRole implements IPIQuery, IPIQueryPageable, IPIQueryRendera
                 $xmlUser->addChild ( 'FORENAME', $user->getForename () );
                 $xmlUser->addChild ( 'SURNAME', $user->getSurname () );
                 $xmlUser->addChild ( 'CERTDN', $serv->getIdStringByAuthType ( $user, 'IGTF' ) );
+                $xmlUser->addChild ( 'FAKE', $serv->getIdStringByAuthType ( $user, 'FAKE' ) );
                 $url = $this->baseUrl.'/index.php?Page_Type=User&id=' . $user->getId ();
                 $url = htmlspecialchars ( $url );
                 $xmlUser->addChild ( 'GOCDB_PORTAL_URL', $url );

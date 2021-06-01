@@ -311,6 +311,7 @@ class GetSiteContacts implements IPIQuery, IPIQueryPageable, IPIQueryRenderable 
                         $xmlContact->addChild ( 'EMAIL', $user->getEmail () );
                         $xmlContact->addChild ( 'TEL', $user->getTelephone () );
                         $xmlContact->addChild ( 'CERTDN', $serv->getIdStringByAuthType ( $user, 'IGTF' ) );
+                        $xmlContact->addChild ( 'FAKE', $serv->getIdStringByAuthType ( $user, 'FAKE' ) );
                         $xmlContact->addChild ( 'ROLE_NAME', $role->getRoleType ()->getName () );
                     }
                 }

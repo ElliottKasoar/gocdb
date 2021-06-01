@@ -260,6 +260,7 @@ class GetProjectContacts implements IPIQuery, IPIQueryPageable, IPIQueryRenderab
                         $xmlContact->addChild ( 'WORKING_HOURS_START', $user->getWorkingHoursStart () );
                         $xmlContact->addChild ( 'WORKING_HOURS_END', $user->getWorkingHoursEnd () );
                         $xmlContact->addChild('CERTDN', $serv->getIdStringByAuthType($user, 'IGTF'));
+                        $xmlContact->addChild('FAKE', $serv->getIdStringByAuthType($user, 'FAKE'));
 
                         $roleName = $role->getRoleType()->getName();
                         $xmlContact->addChild('ROLE_NAME', $roleName);
