@@ -31,7 +31,9 @@ function draw() {
         show_view('error.php', "Could not authenticate user - null user principle");
         die();
     }
-    $user = \Factory::getUserService()->getUserByPrinciple($id);
+    $serv = \Factory::getUserService();
+    $user = $serv->getUserByPrinciple($id);
+    $authTypes = $serv->getAuthTypes();
 
     // if(is_null($user)) {
     //     show_view('error.php', "Only registered users can link an account.");
@@ -40,7 +42,7 @@ function draw() {
 
     $params['IDSTRING'] = $id;
     $params['CURRENTAUTHTYPE'] = $authType;
-    $params['AUTHTYPES'] = ['IGTF', 'IRIS IAM - OIDC', 'FAKE'];
+    $params['AUTHTYPES'] = $authTypes;
 
     show_view('user/link_account.php', $params, 'Link Account');
 }
