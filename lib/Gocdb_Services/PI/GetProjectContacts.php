@@ -224,6 +224,7 @@ class GetProjectContacts implements IPIQuery, IPIQueryPageable, IPIQueryRenderab
     private function getXML(){
         $helpers = $this->helpers;
         $query = $this->query;
+        $serv = \Factory::getUserService();
 
         $projects = $this->projects;
 
@@ -258,7 +259,7 @@ class GetProjectContacts implements IPIQuery, IPIQueryPageable, IPIQueryRenderab
                         $xmlContact->addChild('TEL', $user->getTelephone());
                         $xmlContact->addChild ( 'WORKING_HOURS_START', $user->getWorkingHoursStart () );
                         $xmlContact->addChild ( 'WORKING_HOURS_END', $user->getWorkingHoursEnd () );
-                        $xmlContact->addChild('CERTDN', $user->getCertificateDn());
+                        $xmlContact->addChild('CERTDN', $serv->getIdStringByAuthType($user, 'IGTF'));
 
                         $roleName = $role->getRoleType()->getName();
                         $xmlContact->addChild('ROLE_NAME', $roleName);
