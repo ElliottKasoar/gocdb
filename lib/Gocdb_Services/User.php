@@ -468,15 +468,24 @@ class User extends AbstractEntityService{
     }
 
     /**
-     * Get one of the user's unique ID strings, favouring certain types
+     * Returns list of authentication types
      * Todo: explicitly link to supported auth methods in MyConfig1
+     * @return array of types
+     */
+    public function getAuthTypes() {
+        $authTypes = ['IGTF', 'EGI', 'IRIS IAM - OIDC', 'FAKE'];
+        return $authTypes;
+    }
+
+    /**
+     * Get one of the user's unique ID strings, favouring certain types
      * If user does not have user properties, returns certificateDn
      * @param \User $user User whose ID string we want
      * @return string
      */
     public function getIdString($user) {
 
-        $authTypes = ['IGTF', 'FAKE'];
+        $authTypes = $this->getAuthTypes();
         $idString = null;
 
         // For each ordered auth type, check if a property matches
