@@ -121,10 +121,8 @@ function Get_User_AuthToken(){
 
 /**
  * Get the auth type for the user.
- * <p>
- * Called from the portal to allow authentication.
  * @return string or null if can't authenticate request */
-function Get_User_AuthType(){
+function Get_User_AuthType() {
     $authType = null;
     $auth = Get_User_AuthToken();
     if ($auth !== null) {
