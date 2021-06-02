@@ -196,7 +196,7 @@ function Get_User_Principle(){
 
             // If property for current auth does not exist, add to user
             if (!$authExists){
-                // Get type of auth logged in with e.g. IGTF (X509)
+                // Get type of auth logged in with e.g. IGTF X509 Cert)
                 $authType = $auth->getDetails()['AuthenticationRealm'][0];
                 $propArr = array($authType, $principleString);
                 $serv->addProperty($user, $propArr, $user);

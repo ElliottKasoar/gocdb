@@ -301,7 +301,7 @@ class GetUser implements IPIQuery, IPIQueryPageable, IPIQueryRenderable {
             $xmlUser->addChild('TEL', $user->getTelephone());
             $xmlUser->addChild('WORKING_HOURS_START', $user->getWorkingHoursStart());
             $xmlUser->addChild('WORKING_HOURS_END', $user->getWorkingHoursEnd());
-            $xmlUser->addChild('CERTDN', $serv->getIdStringByAuthType($user, 'IGTF'));
+            $xmlUser->addChild('CERTDN', $serv->getIdStringByAuthType($user, 'IGTF X509 Cert'));
             $xmlUser->addChild('FAKE', $serv->getIdStringByAuthType($user, 'FAKE'));
 
             $ssousername = $user->getUsername1();

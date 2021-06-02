@@ -85,7 +85,7 @@ class User extends AbstractEntityService{
     /**
      * Lookup a User object by user's principle id string and auth type from UserProperty.
      * @param string $userPrinciple the user's principle id string, e.g. DN.
-     * @param string $authType the authorisation type e.g. IGTF.
+     * @param string $authType the authorisation type e.g. IGTF X509 Cert.
      * @return User object or null if no user can be found with the specified principle
      */
     public function getUserByPrincipleAndType($userPrinciple, $authType) {
@@ -473,7 +473,7 @@ class User extends AbstractEntityService{
      * @return array of types
      */
     public function getAuthTypes() {
-        $authTypes = ['IGTF', 'EGI', 'IRIS IAM - OIDC', 'FAKE'];
+        $authTypes = ['IGTF X509 Cert', 'EGI', 'IRIS IAM - OIDC', 'FAKE'];
         return $authTypes;
     }
 
@@ -489,7 +489,7 @@ class User extends AbstractEntityService{
         $idString = null;
 
         // For each ordered auth type, check if a property matches
-        // Will get certifcateDn if no user properties (and IGTF listed)
+        // Gets certifcateDn if no user properties and IGTF X509 Cert listed
         foreach ($authTypes as $authType) {
             $idString = $this->getIdStringByAuthType($user, $authType);
             if ($idString !== null) {
@@ -507,7 +507,7 @@ class User extends AbstractEntityService{
 
     /**
      * Get a user's ID string of specified authentication type
-     * If user does not have user properties, returns certificateDn for IGTF
+     * If user does not have user properties, returns certificateDn for IGTF X509 Cert
      * @param \User $user User whose ID string we want
      * @param $authType authentication type of ID string we want
      * @return string
@@ -524,8 +524,8 @@ class User extends AbstractEntityService{
             }
         }
 
-        // If no user properties and want IGTF, return certificateDn
-        if (sizeof($props) === 0 && $authType === 'IGTF') {
+        // If no user properties and want IGTF X509 Cert, return certificateDn
+        if (sizeof($props) === 0 && $authType === 'IGTF X509 Cert') {
             $idString = $user->getCertificateDn();
         }
 
