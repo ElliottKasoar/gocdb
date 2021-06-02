@@ -124,7 +124,7 @@
             authTypeText2 += 'you will no longer be able to login using it. Are you sure you wish to proceed?';
 
             // Stronger warning for certain types. Certificates will be less severe?
-            if (selectedAuthType === "IGTF") {
+            if (selectedAuthType === "IGTF X509 Cert") {
                 authTypeText3 += 'Certificates sometimes expire...';
                 $('#authTypeLabel3').removeClass("hidden");
                 $('#authPlaceholder3').addClass("hidden");
@@ -157,7 +157,7 @@
         var authType = $(inputAuthType).val();
 
         // Start with slash only?
-        if (authType === "IGTF") {
+        if (authType === "IGTF X509 Cert") {
             // var regExId = /^(\/[a-zA-Z]+=[a-zA-Z0-9\-\_\s\.@,'\/]+)+$/;
             // var regExId = /^(\/[a-zA-Z]+=[a-zA-Z0-9\-\_\s\.@,'\/]+)+$/;
             var regExId = /^\/.+$/;
