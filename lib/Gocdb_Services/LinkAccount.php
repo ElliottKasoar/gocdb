@@ -293,7 +293,7 @@ class LinkAccount extends AbstractEntityService {
 
             // Add old certificateDn as property if linking
             if ($oldUser && $linking) {
-                $serv->addProperty($primaryUser, $propArrOld, $primaryUser);
+                $serv->addUserProperty($primaryUser, $propArrOld, $primaryUser);
             }
 
             // Merge roles and remove secondary user so their ID string is free to be added
@@ -306,7 +306,7 @@ class LinkAccount extends AbstractEntityService {
             $this->em->flush();
 
             // Add (or update if recovering i.e. $preventOverwrite=false) the ID string
-            $serv->addProperty($primaryUser, $propArr, $primaryUser, $preventOverwrite);
+            $serv->addUserProperty($primaryUser, $propArr, $primaryUser, $preventOverwrite);
 
             $this->em->flush();
             $this->em->getConnection()->commit();
