@@ -625,6 +625,11 @@ class User extends AbstractEntityService{
             throw new \Exception("An ID string with value \"$value\" already exists. No properties were added.");
         }
 
+        // Check auth type is valid
+        if (!in_array($key, $this->getAuthTypes(false))) {
+            throw new \Exception("This is not a valid authentication type");
+        }
+
         /* Find out if a property with the provided key already exists for this user.
         * If we are preventing overwrites, this will be a problem. If we are not,
         * we will want to edit the existing property later, rather than create it.
@@ -718,11 +723,18 @@ class User extends AbstractEntityService{
      */
     protected function editUserPropertyLogic(\User $user, \UserProperty $prop, $newValues) {
 
+        // Validate against schema
         $this->validate($newValues['USERPROPERTIES'], 'userproperty');
 
         // Trim off trailing and leading whitespace
         $keyName = trim($newValues['USERPROPERTIES']['NAME']);
         $keyValue = trim($newValues['USERPROPERTIES']['VALUE']);
+
+        // Check that the property is owned by the user
+        if ($prop->getParentUser() !== $user) {
+            $id = $prop->getId();
+            throw new \Exception("Property {$id} does not belong to the specified user");
+        }
 
         // Check the property has changed
         if($keyName === $prop->getKeyName() && $keyValue === $prop->getKeyValue()) {
@@ -734,10 +746,9 @@ class User extends AbstractEntityService{
             throw new \Exception("ID string is already registered in GOCDB");
         }
 
-        // Check that the prop is from the user
-        if ($prop->getParentUser() !== $user) {
-            $id = $prop->getId();
-            throw new \Exception("Property {$id} does not belong to the specified user");
+        // Check auth type is valid
+        if (!in_array($keyName, $this->getAuthTypes(false))) {
+            throw new \Exception("This is not a valid authentication type");
         }
 
         // If the properties key has changed, check there isn't an existing property with that key
