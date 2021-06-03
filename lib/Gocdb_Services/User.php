@@ -605,15 +605,15 @@ class User extends AbstractEntityService{
         $propertyCount = sizeof($existingProperties);
 
         // Trim off any trailing and leading whitespace
-        $key = trim($propArr[0]);
-        $value = trim($propArr[1]);
+        $keyName = trim($propArr[0]);
+        $keyValue = trim($propArr[1]);
 
         // If certificateDn is not yet null:
         // 1. Check the new property value matches, or is "overwriting"
         // 2. Set certificateDn to null
         $certificateDn = $user->getCertificateDn();
         if ($certificateDn !== null) {
-            if ($certificateDn !== $value && $preventOverwrite) {
+            if ($certificateDn !== $keyValue && $preventOverwrite) {
                 throw new \Exception("Property value does not match certificateDn");
             }
             $user->setCertificateDn(null);
@@ -621,12 +621,12 @@ class User extends AbstractEntityService{
         }
 
         // Check the ID string does not already exist
-        if (!is_null($this->getUserByPrinciple($value))) {
-            throw new \Exception("An ID string with value \"$value\" already exists. No properties were added.");
+        if (!is_null($this->getUserByPrinciple($keyValue))) {
+            throw new \Exception("An ID string with value \"$keyValue\" already exists. No properties were added.");
         }
 
         // Check auth type is valid
-        if (!in_array($key, $this->getAuthTypes(false))) {
+        if (!in_array($keyName, $this->getAuthTypes(false))) {
             throw new \Exception("This is not a valid authentication type");
         }
 
@@ -636,7 +636,7 @@ class User extends AbstractEntityService{
         */
         $property = null;
         foreach ($existingProperties as $existProp) {
-            if ($existProp->getKeyName() === $key) {
+            if ($existProp->getKeyName() === $keyName) {
                 $property = $existProp;
             }
         }
@@ -647,26 +647,26 @@ class User extends AbstractEntityService{
         */
         if (is_null($property)) {
             // Validate key value
-            $validateArray['NAME'] = $key;
-            $validateArray['VALUE'] = $value;
+            $validateArray['NAME'] = $keyName;
+            $validateArray['VALUE'] = $keyValue;
             $this->validate($validateArray, 'userproperty');
 
             $property = new \UserProperty();
-            $property->setKeyName($key);
-            $property->setKeyValue($value);
+            $property->setKeyName($keyName);
+            $property->setKeyValue($keyValue);
             $user->addUserPropertyDoJoin($property);
             $this->em->persist($property);
 
             // Increment the property counter to enable check against property limit
             $propertyCount++;
         } elseif (!$preventOverwrite) {
-            $this->editUserPropertyLogic($user, $property, array('USERPROPERTIES'=>array('NAME'=>$key,'VALUE'=>$value)));
+            $this->editUserPropertyLogic($user, $property, array('USERPROPERTIES'=>array('NAME'=>$keyName,'VALUE'=>$keyValue)));
         } else {
-            throw new \Exception("A property with name \"$key\" already exists for this object, no properties were added.");
+            throw new \Exception("A property with name \"$keyName\" already exists for this object, no properties were added.");
         }
 
         // Add the key to the keys array, to enable unique check
-        $keys[] = $key;
+        $keys[] = $keyName;
 
         // Keys should be unique, create an exception if they are not
         if(count(array_unique($keys)) !== count($keys)) {
