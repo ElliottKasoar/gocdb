@@ -499,6 +499,8 @@ class User extends AbstractEntityService{
                 $authTypes = array_merge($authTypes, $x509Realms);
             }
         }
+        // Remove after testing
+        $authTypes[] = 'FAKE';
         return $authTypes;
     }
 
