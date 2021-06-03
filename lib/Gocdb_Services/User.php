@@ -370,14 +370,6 @@ class User extends AbstractEntityService{
     public function register($userValues, $userPropertyValues) {
         // validate the input fields for the user
         $this->validate($userValues, 'user');
-        $this->validate($userPropertyValues, 'userproperty');
-
-        // Check the id isn't already registered as certificateDn or user property
-        $oldUser = $this->getUserFromDn($userPropertyValues['VALUE']);
-        $newUser = $this->getUserByPrinciple($userPropertyValues['VALUE']);
-        if(!is_null($oldUser) || !is_null($newUser)) {
-            throw new \Exception("Id string is already registered in GOCDB");
-        }
 
         //Explicity demarcate our tx boundary
         $this->em->getConnection()->beginTransaction();
@@ -393,7 +385,7 @@ class User extends AbstractEntityService{
             $user->setAdmin(false);
             $this->em->persist($user);
             $this->em->flush();
-            $serv->addProperty($user, $propArr, $user);
+            $serv->addUserProperty($user, $propArr, $user);
             $this->em->flush();
             $this->em->getConnection()->commit();
         } catch (\Exception $e) {
@@ -567,7 +559,7 @@ class User extends AbstractEntityService{
      * @param bool $preventOverwrite
      * @throws \Exception
      */
-    public function addProperty(\User $user, array $propArr, \User $currentUser, $preventOverwrite=true) {
+    public function addUserProperty(\User $user, array $propArr, \User $currentUser, $preventOverwrite=true) {
         //Check the portal is not in read only mode, throws exception if it is
         $this->checkPortalIsNotReadOnlyOrUserIsAdmin($user);
 
@@ -577,7 +569,7 @@ class User extends AbstractEntityService{
         //Add the properties
         $this->em->getConnection()->beginTransaction();
         try {
-            $this->addPropertyLogic($user, $propArr, $preventOverwrite);
+            $this->addUserPropertyLogic($user, $propArr, $preventOverwrite);
             $this->em->flush();
             $this->em->getConnection()->commit();
         } catch (\Exception $e) {
@@ -594,7 +586,7 @@ class User extends AbstractEntityService{
      * @param bool $preventOverwrite
      * @throws \Exception
      */
-    protected function addPropertyLogic(\User $user, array $propArr, $preventOverwrite=true) {
+    protected function addUserPropertyLogic(\User $user, array $propArr, $preventOverwrite=true) {
 
         // We will use this variable to track the keys as we go along, this will be used check they are all unique later
         $keys = array();
@@ -608,27 +600,7 @@ class User extends AbstractEntityService{
         $keyName = trim($propArr[0]);
         $keyValue = trim($propArr[1]);
 
-        // If certificateDn is not yet null:
-        // 1. Check the new property value matches, or is "overwriting"
-        // 2. Set certificateDn to null
-        $certificateDn = $user->getCertificateDn();
-        if ($certificateDn !== null) {
-            if ($certificateDn !== $keyValue && $preventOverwrite) {
-                throw new \Exception("Property value does not match certificateDn");
-            }
-            $user->setCertificateDn(null);
-            $this->em->persist($user);
-        }
-
-        // Check the ID string does not already exist
-        if (!is_null($this->getUserByPrinciple($keyValue))) {
-            throw new \Exception("An ID string with value \"$keyValue\" already exists. No properties were added.");
-        }
-
-        // Check auth type is valid
-        if (!in_array($keyName, $this->getAuthTypes(false))) {
-            throw new \Exception("This is not a valid authentication type");
-        }
+        $this->addUserPropertyValidation($user, $keyName, $keyValue, $preventOverwrite);
 
         /* Find out if a property with the provided key already exists for this user.
         * If we are preventing overwrites, this will be a problem. If we are not,
@@ -646,11 +618,6 @@ class User extends AbstractEntityService{
         * If it exists and we are preventing overwrites, we throw an exception
         */
         if (is_null($property)) {
-            // Validate key value
-            $validateArray['NAME'] = $keyName;
-            $validateArray['VALUE'] = $keyValue;
-            $this->validate($validateArray, 'userproperty');
-
             $property = new \UserProperty();
             $property->setKeyName($keyName);
             $property->setKeyValue($keyValue);
@@ -680,6 +647,40 @@ class User extends AbstractEntityService{
         if ($propertyCount > $extensionLimit) {
             throw new \Exception("Property(s) could not be added due to the property limit of $extensionLimit");
         }
+    }
+
+    /**
+     * Validation when adding a user property
+     * @param \User $user
+     * @param string $keyName
+     * @param string $keyValue
+     * @param bool $preventOverwrite
+     * @throws \Exception
+     */
+    protected function addUserPropertyValidation($user, $keyName, $keyValue, $preventOverwrite) {
+        // Validate against schema
+        $validateArray['NAME'] = $keyName;
+        $validateArray['VALUE'] = $keyValue;
+        $this->validate($validateArray, 'userproperty');
+
+        // If certificateDn is not yet null:
+        // 1. Check the new property value matches, or is "overwriting"
+        // 2. Set certificateDn to null
+        $certificateDn = $user->getCertificateDn();
+        if ($certificateDn !== null) {
+            if ($certificateDn !== $keyValue && $preventOverwrite) {
+                throw new \Exception("Property value does not match certificateDn");
+            }
+            $user->setCertificateDn(null);
+            $this->em->persist($user);
+            $this->em->flush();
+        }
+
+        // Check the ID string does not already exist
+        $this->valdidateUniqueIdString($keyValue);
+
+        // Check auth type is valid
+        $this->valdidateAuthType($keyName);
     }
 
     /**
@@ -713,9 +714,7 @@ class User extends AbstractEntityService{
 
     /**
      * Logic to edit a user's property, without the user validation.
-     * A check is performed to confirm the given property is from the parent user
-     * specified by the request, and an exception is thrown if this is not the case.
-     *
+     * Validation of the edited property values is performed by a seperate function.
      * @param \User $user
      * @param \UserProperty $prop
      * @param array $newValues
@@ -723,12 +722,33 @@ class User extends AbstractEntityService{
      */
     protected function editUserPropertyLogic(\User $user, \UserProperty $prop, $newValues) {
 
-        // Validate against schema
-        $this->validate($newValues['USERPROPERTIES'], 'userproperty');
-
         // Trim off trailing and leading whitespace
         $keyName = trim($newValues['USERPROPERTIES']['NAME']);
         $keyValue = trim($newValues['USERPROPERTIES']['VALUE']);
+
+        // Validate new property
+        $this->editUserPropertyValidation($user, $prop, $keyName, $keyValue);
+
+        // Set the user property values
+        $prop->setKeyName($keyName);
+        $prop->setKeyValue($keyValue);
+        $this->em->merge($prop);
+    }
+
+    /**
+     * Validation when editing a user's property
+     * @param \User $user
+     * @param \UserProperty $prop
+     * @param string $keyName
+     * @param string $keyValue
+     * @throws \Exception
+     */
+    protected function editUserPropertyValidation(\User $user, \UserProperty $prop, $keyName, $keyValue) {
+
+        // Validate new values against schema
+        $validateArray['NAME'] = $keyName;
+        $validateArray['VALUE'] = $keyValue;
+        $this->validate($validateArray, 'userproperty');
 
         // Check that the property is owned by the user
         if ($prop->getParentUser() !== $user) {
@@ -742,14 +762,12 @@ class User extends AbstractEntityService{
         }
 
         // Check the ID string is unique if it is being changed
-        if(!is_null($this->getUserByPrinciple($keyValue)) && $keyValue !== $prop->getKeyValue()) {
-            throw new \Exception("ID string is already registered in GOCDB");
+        if($keyValue !== $prop->getKeyValue()) {
+            $this->valdidateUniqueIdString($keyValue);
         }
 
         // Check auth type is valid
-        if (!in_array($keyName, $this->getAuthTypes(false))) {
-            throw new \Exception("This is not a valid authentication type");
-        }
+        $this->valdidateAuthType($keyName);
 
         // If the properties key has changed, check there isn't an existing property with that key
         if ($keyName !== $prop->getKeyName()) {
@@ -760,12 +778,31 @@ class User extends AbstractEntityService{
                 }
             }
         }
+    }
 
-        // Set the user property values
-        $prop->setKeyName($keyName);
-        $prop->setKeyValue($keyValue);
+    /**
+     * Validate authentication type based on known list.
+     * @param string $authType
+     * @throws \Exception
+     */
+    protected function valdidateAuthType($authType) {
+        if (!in_array($authType, $this->getAuthTypes(false))) {
+            throw new \Exception("The authentication type entered is invalid");
+        }
+    }
 
-        $this->em->merge($prop);
+    /**
+     * Validate ID string is unique.
+     * Checks both user properties and certificateDns
+     * @param string $idString
+     * @throws \Exception
+     */
+    protected function valdidateUniqueIdString($idString) {
+        $oldUser = $this->getUserFromDn($idString);
+        $newUser = $this->getUserByPrinciple($idString);
+        if(!is_null($oldUser) || !is_null($newUser)) {
+            throw new \Exception("ID string is already registered in GOCDB");
+        }
     }
 
     /**

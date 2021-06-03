@@ -199,7 +199,7 @@ function Get_User_Principle(){
                 // Get type of auth logged in with e.g. IGTF X509 Cert)
                 $authType = $auth->getDetails()['AuthenticationRealm'][0];
                 $propArr = array($authType, $principleString);
-                $serv->addProperty($user, $propArr, $user);
+                $serv->addUserProperty($user, $propArr, $user);
             }
         }
         return $principleString;

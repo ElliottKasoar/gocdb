@@ -137,7 +137,7 @@ function submit() {
         if ($property !== null) {
             $serv->editUserProperty($user, $property, $newValues, $currentUser);
         } else {
-            $serv->addProperty($user, $propArr, $currentUser);
+            $serv->addUserProperty($user, $propArr, $currentUser);
         }
 
         $params = array('Name' => $user->getForename() . " " . $user->getSurname(),
