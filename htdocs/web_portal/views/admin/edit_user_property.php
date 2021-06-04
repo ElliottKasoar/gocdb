@@ -1,9 +1,3 @@
-<?php
-$dnWarning = false;
-if ($params['propertyId'] === null) {
-    $dnWarning = true;
-}
-?>
 <div class="rightPageContainer">
     <h1>Update User Property</h1>
     <br />
@@ -17,7 +11,7 @@ if ($params['propertyId'] === null) {
     <?php xecho($params['IdString']) ?>
     <br />
     <br />
-    <div class=<?= $dnWarning ? "" : "hidden"; ?>>
+    <div class=<?= $params['dnWarning'] ? "" : "hidden"; ?>>
         <span style="color: red">Warning: This user does not have user properties!</span>
         <br />
         <br />
