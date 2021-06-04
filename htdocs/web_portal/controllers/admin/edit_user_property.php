@@ -90,10 +90,17 @@ function draw() {
         $params["authType"] = null;
     }
 
+    // Will show warning if no user properties
+    $dnWarning = false;
+    if ($params['propertyId'] === null) {
+        $dnWarning = true;
+    }
+
     $params["ID"] = $user->getId();
     $params["Title"] = $user->getTitle();
     $params["Forename"] = $user->getForename();
     $params["Surname"] = $user->getSurname();
+    $params["dnWarning"] = $dnWarning;
 
     // Show the edit user property view
     show_view("admin/edit_user_property.php", $params, "Edit ID string");
