@@ -866,7 +866,7 @@ class User extends AbstractEntityService{
         $this->checkPortalIsNotReadOnlyOrUserIsAdmin($currentUser);
 
         //Throws exception if the current user is not an administrator - only admins can make admins
-        $this->checkUserIsAdmin($user);
+        $this->checkUserIsAdmin($currentUser);
 
         //Check that $isAdmin is boolean
         if(!is_bool($isAdmin)){
