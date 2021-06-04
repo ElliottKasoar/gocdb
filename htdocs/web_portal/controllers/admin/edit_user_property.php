@@ -96,11 +96,15 @@ function draw() {
         $dnWarning = true;
     }
 
+    // Get all valid auth types
+    $authTypes = $serv->getAuthTypes(false);
+
     $params["ID"] = $user->getId();
     $params["Title"] = $user->getTitle();
     $params["Forename"] = $user->getForename();
     $params["Surname"] = $user->getSurname();
     $params["dnWarning"] = $dnWarning;
+    $params["authTypes"] = $authTypes;
 
     // Show the edit user property view
     show_view("admin/edit_user_property.php", $params, "Edit ID string");
