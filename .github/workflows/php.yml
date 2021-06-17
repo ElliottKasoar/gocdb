@@ -36,6 +36,9 @@ jobs:
     # - name: Run test suite
     #   run: composer run-script test
 
+    - name: Check if empty
+      run: sudo ls /var/lib/mysql
+
     - name: Install mariadb-server
       run: sudo apt-get install mariadb-server    
 
