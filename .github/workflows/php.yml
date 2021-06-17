@@ -12,9 +12,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: List files in the repository
-      run: |
-        ls ${{ github.workspace }}
+    - name: Travis setup
+      run: .travis/setup
 
     - name: List var/run in the repository
       run: |
@@ -22,9 +21,6 @@ jobs:
 
     - name: Create database
       run: mysql -e 'CREATE DATABASE doctrine;'
-
-    - name: Travis setup
-      run: .travis/setup
 
     - name: Run Travis
       run: .travis/run_tests.sh
