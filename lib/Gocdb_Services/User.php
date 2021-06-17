@@ -469,6 +469,7 @@ class User extends AbstractEntityService{
      */
     public function getAuthTypes($reducedRealms=true) {
 
+        require_once __DIR__ . '/../Authentication/_autoload.php';
         // Get list of tokens in order they are currently used
         $myConfig1 = new \org\gocdb\security\authentication\MyConfig1();
         $authTokenNames = $myConfig1->getAuthTokenClassList();
