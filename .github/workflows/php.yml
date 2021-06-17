@@ -37,7 +37,11 @@ jobs:
     #   run: composer run-script test
 
     - name: Empty mysql dir
-      run: sudo ls /var/lib/mysql/
+      run: |
+        cd /var/lib/mysql
+        sudo rm -r *
+        mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysql
+        cd -
 
     - name: Install mariadb-server
       run: sudo apt-get install mariadb-server    
