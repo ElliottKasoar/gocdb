@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@testBranch
+    - uses: actions/checkout@v2
 
     - name: Create database
       run: mysql -e 'CREATE DATABASE doctrine;'
