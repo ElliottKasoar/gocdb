@@ -112,7 +112,10 @@ class NGIServiceTest extends PHPUnit_Extensions_Database_TestCase {
     include __DIR__ . '/resources/sampleFixtureData1.php';
 
     // create an admin user (required to call the NGI service)
-    $adminUser = TestUtil::createSampleUser('some', 'admin', '/some/admin');
+    $adminUser = TestUtil::createSampleUser('some', 'admin');
+    $prop = TestUtil::createSampleUserProperty('IGTF X509 Cert', '/some/admin');
+    $adminUser->addUserPropertyDoJoin($prop);
+    $this->em->persist($prop);
     $adminUser->setAdmin(TRUE);
     $this->em->persist($adminUser);
 
