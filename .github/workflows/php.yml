@@ -36,8 +36,12 @@ jobs:
     # - name: Run test suite
     #   run: composer run-script test
 
-    - name: Create database
-      run: mysql -e 'CREATE DATABASE doctrine;'
+    - name: Setup mariadb
+      run: |
+        sudo apt-get install mariadb-server
+        sudo systemctl start mariadb
+        sudo systemctl enable mariadb
+        mysql -e 'CREATE DATABASE doctrine;'
 
     - name: Travis setup
       run: .travis/setup
