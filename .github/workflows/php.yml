@@ -40,10 +40,10 @@ jobs:
       run: sudo apt-get install mariadb-server    
 
     - name: Start mariadb server
-      run: systemctl start mariadb
+      run: sudo systemctl start mariadb
 
     - name: Run mariadb server
-      run: systemctl enable mariadb
+      run: sudo systemctl enable mariadb
     
     - name: Create database
       run: mysql -e 'CREATE DATABASE doctrine;'
