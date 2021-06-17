@@ -11,10 +11,14 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    
+
     - name: List files in the repository
       run: |
         ls ${{ github.workspace }}
+
+    - name: List var/run in the repository
+      run: |
+        ls /var/run
 
     - name: Create database
       run: mysql -e 'CREATE DATABASE doctrine;'
