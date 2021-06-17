@@ -38,10 +38,10 @@ jobs:
 
     - name: Empty mysql dir
       run: |
-        cd /var/lib/mysql
+        sudo cd /var/lib/mysql
         sudo rm -r *
-        mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysql
-        cd -
+        sudo mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysql
+        sudo cd -
 
     - name: Install mariadb-server
       run: sudo apt-get install mariadb-server    
