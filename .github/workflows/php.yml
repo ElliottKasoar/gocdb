@@ -49,6 +49,18 @@ jobs:
         mysql user: 'gocdb5' # Required if "mysql root password" is empty, default is empty. The superuser for the specified database. Can use secrets, too
         mysql password: 'password' # Required if "mysql user" exists. The password for the "mysql user"
 
+    - name: Install mariadb-server
+      run: sudo apt-get install mariadb-server
+
+    - name: MariaDB install
+      run: sudo mysql_install_db
+
+    - name: Start mariadb server
+      run: sudo systemctl start mariadb
+
+    - name: Run mariadb server
+      run: sudo systemctl enable mariadb
+
     - name: Create database
       run: mysql -e 'CREATE DATABASE doctrine;'
 
