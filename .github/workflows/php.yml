@@ -53,7 +53,7 @@ jobs:
       run: sudo apt-get install mariadb-server
 
     - name: MariaDB install
-      run: sudo mysql_install_db
+      run: sudo mysql_install_db --defaults-file=~/.my.cnf
 
     - name: Start mariadb server
       run: sudo systemctl start mariadb
