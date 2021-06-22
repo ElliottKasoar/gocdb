@@ -39,27 +39,27 @@ jobs:
     - name: Setup MariaDB
       uses: getong/mariadb-action@v1.1
       with:
-        host port: 3306 # Optional, default value is 3306. The port of host
-        container port: 3306 # Optional, default value is 3306. The port of container
+        #host port: 3306 # Optional, default value is 3306. The port of host
+        #container port: 3306 # Optional, default value is 3306. The port of container
         #character set server: 'utf8' # Optional, default value is 'utf8mb4'. The '--character-set-server' option for mysqld
         #collation server: 'utf8_general_ci' # Optional, default value is 'utf8mb4_general_ci'. The '--collation-server' option for mysqld
         #mariadb version: '10.4.10' # Optional, default value is "latest". The version of the MariaDB
-        mysql database: 'gocdb' # Optional, default value is "test". The specified database which will be create
+        mysql database: 'doctrine' # Optional, default value is "test". The specified database which will be create
         #mysql root password: ${{ secrets.RootPassword }} # Required if "mysql user" is empty, default is empty. The root superuser password
-        mysql user: 'gocdb5' # Required if "mysql root password" is empty, default is empty. The superuser for the specified database. Can use secrets, too
-        mysql password: 'password' # Required if "mysql user" exists. The password for the "mysql user"
+        mysql user: 'travis' # Required if "mysql root password" is empty, default is empty. The superuser for the specified database. Can use secrets, too
+        mysql password: '' # Required if "mysql user" exists. The password for the "mysql user"
 
-    - name: Install mariadb-server
-      run: sudo apt-get install mariadb-server
+    #- name: Install mariadb-server
+    #  run: sudo apt-get install mariadb-server
 
     #- name: MariaDB install
     #  run: sudo mysql_install_db
 
-    - name: Start mariadb server
-      run: sudo systemctl start mariadb
+    #- name: Start mariadb server
+    #  run: sudo systemctl start mariadb
 
-    - name: Run mariadb server
-      run: sudo systemctl enable mariadb
+    #- name: Run mariadb server
+    #  run: sudo systemctl enable mariadb
 
     - name: Create database
       run: mysql -e 'CREATE DATABASE doctrine;'
