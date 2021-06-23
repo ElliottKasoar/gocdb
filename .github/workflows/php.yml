@@ -63,11 +63,11 @@ jobs:
         run: |
           cp .travis/mysql_bootstrap_doctrine.php tests/doctrine/bootstrap_doctrine.php
           cp .travis/mysql_bootstrap_pdo.php tests/doctrine/bootstrap_pdo.php
-          echo ${ls}
+          echo $(ls)
           cd tests
-          echo ${ls}
+          echo $(ls)
           cd doctrine
-          echo ${ls}
+          echo $(ls)
 
       #- name: "Run PHPUnit"
       #  run: "vendor/bin/phpunit --coverage-clover=coverage.xml tests/DoctrineTestSuite1.php"
