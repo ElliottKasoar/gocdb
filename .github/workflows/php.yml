@@ -1,65 +1,73 @@
-name: PHP Composer
+name: "Continuous Integration"
 
 on:
   push:
     branches: [ testBranch ]
 
 jobs:
-  build:
-
+  phpunit-mariadb:
+    name: "PHPUnit with MariaDB"
     runs-on: ubuntu-latest
-    
+
+    strategy:
+      matrix:
+        php-version:
+          - "5.4"
+        mariadb-version:
+          - "10.3"
+        extension:
+          - "pdo_mysql"
+        include:
+          - php-version: "8.0"
+            mariadb-version: "10.5"
+            extension: "pdo_mysql"
+
     services:
       mariadb:
-        image: mariadb:latest
-        ports:
-          - 3306
+        image: "mariadb:${{ matrix.mariadb-version }}"
         env:
-          MYSQL_USER: travis
           MYSQL_ALLOW_EMPTY_PASSWORD: yes
-          MYSQL_DATABASE: doctrine
-        options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
-    
+          MYSQL_DATABASE: "doctrine"
+          MYSQL_USER: "travis"
+
+        options: >-
+          --health-cmd "mysqladmin ping --silent"
+        ports:
+          - "3306:3306"
+
     steps:
-    - uses: actions/checkout@v2
-    - name: Setup PHP Action
-      uses: shivammathur/setup-php@2.11.0
-      with:
-        php-version: 5.4
+      - name: "Checkout"
+        uses: "actions/checkout@v2"
+        with:
+          fetch-depth: 2
 
-    - name: Validate composer.json and composer.lock
-      run: composer validate
+      - name: "Install PHP"
+        uses: "shivammathur/setup-php@v2"
+        with:
+          php-version: "${{ matrix.php-version }}"
+          coverage: "pcov"
+          ini-values: "zend.assertions=1"
+          extensions: "${{ matrix.extension }}"
 
-    - name: Cache Composer packages
-      id: composer-cache
-      uses: actions/cache@v2
-      with:
-        path: vendor
-        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-php-
-    - name: Install dependencies
-      run: composer install --prefer-dist --no-progress
+      - name: Validate composer.json and composer.lock
+        run: composer validate
 
-    # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
-    # Docs: https://getcomposer.org/doc/articles/scripts.md
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v2
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
 
-    - name: Verify MariaDB connection
-      env:
-        PORT: ${{ job.services.mariadb.ports[3306] }}
-      run: |
-        while ! mysqladmin ping -h"127.0.0.1" -P"$PORT" --silent; do
-          sleep 1
-        done
+      - name: "Run PHPUnit"
+        run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml --coverage-clover=coverage.xml"
 
-    #- name: Create database
-    #  run: mysql -e 'CREATE DATABASE doctrine;'
-
-    - name: Travis setup
-      run: .travis/setup
-      env: 
-        DB: mysql
-      
-
-    - name: Run Travis
-      run: .travis/run_tests.sh
+      - name: "Upload coverage file"
+        uses: "actions/upload-artifact@v2"
+        with:
+          name: "${{ github.job }}-${{ matrix.mariadb-version }}-${{ matrix.extension }}-${{ matrix.php-version }}.coverage"
+          path: "coverage.xml"
