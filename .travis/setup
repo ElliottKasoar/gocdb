@@ -7,7 +7,7 @@ doctrine="$PWD/vendor/bin/doctrine"
 if [[ -n "$DB" ]]; then
     echo "Configuring unit tests for a $DB database"
     echo ".travis/${DB}_bootstrap_doctrine.php"
-    echo $(ls)
+    echo $(ls -a)
     cp .travis/${DB}_bootstrap_doctrine.php tests/doctrine/bootstrap_doctrine.php
     cp .travis/${DB}_bootstrap_pdo.php tests/doctrine/bootstrap_pdo.php
     cd tests/doctrine
