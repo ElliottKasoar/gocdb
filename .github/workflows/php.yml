@@ -63,7 +63,10 @@ jobs:
         run: |
           cp .travis/mysql_bootstrap_doctrine.php tests/doctrine/bootstrap_doctrine.php
           cp .travis/mysql_bootstrap_pdo.php tests/doctrine/bootstrap_pdo.php
-          cd tests/doctrine
+          echo ${ls}
+          cd tests
+          echo ${ls}
+          cd doctrine
           echo ${ls}
 
       #- name: "Run PHPUnit"
