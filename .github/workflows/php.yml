@@ -63,6 +63,8 @@ jobs:
 
       - name: Set up
         run: .travis/setup
+        env: 
+          DB: mysql
 
       - name: Run PHPUnit
         run: "vendor/bin/phpunit --coverage-clover=coverage.xml tests/DoctrineTestSuite1.php"
