@@ -15,9 +15,9 @@ jobs:
         ports:
           - 3306
         env:
-          MYSQL_USER: user
+          MYSQL_USER: travis
           MYSQL_PASSWORD: password
-          MYSQL_DATABASE: test
+          MYSQL_DATABASE: doctrine
           MYSQL_ROOT_PASSWORD: password
         options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
     
@@ -53,8 +53,8 @@ jobs:
           sleep 1
         done
 
-    - name: Create database
-      run: mysql -e 'CREATE DATABASE doctrine;'
+    #- name: Create database
+    #  run: mysql -e 'CREATE DATABASE doctrine;'
 
     - name: Travis setup
       run: .travis/setup
