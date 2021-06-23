@@ -59,5 +59,10 @@ jobs:
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress
 
+      - name: Set up bootstrap files
+        run: |
+          cp .travis/mysql_bootstrap_doctrine.php tests/doctrine/bootstrap_doctrine.php
+          cp .travis/mysql_bootstrap_pdo.php tests/doctrine/bootstrap_pdo.php
+
       - name: "Run PHPUnit"
         run: "vendor/bin/phpunit --coverage-clover=coverage.xml tests/DoctrineTestSuite1.php"
