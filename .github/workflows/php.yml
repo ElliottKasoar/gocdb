@@ -58,6 +58,9 @@ jobs:
 
     - name: Travis setup
       run: .travis/setup
+      env: 
+        DB: mysql
+      
 
     - name: Run Travis
       run: .travis/run_tests.sh
