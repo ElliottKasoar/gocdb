@@ -9,9 +9,8 @@ if [[ -n "$DB" ]]; then
     cp .travis/${DB}_bootstrap_doctrine.php tests/doctrine/bootstrap_doctrine.php
     cp .travis/${DB}_bootstrap_pdo.php tests/doctrine/bootstrap_pdo.php
     cd tests/doctrine
-    $doctrine --version
-    echo "Test"
     $doctrine orm:schema-tool:create
+    mysql -e 'set global max_connections = 200;'
 else
     echo 'Cannot setup unit tests, $DB is not defined.'
     exit 1
