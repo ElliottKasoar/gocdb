@@ -25,7 +25,6 @@ jobs:
           MYSQL_ALLOW_EMPTY_PASSWORD: yes
           MYSQL_DATABASE: "doctrine"
           MYSQL_USER: "travis"
-          MYSQL_ROOT_HOST: "127.0.0.1"
 
         options: >-
           --health-cmd "mysqladmin ping --silent"
