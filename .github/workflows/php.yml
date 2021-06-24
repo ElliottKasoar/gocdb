@@ -63,7 +63,7 @@ jobs:
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress
 
-      - name: Set up
+      - name: Set up unit testing
         run: .actions/setup
         env:
           DB: mysql
