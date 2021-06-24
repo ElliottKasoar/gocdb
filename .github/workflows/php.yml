@@ -48,6 +48,9 @@ jobs:
         env:
           DB: sqlite
 
+      - name: Check modified PHP files
+        run: git diff --name-only --diff-filter=ACMRTUXB HEAD^ | grep '\.php$' | xargs -r -n 1 php -l
+
       - name: Run PHPUnit
         run: "vendor/bin/phpunit --coverage-clover=coverage.xml tests/DoctrineTestSuite1.php"
 
