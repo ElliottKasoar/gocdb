@@ -74,10 +74,16 @@ jobs:
         experimental: [false]
         include:
           - php-version: "7.2"
+            mariadb-version: "10.3"
+            extension: "pdo_mysql"
             experimental: true
           - php-version: "7.3"
+            mariadb-version: "10.3"
+            extension: "pdo_mysql"
             experimental: true
           - php-version: "7.4"
+            mariadb-version: "10.3"
+            extension: "pdo_mysql"
             experimental: true
 
     services:
