@@ -49,7 +49,7 @@ jobs:
           DB: sqlite
 
       - name: Run unit tests
-        run: run_tests.sh
+        run: .actions/run_tests.sh
 
       - name: "Upload to Codecov"
         uses: "codecov/codecov-action@v1"
@@ -135,7 +135,7 @@ jobs:
           DB: mysql
 
       - name: Run unit tests
-        run: run_tests.sh
+        run: .actions/run_tests.sh
 
       - name: "Upload to Codecov"
         uses: "codecov/codecov-action@v1"
