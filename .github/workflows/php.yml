@@ -67,3 +67,6 @@ jobs:
 
       - name: Run PHPUnit
         run: "vendor/bin/phpunit --coverage-clover=coverage.xml tests/DoctrineTestSuite1.php"
+        
+      - name: "Upload to Codecov"
+        uses: "codecov/codecov-action@v1"
