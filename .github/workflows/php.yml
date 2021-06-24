@@ -5,6 +5,53 @@ on:
     branches: [ testBranch ]
 
 jobs:
+
+  phpunit-sqlite:
+    name: "PHPUnit with SQLite"
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        php-version:
+          - "5.4"
+  
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v2"
+        with:
+          fetch-depth: 2
+
+      - name: "Install PHP"
+        uses: "shivammathur/setup-php@v2"
+        with:
+          php-version: "${{ matrix.php-version }}"
+          coverage: "pcov"
+          ini-values: "zend.assertions=1"
+
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v2
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: Set up unit testing
+        run: .actions/setup
+        env:
+          DB: sqlite
+
+      - name: Run PHPUnit
+        run: "vendor/bin/phpunit --coverage-clover=coverage.xml tests/DoctrineTestSuite1.php"
+
+      - name: "Upload to Codecov"
+        uses: "codecov/codecov-action@v1"
+
+
   phpunit-mariadb:
     name: "PHPUnit with MariaDB"
     runs-on: ubuntu-latest
@@ -13,8 +60,8 @@ jobs:
       matrix:
         php-version:
           - "5.4"
-          - "5.5"
-          - "5.6"
+          #- "5.5"
+          #- "5.6"
 
         mariadb-version:
           - "10.3"
