@@ -9,13 +9,14 @@ jobs:
   phpunit-sqlite:
     name: "PHPUnit with SQLite"
     runs-on: ubuntu-latest
+    continue-on-error: true
     strategy:
       matrix:
         php-version:
           - "5.6"
 
-    # Set true to run SQLite tests
-    if: false
+    # Set true to run SQLite test(s)
+    if: true
     
     steps:
       - name: "Checkout"
