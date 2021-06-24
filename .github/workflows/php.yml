@@ -9,6 +9,7 @@ jobs:
   phpunit-sqlite:
     name: "PHPUnit with SQLite"
     runs-on: ubuntu-latest
+    container: centos-latest
     continue-on-error: true
     strategy:
       matrix:
