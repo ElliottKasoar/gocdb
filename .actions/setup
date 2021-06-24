@@ -12,7 +12,7 @@ if [[ -n "$DB" ]]; then
     $doctrine orm:schema-tool:create
     if [[ "$DB" = "mysql" ]]; then
         mysql --host '172.18.0.1' -u root -e 'set global max_connections = 200;'
-    fi    
+    fi
 else
     echo 'Cannot setup unit tests, $DB is not defined.'
     exit 1
