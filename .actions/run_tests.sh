@@ -1,6 +1,5 @@
 #!/bin/bash
 
-echo "$DIR"
 if [[ $DIR ]]; then
     
     # Check modified PHP files with PHP's internal syntax checker
@@ -9,6 +8,6 @@ if [[ $DIR ]]; then
     # Run test suite
     vendor/bin/phpunit --coverage-clover=coverage.xml tests/DoctrineTestSuite1.php
 else
-    echo 'ABORTED: NOT RUNNING ON GITHUB ACTIONS'
+    echo 'ABORTED: NOT RUNNING ON GITHUB ACTIONS. DIR: $DIR'
     exit 2
 fi
