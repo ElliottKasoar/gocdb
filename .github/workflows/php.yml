@@ -64,7 +64,7 @@ jobs:
         run: composer install --prefer-dist --no-progress
 
       - name: Set up
-        run: .travis/setup
+        run: .actions/setup
         env: 
           DB: mysql
 
