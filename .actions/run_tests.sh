@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo $DIR
+echo "$DIR"
 if [[ $DIR ]]; then
     
     # Check modified PHP files with PHP's internal syntax checker
