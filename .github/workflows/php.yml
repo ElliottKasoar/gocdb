@@ -1,0 +1,151 @@
+name: "Continuous Integration"
+
+on:
+  push:
+    branches: [ testBranch ]
+
+jobs:
+
+  phpunit-sqlite:
+    name: "PHPUnit with SQLite"
+    runs-on: ubuntu-latest
+    #container: centos:7
+    continue-on-error: true
+    strategy:
+      matrix:
+        php-version:
+          - "5.6"
+
+    # Set true to run SQLite test(s)
+    if: true
+
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v2"
+        with:
+          fetch-depth: 2
+
+      - name: "Install PHP"
+        uses: "shivammathur/setup-php@v2"
+        with:
+          php-version: "${{ matrix.php-version }}"
+          coverage: "pcov"
+          ini-values: "zend.assertions=1"
+
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v2
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: Set up unit testing
+        run: .actions/setup
+        env:
+          DB: sqlite
+          DIR: ${{ github.workspace }}
+
+      - name: Run unit tests
+        run: .actions/run_tests.sh
+        env:
+          DIR: ${{ github.workspace }}
+
+      - name: "Upload to Codecov"
+        uses: "codecov/codecov-action@v1"
+
+
+  phpunit-mariadb:
+    name: "PHPUnit with MariaDB"
+    runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.experimental }}
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version:
+          - "5.4"
+          - "5.5"
+          - "5.6"
+          - "7.0"
+          - "7.1"
+        mariadb-version:
+          - "10.3"
+        extension:
+          - "pdo_mysql"
+        experimental: [false]
+        include:
+          - php-version: "7.2"
+            mariadb-version: "10.3"
+            extension: "pdo_mysql"
+            experimental: true
+          - php-version: "7.3"
+            mariadb-version: "10.3"
+            extension: "pdo_mysql"
+            experimental: true
+          - php-version: "7.4"
+            mariadb-version: "10.3"
+            extension: "pdo_mysql"
+            experimental: true
+          - php-version: "8.0"
+            mariadb-version: "10.3"
+            extension: "pdo_mysql"
+            experimental: true
+
+    services:
+      mariadb:
+        image: "mariadb:${{ matrix.mariadb-version }}"
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          MYSQL_DATABASE: "doctrine"
+          MYSQL_USER: "user"
+          MYSQL_PASSWORD: "password"
+
+        options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
+        ports:
+          - "3306:3306"
+
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v2"
+        with:
+          fetch-depth: 2
+
+      - name: "Install PHP"
+        uses: "shivammathur/setup-php@v2"
+        with:
+          php-version: "${{ matrix.php-version }}"
+          coverage: "pcov"
+          ini-values: "zend.assertions=1"
+          extensions: "${{ matrix.extension }}"
+
+      - name: Validate composer.json and composer.lock
+        run: composer validate
+
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v2
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: Set up unit testing
+        run: .actions/setup
+        env:
+          DB: mysql
+
+      - name: Run unit tests
+        run: .actions/run_tests.sh
+        env:
+          DIR: ${{ github.workspace }}
+
+      - name: "Upload to Codecov"
+        uses: "codecov/codecov-action@v1"
