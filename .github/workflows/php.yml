@@ -17,7 +17,7 @@ jobs:
           - "5.6"
 
     # Set true to run SQLite test(s)
-    if: true
+    if: false
 
     steps:
       - name: "Checkout"
