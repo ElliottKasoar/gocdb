@@ -95,6 +95,7 @@ jobs:
             experimental: true
 
     services:
+      if: ${{ matrix.experimental }}
       mariadb:
         image: "mariadb:${{ matrix.mariadb-version }}"
         env:
