@@ -144,6 +144,7 @@ jobs:
         run: .actions/setup
         env:
           DB: mysql
+          extension: "${{ matrix.extension }}"
 
       - name: Run unit tests
         run: .actions/run_tests.sh
