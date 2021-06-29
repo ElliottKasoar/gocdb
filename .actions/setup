@@ -8,9 +8,6 @@ if [[ "$extension" = "" ]]; then
         DB="sqlite"
 fi
 
-echo "EXTENSION: $extension"
-echo "DB $DB"
-
 doctrine="$PWD/vendor/bin/doctrine"
 
 if [[ -n "$DB" ]]; then
