@@ -1,6 +1,8 @@
 #!/bin/bash
 
-#composer install
+if [[ "$extension" = "pdo_mysql" ]]; then
+        echo "MYSQL"
+fi
 
 doctrine="$PWD/vendor/bin/doctrine"
 
