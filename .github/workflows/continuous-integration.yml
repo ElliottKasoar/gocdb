@@ -7,7 +7,7 @@ jobs:
   phpunit-sqlite:
     name: "PHPUnit with SQLite"
     runs-on: ubuntu-latest
-    # All this job to fail
+    # Allow this job to fail
     continue-on-error: true
     strategy:
       matrix:
@@ -59,7 +59,8 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: ${{ matrix.experimental }}
     strategy:
-      #fail-fast: false
+      # If true, stop required jobs if one fails:
+      fail-fast: true
       matrix:
         # Define jobs for all combinations of php, mariadb and extension up to "include"
         # Tests will be performed for each combination. These must all pass
