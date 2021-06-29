@@ -68,6 +68,7 @@ jobs:
           - "7.1"
         mariadb-version:
           - "10.3"
+          - "10.2"
         extension:
           - "pdo_mysql"
         experimental: [false]
