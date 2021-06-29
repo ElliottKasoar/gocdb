@@ -6,7 +6,7 @@ jobs:
 
   phpunit-sqlite:
     name: "PHPUnit with SQLite"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     # Allow this job to fail
     continue-on-error: true
     strategy:
