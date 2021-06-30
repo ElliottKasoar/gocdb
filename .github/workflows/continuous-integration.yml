@@ -11,7 +11,7 @@ jobs:
     continue-on-error: true
     strategy:
       matrix:
-        # Define jobs for all combinations of values given:
+        # Define jobs for all combinations of values given to be tested:
         php-version: ["5.6"]
 
     steps:
