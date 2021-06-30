@@ -51,6 +51,11 @@ function remove_property() {
     $user = $serv->getUser($userId);
     $property = $serv->getProperty($propertyId);
 
+    // Throw exception if trying to remove property that current user is authenticated with
+    if($property->getKeyValue() === $currentIdString) {
+        throw new \Exception("You cannot unlink your current ID string. Please log in using a different authentication mechanism and try again.");
+    }
+
     // Throw exception if not a valid user id
     if(is_null($user)) {
         throw new \Exception("A user with ID '" . $userId . "' cannot be found");
