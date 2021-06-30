@@ -103,7 +103,7 @@ jobs:
           MYSQL_ALLOW_EMPTY_PASSWORD: yes
           MYSQL_DATABASE: "doctrine"
           MYSQL_USER: "user"
-          MYSQL_PASSWORD: "password"
+          #MYSQL_PASSWORD: "password"
 
         options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
         ports:
