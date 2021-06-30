@@ -286,8 +286,8 @@ function Draw_Page($Page_Type) {
             break;
         case "Remove_User_Property":
             rejectIfNotAuthenticated();
-            require_once __DIR__.'/controllers/user/remove_property.php';
-            remove_property();
+            require_once __DIR__.'/controllers/user/delete_user_property.php';
+            delete_property();
             break;
         case "Downtime":
             rejectIfNotAuthenticated();
