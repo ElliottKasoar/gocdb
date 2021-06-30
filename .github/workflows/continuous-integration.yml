@@ -25,7 +25,6 @@ jobs:
         with:
           php-version: "${{ matrix.php-version }}"
           coverage: "xdebug"
-          ini-values: "zend.assertions=1"
 
       - name: Validate composer.json and composer.lock
         run: composer validate
@@ -121,7 +120,6 @@ jobs:
         with:
           php-version: "${{ matrix.php-version }}"
           coverage: "xdebug"
-          ini-values: "zend.assertions=1"
           extensions: "${{ matrix.extension }}"
 
       - name: Validate composer.json and composer.lock
