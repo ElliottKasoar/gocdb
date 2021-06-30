@@ -100,7 +100,7 @@ jobs:
       mariadb:
         image: "mariadb:${{ matrix.mariadb-version }}"
         env:
-          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          #MYSQL_ALLOW_EMPTY_PASSWORD: yes
           MYSQL_DATABASE: "doctrine"
           MYSQL_USER: "user"
           MYSQL_PASSWORD: "password"
