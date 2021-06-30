@@ -1,13 +1,5 @@
 #!/bin/bash
 
-if [[ "$extension" = "pdo_mysql" ]]; then
-        DB="mysql"
-fi
-
-if [[ "$extension" = "" ]]; then
-        DB="sqlite"
-fi
-
 doctrine="$PWD/vendor/bin/doctrine"
 
 if [[ -n "$DB" ]]; then
