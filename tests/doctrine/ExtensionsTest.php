@@ -528,7 +528,7 @@ class ExtensionsTest extends PHPUnit_Extensions_Database_TestCase {
     //Delete the property from the user
     $userService = new org\gocdb\services\User();
     $userService->setEntityManager($this->em);
-    $userService->removeUserProperty($user, $prop1, $adminUser);
+    $userService->deleteUserProperty($user, $prop1, $adminUser);
 
     //Check that the user now only has 2 properties
     $properties = $user->getUserProperties();

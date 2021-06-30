@@ -1,7 +1,7 @@
 <?php
 /*______________________________________________________
  *======================================================
- * File: remove_property.php
+ * File: delete_user_property.php
  * Author: Elliott Kasoar
  * Description: Removes a user's property
  *
@@ -27,7 +27,7 @@ require_once __DIR__.'/utils.php';
  * @global array $_POST only set if the browser has POSTed data
  * @return null
  */
-function remove_property() {
+function delete_property() {
 
     require_once __DIR__.'/../../../../lib/Gocdb_Services/Factory.php';
     require_once __DIR__.'/../../components/Get_User_Principle.php';
@@ -77,8 +77,8 @@ function remove_property() {
 
     try {
         // Function will throw error if user does not have the correct permissions
-        $serv->removeUserProperty($user, $property, $currentUser);
-        show_view("user/property_removed.php", $params);
+        $serv->deleteUserProperty($user, $property, $currentUser);
+        show_view("user/deleted_user_property.php", $params);
     } catch (Exception $e) {
         show_view('error.php', $e->getMessage());
         die();
