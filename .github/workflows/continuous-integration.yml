@@ -40,12 +40,12 @@ jobs:
         run: composer install --prefer-dist --no-progress
 
       - name: Set up unit testing
-        run: .actions/setup
+        run: .github/actions/setup
         env:
           DB: sqlite
 
       - name: Run unit tests
-        run: .actions/run_tests.sh
+        run: .github/actions/run_tests.sh
         env:
           DIR: ${{ github.workspace }}
 
@@ -137,12 +137,12 @@ jobs:
         run: composer install --prefer-dist --no-progress
 
       - name: Set up unit testing
-        run: .actions/setup
+        run: .github/actions/setup
         env:
           DB: mysql
 
       - name: Run unit tests
-        run: .actions/run_tests.sh
+        run: .github/actions/run_tests.sh
         env:
           DIR: ${{ github.workspace }}
 
