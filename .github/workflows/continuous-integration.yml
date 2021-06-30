@@ -40,7 +40,7 @@ jobs:
             ${{ runner.os }}-php-
 
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress
+        run: composer install --no-progress
 
       - name: Set up unit testing
         run: .github/actions/setup
@@ -137,7 +137,7 @@ jobs:
             ${{ runner.os }}-php-
 
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress
+        run: composer install --no-progress
 
       - name: Set up unit testing
         run: .github/actions/setup
