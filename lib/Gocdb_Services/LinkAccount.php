@@ -299,7 +299,7 @@ class LinkAccount extends AbstractEntityService {
             // Merge roles and remove secondary user so their ID string is free to be added
             if ($secondaryUser !== null) {
                 \Factory::getRoleService()->mergeRoles($primaryUser, $secondaryUser);
-                $this->em->remove($secondaryUser);
+                $serv->deleteUser($secondaryUser, $secondaryUser);
             }
 
             $this->em->remove($request);
