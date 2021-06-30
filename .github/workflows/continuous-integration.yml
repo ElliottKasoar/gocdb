@@ -7,8 +7,8 @@ jobs:
   phpunit-sqlite:
     name: "PHPUnit with SQLite"
     runs-on: ubuntu-18.04
-    # Allow this job to fail if true
-    continue-on-error: false
+    # If true, allow this job to fail:
+    continue-on-error: true
     strategy:
       matrix:
         php-version:
@@ -55,7 +55,8 @@ jobs:
 
   phpunit-mariadb:
     name: "PHPUnit with MariaDB"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
+    # If true, allow the job to fail:
     continue-on-error: ${{ matrix.experimental }}
     strategy:
       # If true, stop jobs if a required job fails:
