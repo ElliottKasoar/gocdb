@@ -12,8 +12,7 @@ jobs:
     strategy:
       matrix:
         # Define jobs for all combinations of values given:
-        php-version:
-          - "5.6"
+        php-version: ["5.6"]
 
     steps:
       - name: "Checkout"
@@ -65,16 +64,9 @@ jobs:
       matrix:
         # Define jobs for all combinations of php, mariadb and extension up to "include"
         # Tests will be performed for each combination. These must all pass
-        php-version:
-          - "5.4"
-          - "5.5"
-          - "5.6"
-          - "7.0"
-          - "7.1"
-        mariadb-version:
-          - "10.3"
-        extension:
-          - "pdo_mysql"
+        php-version: ["5.4", "5.5", "5.6", "7.0", "7.1"]
+        mariadb-version: ["10.3"]
+        extension: ["pdo_mysql"]
         experimental: [false]
         include:
           # Define jobs for individual combinations to be tested. These jobs may fail 
