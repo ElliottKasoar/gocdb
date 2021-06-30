@@ -813,7 +813,7 @@ class User extends AbstractEntityService{
      * @param \UserProperty $prop
      * @param \User $currentUser
      */
-    public function removeUserProperty(\User $user, \UserProperty $prop, \User $currentUser) {
+    public function deleteUserProperty(\User $user, \UserProperty $prop, \User $currentUser) {
         //Check the portal is not in read only mode, throws exception if it is
         $this->checkPortalIsNotReadOnlyOrUserIsAdmin($user);
 
@@ -823,7 +823,7 @@ class User extends AbstractEntityService{
         // Make the change
         $this->em->getConnection()->beginTransaction();
         try {
-            $this->removeUserPropertyLogic($user, $prop);
+            $this->deleteUserPropertyLogic($user, $prop);
             $this->em->flush();
             $this->em->getConnection()->commit();
         } catch (\Exception $e) {
@@ -840,7 +840,7 @@ class User extends AbstractEntityService{
      * @param \User $user
      * @param \UserProperty $prop
      */
-    protected function removeUserPropertyLogic(\User $user, \UserProperty $prop) {
+    protected function deleteUserPropertyLogic(\User $user, \UserProperty $prop) {
         // Check that the property's parent user the same as the one given
         if ($prop->getParentUser() !== $user) {
             $id = $prop->getId();
