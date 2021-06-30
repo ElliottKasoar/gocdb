@@ -15,6 +15,6 @@
  * @return PHPUnit_Extensions_Database_DB_IDatabaseConnection
  */
 function getConnectionToTestDB() {
-    $pdo = new PDO('mysql:host=172.18.0.1;dbname=doctrine;charset=UTF8', 'user', '');
+    $pdo = new PDO('mysql:host=172.18.0.1;dbname=doctrine;charset=UTF8', 'user');
     return new PHPUnit_Extensions_Database_DB_DefaultDatabaseConnection($pdo);
 }
