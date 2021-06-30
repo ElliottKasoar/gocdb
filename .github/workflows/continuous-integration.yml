@@ -11,6 +11,7 @@ jobs:
     continue-on-error: true
     strategy:
       matrix:
+        # Define jobs for all combinations of values given:
         php-version:
           - "5.6"
 
@@ -78,7 +79,7 @@ jobs:
           - "pdo_mysql"
         experimental: [false]
         include:
-          # Define individual combinations to also be tested. These jobs may fail 
+          # Define jobs for individual combinations to be tested. These jobs may fail 
           - php-version: "7.2"
             mariadb-version: "10.3"
             extension: "pdo_mysql"
