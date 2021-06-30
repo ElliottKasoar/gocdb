@@ -43,7 +43,6 @@ jobs:
         run: .actions/setup
         env:
           DB: sqlite
-          DIR: ${{ github.workspace }}
 
       - name: Run unit tests
         run: .actions/run_tests.sh
@@ -93,10 +92,6 @@ jobs:
             mariadb-version: "10.3"
             extension: "pdo_mysql"
             experimental: true
-          - php-version: "5.6"
-            mariadb-version: "10.3"
-            extension: ""
-            experimental: true
 
     services:
       mariadb:
@@ -143,7 +138,7 @@ jobs:
       - name: Set up unit testing
         run: .actions/setup
         env:
-          extension: "${{ matrix.extension }}"
+          DB: mysql
 
       - name: Run unit tests
         run: .actions/run_tests.sh
