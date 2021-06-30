@@ -15,9 +15,10 @@ $config = Setup::createAnnotationMetadataConfiguration(array(__DIR__."/../../lib
 $conn = array(
 	'driver' => 'pdo_mysql',
 	'user' => 'user',
+	'password' => 'password',
 	'host' => '172.18.0.1',
 	'dbname' => 'doctrine',
-    'charset' => 'UTF8'
+    	'charset' => 'UTF8'
 );
 
 $evm = new EventManager();
