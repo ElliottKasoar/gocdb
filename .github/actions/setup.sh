@@ -11,6 +11,9 @@ if [[ -n "$DB" ]]; then
     if [[ "$DB" = "mysql" ]]; then
         mysql --host '172.18.0.1' -u root -e 'set global max_connections = 200;'
     fi
+    if [[ "$DB" = "sqlite" ]]; then
+        echo sqlite3 --version
+    fi
 else
     echo 'Cannot setup unit tests, $DB is not defined.'
     exit 1
