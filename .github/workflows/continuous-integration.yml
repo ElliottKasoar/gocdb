@@ -49,7 +49,7 @@ jobs:
       - name: Run unit tests
         run: .github/actions/run_tests.sh
         env:
-          DIR: ${{ github.workspace }}
+          GITHUB_ACTIONS: ${{ github.actions }}
 
       - name: "Upload to Codecov"
         uses: "codecov/codecov-action@v1"
@@ -140,7 +140,7 @@ jobs:
       - name: Run unit tests
         run: .github/actions/run_tests.sh
         env:
-          DIR: ${{ github.workspace }}
+          GITHUB_ACTIONS: ${{ github.actions }}
 
       - name: "Upload to Codecov"
         uses: "codecov/codecov-action@v1"
