@@ -5,7 +5,7 @@ on: [push, pull_request]
 jobs:
 
   phpunit-sqlite:
-    # SQLite version depends on the current OS. See documention: 
+    # SQLite version depends on the current OS. See documention:
     # https://github.com/actions/virtual-environments/tree/main/images/linux
     name: "PHPUnit with SQLite, PHP: ${{ matrix.php-version }}"
     runs-on: ubuntu-latest
