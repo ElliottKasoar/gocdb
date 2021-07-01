@@ -56,7 +56,7 @@ jobs:
 
 
   phpunit-mariadb:
-    name: "PHPUnit with MariaDB (${{ matrix.mariadb-version }}). PHP: ${{ matrix.php-version }}, extension: ${{ matrix.extension }}"
+    name: "PHPUnit with MariaDB (${{ matrix.mariadb-version }})"
     runs-on: ubuntu-18.04
     # If true, allow the job to fail:
     continue-on-error: ${{ matrix.experimental }}
