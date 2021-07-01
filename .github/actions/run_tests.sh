@@ -1,7 +1,5 @@
 #!/bin/bash
 
-echo "ACTIONS VAR: $GITHUB_ACTIONS"
-
 if [[ $GITHUB_ACTIONS ]]; then
     # Check modified PHP files with PHP's internal syntax checker
     git diff --name-only --diff-filter=ACMRTUXB HEAD^ | grep '\.php$' | xargs -r -n 1 php -l || exit 1
