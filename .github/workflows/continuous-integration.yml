@@ -16,6 +16,9 @@ jobs:
         # Define jobs for all combinations of values given to be tested:
         php-version: ["5.6"]
 
+    env:
+      MY_ENV_VAR: ${{ (sqlite3 --version | cut -d " " -f 1) }}
+
     steps:
       - name: "Checkout"
         uses: "actions/checkout@v2"
