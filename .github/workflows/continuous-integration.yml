@@ -2,12 +2,23 @@ name: "Continuous Integration"
 
 on: [push, pull_request]
 
+env:
+  SQLITE_VERSION: ""
+
 jobs:
+
+  sqlite-version-check:
+    name: "Get SQLite version"
+    runs-on: ubuntu-latest
+    steps:  
+      - name: "Get SQLite version"
+        run: echo "SQLITE_VERSION=$(sqlite3 --version | cut -d " " -f 1)" >> $GITHUB_ENV
 
   phpunit-sqlite:
     # The SQLite version depends on the current environment. See documentation:
     # https://github.com/actions/virtual-environments/tree/main/images/linux
     name: "PHPUnit with SQLite: ${{ env.SQLITE_VERSION }}, PHP: ${{ matrix.php-version }}"
+    needs: "sqlite-version-check"
     runs-on: ubuntu-latest
     # If true, allow this job to fail:
     continue-on-error: true
@@ -17,9 +28,6 @@ jobs:
         php-version: ["5.6"]
 
     steps:
-      - name: "Get SQLite version"
-        run: echo "SQLITE_VERSION=$(sqlite3 --version | cut -d " " -f 1)" >> $GITHUB_ENV
-  
       - name: "Checkout"
         uses: "actions/checkout@v2"
         with:
