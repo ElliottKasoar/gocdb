@@ -40,7 +40,7 @@ jobs:
         run: composer install --no-progress
 
       - name: Set up unit testing
-        run: .github/actions/setup
+        run: .github/actions/setup.sh
         env:
           DB: sqlite
 
@@ -129,7 +129,7 @@ jobs:
         run: composer install --no-progress
 
       - name: Set up unit testing
-        run: .github/actions/setup
+        run: .github/actions/setup.sh
         env:
           DB: mysql
 
