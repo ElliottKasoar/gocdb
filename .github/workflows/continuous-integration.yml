@@ -140,7 +140,7 @@ jobs:
       - name: Run unit tests
         run: .github/actions/run_tests.sh
         env:
-          GITHUB_ACTIONS: true
+          GITHUB_ACTIONS: ${{ github.abc }}
 
       - name: "Upload to Codecov"
         uses: "codecov/codecov-action@v1"
