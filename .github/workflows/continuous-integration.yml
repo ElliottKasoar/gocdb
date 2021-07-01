@@ -17,7 +17,7 @@ jobs:
   phpunit-sqlite:
     # The SQLite version depends on the current environment. See documentation:
     # https://github.com/actions/virtual-environments/tree/main/images/linux
-    name: "PHPUnit with SQLite: ${{ env.SQLITE_VERSION }}, PHP: ${{ matrix.php-version }}"
+    name: "PHPUnit with SQLite, PHP: ${{ matrix.php-version }}"
     needs: "sqlite-version-check"
     runs-on: ubuntu-latest
     # If true, allow this job to fail:
