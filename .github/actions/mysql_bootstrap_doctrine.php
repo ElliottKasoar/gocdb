@@ -18,7 +18,7 @@ $conn = array(
 	'password' => 'password',
 	'host' => '172.18.0.1',
 	'dbname' => 'doctrine',
-    	'charset' => 'UTF8'
+	'charset' => 'UTF8'
 );
 
 $evm = new EventManager();
