@@ -21,7 +21,7 @@ jobs:
 
     steps:
       - name: "Get SQLite version"
-        run: echo "SQLite version $(sqlite3 --version | cut -d ' ' -f 1)"
+        run: echo "SQLite version':' $(sqlite3 --version | cut -d ' ' -f 1)"
     
       - name: "Checkout"
         uses: "actions/checkout@v2"
