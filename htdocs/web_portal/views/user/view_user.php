@@ -138,7 +138,10 @@
                     <?php if(!$params['portalIsReadOnly'] && $params['ShowEdit']):?>
                         <td class="site_table">
                             <form action="index.php?Page_Type=Remove_User_Property&amp;id=<?=$params['user']->getId();?>&amp;propertyId=<?=$prop->getId();?>" method="post">
-                                <input id="revokeButton" type="submit" value="Remove" class="btn btn-sm btn-danger" onclick="return confirmSubmit()">
+                                <input
+                                    id="revokeButton" type="submit" value="Remove" class="btn btn-sm btn-danger" onclick="return confirmSubmit()"
+                                    <?=($params['lastProperty'] || $params['currentIdString'] === $prop->getKeyValue()) ? "disabled " : "";?>
+                                >
                             </form>
                         </td>
                     <?php endif;?>
