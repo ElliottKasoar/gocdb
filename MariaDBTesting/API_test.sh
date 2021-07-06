@@ -7,6 +7,9 @@ diff_dir=/usr/share/GOCDB5/MariaDBTesting/diffDB
 oracle_URL="https://goc.egi.eu"
 maria_URL="https://host-172-16-102-162.nubes.stfc.ac.uk"
 
+grid_dir="/etc/grid-security/"
+cert_dir="${grid_dir}hostcert/"
+
 # Declare a string array
 arrMethods=()
 arrFiles=()
@@ -183,10 +186,9 @@ searchString="<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
 # Iterate the loop to read and print each array element
 for i in "${!arrMethods[@]}"
 do
-   
     if [[ ${arrPermissions[i]} = 2 ]]; then
-        wgetOptionsOracle="--ca-certificate=/etc/grid-security/hostcert.pem  --certificate=/etc/grid-security/hostcert/hostcert.pem --private-key=/etc/grid-security/hostcert/hostkey.pem --private-key-type=PEM"
-        wgetOptionsMaria="--ca-certificate=/etc/grid-security/hostcert.pem  --certificate=/etc/grid-security/hostcert/hostcert.pem --private-key=/etc/grid-security/hostcert/hostkey.pem --private-key-type=PEM"
+        wgetOptionsOracle="--ca-certificate=${grid_dir}hostcert.pem  --certificate=/${cert_dir}hostcert.pem --private-key=${cert_dir}hostkey.pem --private-key-type=PEM"
+        wgetOptionsMaria=$wgetOptionsOracle
         public="private"
     else
         wgetOptionsOracle="--no-check-certificate"
