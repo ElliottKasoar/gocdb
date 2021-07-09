@@ -35,10 +35,11 @@ function draw() {
     $user = $serv->getUserByPrinciple($id);
     $authTypes = $serv->getAuthTypes();
 
-    // if(is_null($user)) {
-    //     show_view('error.php', "Only registered users can link an account.");
-    //     die();
-    // }
+    if(is_null($user)) {
+        $params['REGISTERED'] = false;
+    } else {
+        $params['REGISTERED'] = true;
+    }
 
     $params['IDSTRING'] = $id;
     $params['CURRENTAUTHTYPE'] = $authType;

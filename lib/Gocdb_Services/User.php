@@ -848,7 +848,7 @@ class User extends AbstractEntityService{
         }
         // Check the user has more than one property
         if (sizeof($user->getUserProperties()) < 2) {
-            throw new \Exception("Cannot remove all properties from a user.");
+            throw new \Exception("Users must have at least one identity string.");
         }
         // User is the owning side so remove elements from the user
         $user->getUserProperties()->removeElement($prop);
