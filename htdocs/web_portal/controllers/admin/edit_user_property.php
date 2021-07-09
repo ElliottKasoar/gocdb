@@ -118,10 +118,9 @@ function draw() {
 function submit() {
     require_once __DIR__ . '/../../../../htdocs/web_portal/components/Get_User_Principle.php';
 
-    // Get a user service
     $serv = \Factory::getUserService();
 
-    // Get the posted service type data
+    // Get the posted data
     $userID = $_REQUEST['ID'];
     $newIdString = $_REQUEST['IdString'];
     $propertyId = $_REQUEST['propertyId'];
