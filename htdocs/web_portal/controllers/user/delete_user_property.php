@@ -20,7 +20,7 @@
  /*======================================================*/
 require_once __DIR__.'/../../../../lib/Gocdb_Services/Factory.php';
 require_once __DIR__.'/../../components/Get_User_Principle.php';
-require_once __DIR__.'/utils.php';
+require_once __DIR__ . '/../utils.php';
 
 /**
  * Controller for a user property removal request
@@ -28,10 +28,6 @@ require_once __DIR__.'/utils.php';
  * @return null
  */
 function delete_property() {
-
-    require_once __DIR__.'/../../../../lib/Gocdb_Services/Factory.php';
-    require_once __DIR__.'/../../components/Get_User_Principle.php';
-    require_once __DIR__ . '/../utils.php';
 
     $serv = \Factory::getUserService();
 
@@ -45,16 +41,12 @@ function delete_property() {
     // Check the portal is not in read only mode, returns exception if it is and user is not an admin
     checkPortalIsNotReadOnlyOrUserIsAdmin($currentUser);
 
+    // Get the posted data
     $userId = $_REQUEST['id'];
     $propertyId = $_REQUEST['propertyId'];
 
     $user = $serv->getUser($userId);
     $property = $serv->getProperty($propertyId);
-
-    // Throw exception if trying to remove property that current user is authenticated with
-    if($property->getKeyValue() === $currentIdString) {
-        throw new \Exception("You cannot unlink your current ID string. Please log in using a different authentication mechanism and try again.");
-    }
 
     // Throw exception if not a valid user id
     if(is_null($user)) {
@@ -71,7 +63,10 @@ function delete_property() {
         throw new \Exception("A property with ID '" . $propertyId . "' cannot be found");
     }
 
-    $serv->editUserAuthorization($user, $currentUser);
+    // Throw exception if trying to remove property that current user is authenticated with
+    if($property->getKeyValue() === $currentIdString) {
+        throw new \Exception("You cannot unlink your current ID string. Please log in using a different authentication mechanism and try again.");
+    }
 
     $params = array('ID' => $user->getId());
 
