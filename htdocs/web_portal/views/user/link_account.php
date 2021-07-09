@@ -1,12 +1,79 @@
 <div class="rightPageContainer">
+    <h1>Link or Recover an Account</h1>
+    <br />
+    <div>
+        <h2>What is account linking?</h2>
+        <ul>
+            <li>
+                You can use this process to add your current authentication method as a way to log in to an existing account.
+            </li>
+            <li>
+                This allows access to a single account through two or more authentication methods.
+            </li>
+            <li>
+                You must have access to the email address associated with account being linked.
+            </li>
+            <li>
+                <b>Your current authentication type must be different to any authentication types aleady associated
+                with the account being linked.</b>
+            </li>
+
+            <li> If linking is successful:
+                <ul>
+                    <li <?= $params['REGISTERED'] ? "" : "hidden"; ?>>
+                        Any roles you have with the account you are currently using will be requested
+                        for the account being linked.
+                    </li>
+                    <li <?= $params['REGISTERED'] ? "" : "hidden"; ?>>
+                        These roles will be approved automatically if either account has permission to do so.
+                    </li>
+                    <li>
+                        Your current ID string and authentication type will be added to the account being linked.
+                    </li>
+                    <li <?= $params['REGISTERED'] ? "" : "hidden"; ?>>
+                        The account you are currently using will then be deleted.
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        <h2>What is account recovery?</h2>
+        <ul>
+            <li>
+                If you no longer have access to your old account, you can use this process to regain control of your account.
+            </li>
+            <li>
+                You must have access to the email address associated with your old account.
+            </li>
+            <li>
+                <b>Your current authentication type must be the same as the authentication type of the ID string you enter for your old account.</b>
+            </li>
+
+            <li> If recovery is successful:
+                <ul>
+                    <li <?= $params['REGISTERED'] ? "" : "hidden"; ?>>
+                        Any roles you have with the account you are currently using will be requested for your old account.
+                    </li>
+                    <li <?= $params['REGISTERED'] ? "" : "hidden"; ?>>
+                        These roles will be approved automatically if either account has permission to do so.
+                    </li>
+                    <li>
+                        The ID string of your old account that matches your current authentication type will be updated to your current ID string.
+                    </li>
+                    <li <?= $params['REGISTERED'] ? "" : "hidden"; ?>>
+                        The account you are currently using will then be deleted.
+                    </li>
+                </ul>
+            </li>
+
+    </div>
+    <br />
     <div class=Form_Holder>
         <div class=Form_Holder_2>
             <form name="Link_Cert_Req" action="index.php?Page_Type=Link_Account"
                   method="post" class="inputForm" id="linkAccountForm">
-                <h1>Link An Account</h1>
                 <span>Your current Account ID (e.g. certificate DN) is: <?=$params['IDSTRING'];?></span>
                 <br/>
-                <span>Your current authentication method is: <?=$params['CURRENTAUTHTYPE'];?></span>
+                <span>Your current authentication type is: <?=$params['CURRENTAUTHTYPE'];?></span>
                 <br/>
                 <br/>
 

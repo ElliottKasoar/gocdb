@@ -108,7 +108,7 @@
     <!-- ID strings from user properties -->
     <div class="listContainer" style="width: 99.5%; float: left; margin-top: 3em; margin-right: 10px;">
         <span class="header" style="vertical-align:middle; float: left; padding-top: 0.9em; padding-left: 1em;">
-            ID Strings
+            Identity Strings
         </span>
 
         <table style="clear: both; width: 100%;">
