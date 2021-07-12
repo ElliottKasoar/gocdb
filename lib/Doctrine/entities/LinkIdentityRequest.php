@@ -1,16 +1,16 @@
 <?php
 
 /**
- * Records a new account link request record.
+ * Records a new identity link request record.
  * <p>
- * Users may want to link two or more accounts with different auth mechanisms.
+ * Users may want to link two or more auth mechanisms to a single account.
  * This record stores the relevant data needed to do this, including
  * a confirmation code that is sent to the user's existing email
- * address - they need to provide the code to complete the account linking transaction.
+ * address - they need to provide the code to complete the identity linking transaction.
  *
- * @Entity @Table(name="LinkAccountRequests")
+ * @Entity @Table(name="LinkIdentityRequests")
  */
-class LinkAccountRequest {
+class LinkIdentityRequest {
 
     /** @Id @Column(type="integer") @GeneratedValue */
     protected $id;
@@ -60,7 +60,7 @@ class LinkAccountRequest {
     }
 
     /**
-     * Get the User which is having an account added to it.
+     * Get the User which is having an identity added to it.
      * @return \User
      */
     public function getPrimaryUser() {
@@ -79,7 +79,7 @@ class LinkAccountRequest {
     /**
      * Return the confirmation code that is used to authenticate the user.
      * This code is sent to the primary user's email address - they need to
-     * provide the code to complete the account linking transaction.
+     * provide the code to complete the identity linking transaction.
      * @return string
      */
     public function getConfirmCode() {
@@ -137,7 +137,7 @@ class LinkAccountRequest {
     /**
      * Set the confirmation code that is used to authenticate the user.
      * This code is sent to the primary user's email address - they need to
-     * provide the code to complete the account linking transaction.
+     * provide the code to complete the identity linking transaction.
      * @param string $code
      */
     public function setConfirmCode($code) {

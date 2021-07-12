@@ -49,8 +49,8 @@ class User extends AbstractEntityService{
     }
 
     /**
-     * Lookup a User object by user's id string, stored in certificateDn.
-     * @param string $userPrinciple the user's principle id string, e.g. DN.
+     * Lookup a User object by user's ID string, stored in certificateDn.
+     * @param string $userPrinciple the user's principle ID string, e.g. DN.
      * @return User object or null if no user can be found with the specified principle
      */
     public function getUserFromDn($userPrinciple) {
@@ -65,8 +65,8 @@ class User extends AbstractEntityService{
     }
 
     /**
-     * Lookup a User object by user's principle id string from UserProperty.
-     * @param string $userPrinciple the user's principle id string, e.g. DN.
+     * Lookup a User object by user's principle ID string from UserProperty.
+     * @param string $userPrinciple the user's principle ID string, e.g. DN.
      * @return User object or null if no user can be found with the specified principle
      */
     public function getUserByPrinciple($userPrinciple) {
@@ -83,8 +83,8 @@ class User extends AbstractEntityService{
     }
 
     /**
-     * Lookup a User object by user's principle id string and auth type from UserProperty.
-     * @param string $userPrinciple the user's principle id string, e.g. DN.
+     * Lookup a User object by user's principle ID string and auth type from UserProperty.
+     * @param string $userPrinciple the user's principle ID string, e.g. DN.
      * @param string $authType the authorisation type e.g. IGTF X509 Cert.
      * @return User object or null if no user can be found with the specified principle
      */

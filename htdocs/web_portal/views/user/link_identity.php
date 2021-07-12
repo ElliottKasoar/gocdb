@@ -1,17 +1,17 @@
 <div class="rightPageContainer">
-    <h1>Link or Recover an Account</h1>
+    <h1>Link Identity or Recover an Account</h1>
     <br />
     <div>
-        <h2>What is account linking?</h2>
+        <h2>What is identity linking?</h2>
         <ul>
             <li>
                 You can use this process to add your current authentication method as a way to log in to an existing account.
             </li>
             <li>
-                This allows access to a single account through two or more authentication methods.
+                This allows access to a single account through two or more identifiers.
             </li>
             <li>
-                You must have access to the email address associated with account being linked.
+                You must have access to the email address associated with the account being linked.
             </li>
             <li>
                 <b>Your current authentication type must be different to any authentication types aleady associated
@@ -31,7 +31,7 @@
                         Your current ID string and authentication type will be added to the account being linked.
                     </li>
                     <li <?= $params['REGISTERED'] ? "" : "hidden"; ?>>
-                        The account you are currently using will then be deleted.
+                        <b>The account you are currently using will then be deleted.</b>
                     </li>
                 </ul>
             </li>
@@ -39,13 +39,13 @@
         <h2>What is account recovery?</h2>
         <ul>
             <li>
-                If you no longer have access to your old account, you can use this process to regain control of your account.
+                If your identifier has changed, you can use this process to update it and regain control of your old account.
             </li>
             <li>
                 You must have access to the email address associated with your old account.
             </li>
             <li>
-                <b>Your current authentication type must be the same as the authentication type of the ID string you enter for your old account.</b>
+                <b>Your current authentication type must be the same as the authentication type you enter for your old account.</b>
             </li>
 
             <li> If recovery is successful:
@@ -60,25 +60,28 @@
                         The ID string of your old account that matches your current authentication type will be updated to your current ID string.
                     </li>
                     <li <?= $params['REGISTERED'] ? "" : "hidden"; ?>>
-                        The account you are currently using will then be deleted.
+                        <b>The account you are currently using will then be deleted.</b>
                     </li>
                 </ul>
             </li>
 
     </div>
-    <br />
+    <br/>
     <div class=Form_Holder>
         <div class=Form_Holder_2>
-            <form name="Link_Cert_Req" action="index.php?Page_Type=Link_Account"
-                  method="post" class="inputForm" id="linkAccountForm">
-                <span>Your current Account ID (e.g. certificate DN) is: <?=$params['IDSTRING'];?></span>
+            <form name="Link_Cert_Req" action="index.php?Page_Type=Link_Identity"
+                  method="post" class="inputForm" id="linkIdentityForm">
+                <span>Your current ID string (e.g. certificate DN) is: <?=$params['IDSTRING'];?></span>
                 <br/>
                 <span>Your current authentication type is: <?=$params['CURRENTAUTHTYPE'];?></span>
                 <br/>
                 <br/>
 
+                <h2>Details of account to be linked or recovered</h2>
+                <br/>
+
                 <div class="form-group" id="authTypeGroup">
-                    <label class="control-label" for="authType">Authentication type:</label>
+                    <label class="control-label" for="authType">Authentication type *</label>
                     <div class="controls">
                         <select
                             class="form-control"
@@ -103,8 +106,8 @@
                 </div>
 
                 <div class="form-group" id="primaryIdGroup">
-                    <label class="control-label" for="primaryId">Account ID to be linked *
-                        <label class="input_syntax" >(e.g. if DN: /C=.../OU=.../...)</label>
+                    <label class="control-label" for="primaryId">ID string *
+                        <label class="input_syntax" >(e.g. for IGTF X509 Cert: /C=.../OU=.../...)</label>
                     </label>
 
                     <div class="controls">
@@ -117,7 +120,7 @@
                 <br/>
 
                 <div class="form-group" id="emailGroup">
-                    <label class="control-label" for="primaryId">E-mail address of account to be linked *
+                    <label class="control-label" for="primaryId">E-mail address *
                         <label class="input_syntax" >(valid e-mail format)</label>
                     </label>
 
@@ -149,6 +152,7 @@
         color: red;
     }
     .auth-warning-severe {
+        color: red;
         font-style: italic;
     }
 </style>
@@ -157,7 +161,7 @@
 
     $(document).ready(function() {
         // Add the jQuery form change event handlers
-        $("#linkAccountForm").find(":input").change(function() {
+        $("#linkIdentityForm").find(":input").change(function() {
             validate();
         });
     });
@@ -186,9 +190,9 @@
 
         // Different warnings if selected auth type is same as method currently in use
         if (selectedAuthType === currentAuthType) {
-            authTypeText1 += selectedAuthType + ' is the same as your current authentication method. ';
-            authTypeText2 += 'If you submit and confirm this request, your old id will be overwritten and ';
-            authTypeText2 += 'you will no longer be able to login using it. Are you sure you wish to proceed?';
+            authTypeText1 += '"' + selectedAuthType + '" is the same as your current authentication type.';
+            authTypeText2 += ' Proceeding will begin the account recovery process.';
+            authTypeText2 += ' If this is successful, you will no longer be able to log in using your old ID string.';
 
             // Stronger warning for certain types. Certificates will be less severe?
             if (selectedAuthType === "IGTF X509 Cert") {
@@ -199,13 +203,12 @@
                 $('#authTypeLabel3').addClass("hidden");
                 $('#authPlaceholder3').removeClass("hidden");
             }
-            $('.auth-message').addClass("auth-warning");
+            $('#authTypeLabel2').addClass("auth-warning");
 
         } else {
-            authTypeText1 += selectedAuthType + ' is different to your current authentication method. ';
-            authTypeText2 += 'If you submit and confirm this request, your current id will be added ';
-            authTypeText2 += 'as a login method to the account associated with the id you enter.';
-            $('.auth-message').removeClass("auth-warning");
+            authTypeText1 += '"' + selectedAuthType + '" is different to your current authentication type.';
+            authTypeText2 += 'Proceeding will begin the identity linking process.'
+            $('#authTypeLabel2').removeClass("auth-warning");
             $('#authTypeLabel3').addClass("hidden");
             $('#authPlaceholder3').removeClass("hidden");
         }
@@ -250,7 +253,7 @@
     }
 
     // Validate all inputs on any change
-    // Enable/disabled id string input based on selection of auth type
+    // Enable/disabled ID string input based on selection of auth type
     // Enable/disable and format submit button based on all other inputs
     function validate() {
         var idValid = false;
@@ -263,7 +266,7 @@
         authTypeValid = isInputValid(regExAuthType, inputAuthType);
         authTypeEmpty = isInputEmpty(inputAuthType);
 
-        // Validate id string
+        // Validate ID string
         var regExId = getRegExId();
         var inputId = '#primaryId';
         idValid = isInputValid(regExId, inputId);
@@ -310,9 +313,9 @@
         return inputEmpty;
     }
 
-    // Enable id string input if auth type is valid
+    // Enable ID string input if auth type is valid
     function enableId(valid, empty) {
-        // Disable/enable id string based on auth type validity
+        // Disable/enable ID string based on auth type validity
         if(valid && !empty) {
             $('#primaryId').prop('disabled', false);
         } else {
@@ -336,11 +339,11 @@
             $('#authTypeGroup').addClass("has-error");
         }
 
-        // Enable id string input if auth type is valid
+        // Enable ID string input if auth type is valid
         enableId(valid, empty);
     }
 
-    // Format id string input on selection of auth type based on validation
+    // Format ID string input on selection of auth type based on validation
     // Only apply if value has been entered (valid/invalid based on regex)
     function formatIdFromAuth() {
         var regEx = getRegExId();
@@ -368,7 +371,7 @@
         }
     }
 
-    // Format id string input on entering value based on validation
+    // Format ID string input on entering value based on validation
     // Error if invalid (regex) format or if nothing entered
     function formatId() {
         var regEx = getRegExId();
@@ -388,9 +391,9 @@
             $("#idPlaceholder").addClass("hidden");
         }
         if (!valid && !empty) {
-            $("#idError").text("You have entered an invalid id for the selected authentication method");
+            $("#idError").text("You have entered an invalid ID for the selected authentication method");
         } else if (empty) {
-            $("#idError").text("Please enter the id of the account you want to link to");
+            $("#idError").text("Please enter the ID string of the account you want to be linked");
         }
     }
 

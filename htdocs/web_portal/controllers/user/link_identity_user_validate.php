@@ -1,10 +1,10 @@
 <?php
 
 /**
- * Controller for user to confirm their account linking
+ * Controller for user to confirm their identity linking
  * @return null
  */
-function validate_account_link() {
+function validate_identity_link() {
     require_once __DIR__ . '/../../../../lib/Gocdb_Services/Factory.php';
     require_once __DIR__ . '/../../../../htdocs/web_portal/components/Get_User_Principle.php';
     require_once __DIR__ . '/utils.php';
@@ -24,10 +24,10 @@ function validate_account_link() {
     }
 
     try {
-        Factory::getLinkAccountService()->confirmAccountLinking($confirmationCode, $currentId);
+        Factory::getLinkIdentityService()->confirmIdentityLinking($confirmationCode, $currentId);
     } catch(\Exception $e) {
         show_view('error.php', $e->getMessage());
         die();
     }
-    show_view('user/linked_account.php');
+    show_view('user/linked_identity.php');
 }
