@@ -275,8 +275,7 @@ class User {
     }
 
     /**
-     * Set the user's unique account ID, typcially and x509 DN string. Required.
-     * @todo Needs renaming to setAccountID
+     * Set the user's x509 DN string
      * @param string $certificateDn
      */
     public function setCertificateDn($certificateDn) {

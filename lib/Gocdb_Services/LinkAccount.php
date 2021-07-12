@@ -15,7 +15,7 @@ class LinkAccount extends AbstractEntityService {
 
         $serv = \Factory::getUserService();
 
-        // Ideally, the id string and auth type match a user property
+        // Ideally, the ID string and auth type match a user property
         $user = $serv->getUserByPrincipleAndType($idString, $authType);
         if($user === null) {
             // If no valid user properties, check certificateDNs
@@ -40,7 +40,7 @@ class LinkAccount extends AbstractEntityService {
 
         $serv = \Factory::getUserService();
 
-        // Ideally, the id string and auth type match a user property
+        // Ideally, the ID string and auth type match a user property
         $primaryUser = $serv->getUserByPrincipleAndType($primaryIdString, $primaryAuthType);
         if($primaryUser === null) {
             // If no valid user properties, check certificateDNs
@@ -98,6 +98,13 @@ class LinkAccount extends AbstractEntityService {
             $requestType = 'link';
         }
 
+        // Recovery or account linking
+        if ($currentUser === null) {
+            $registered = false;
+        } else {
+            $registered = true;
+        }
+
         //apply change
         try {
             $this->em->getConnection()->beginTransaction();
@@ -106,7 +113,7 @@ class LinkAccount extends AbstractEntityService {
 
             // Send email (before commit - if it fails we'll need a rollback)
             // Todo: add auth types to email?
-            $this->sendConfirmationEmail($primaryUser, $code, $primaryIdString, $currentIdString, $requestType);
+            $this->sendConfirmationEmail($primaryUser, $code, $primaryIdString, $primaryAuthType, $currentIdString, $currentAuthType, $requestType, $registered);
 
             $this->em->getConnection()->commit();
         } catch(\Exception $ex) {
@@ -143,9 +150,9 @@ class LinkAccount extends AbstractEntityService {
     }
 
     /**
-     * Gets a link account request from the database based on current id string
+     * Gets a link account request from the database based on current ID string
      * Id string my be present as primary or secondary user
-     * @param string $idString id string of user to be linked in primary account
+     * @param string $idString ID string of user to be linked in primary account
      * @return arraycollection
      */
     public function getLinkAccountRequestByIdString($idString) {
@@ -184,23 +191,35 @@ class LinkAccount extends AbstractEntityService {
     /**
      * Composes confimation email to be sent to the user
      *
-     * @param type $primaryIdString id string $primaryUser
-     * @param type $currentIdString id string for current user
+     * @param type $primaryIdString ID string $primaryUser
+     * @param type $currentIdString ID string for current user
      * @param type $requestType account recovery or linking
      * @param type $link to be clicked
+     * @param type $registered true if the current user is registered
      * @return arraycollection
      */
-    private function composeEmail($primaryIdString, $currentIdString, $requestType, $link) {
+    private function composeEmail($primaryIdString, $primaryAuthType, $currentIdString, $currentAuthType, $requestType, $link, $registered) {
 
         if ($requestType === 'link') {
 
             $subject = "Validation of linking your GOCDB account";
 
             $body = "Dear GOCDB User,\n\n"
-            ."A request to link your GOCDB account (account ID: $primaryIdString) and privileges with another "
-                . "account ID has just been made on GOCDB."
-            ."\n\nThe second account ID is: $currentIdString"
-            ."\n\nIf you wish to associate your GOCDB account with this account ID, please validate your request by clicking on the link below:\n"
+            ."A request to add a new authentication method to your GOCDB account "
+                . "(ID string: $primaryIdString, authentication type: $primaryAuthType) has just been made on GOCDB."
+            ."\n\nThe new authentication details are:"
+            ."\nID string: $currentIdString"
+            ."\nAuthentication type: $currentAuthType";
+
+            if ($registered) {
+                $body .= "\n\nThe new authentication method is currently associated with a second registered account."
+                ." If linking is sucessful, any roles currently associated with this second account (ID string: $currentIdString)"
+                ." will be requested for your GOCDB account (ID string: $primaryIdString)."
+                ." These roles will be approved automatically if either account has permission to do so."
+                ."\n\n The second account will then be deleted.";
+            }
+
+            $body .= "\n\nIf you wish to associate your GOCDB account with this authentication method, please validate your request by clicking on the link below:\n"
             ."$link".
             "\n\nIf you did not create this request in GOCDB, please immediately contact gocdb-admins@mailman.egi.eu";
 
@@ -209,10 +228,19 @@ class LinkAccount extends AbstractEntityService {
             $subject = "Validation of recovering your GOCDB account";
 
             $body = "Dear GOCDB User,\n\n"
-            ."A request to retrieve and associate your GOCDB account (account ID: $primaryIdString) and privileges with a new "
-                . "account ID has just been made on GOCDB."
-            ."\n\nThe new account ID is: $currentIdString"
-            ."\n\nIf you wish to associate your GOCDB account with this account ID, please validate your request by clicking on the link below:\n"
+            ."A request to retrieve and associate your GOCDB account (ID string: $primaryIdString, authentication type: $primaryAuthType) "
+                . "and privileges with a new ID string has just been made on GOCDB."
+            ."\n\nThe new ID string is: $currentIdString";
+
+            if ($registered) {
+                $body .= "\n\nThe new ID string is currently associated with a second registered account."
+                ." If recovery is sucessful, any roles currently associated with this second account (ID string: $currentIdString)"
+                ." will be requested for your GOCDB account (ID string: $primaryIdString)."
+                ." These roles will be approved automatically if either account has permission to do so."
+                ."\n\n The second account will then be deleted.";
+            }
+
+            $body .= "\n\nIf you wish to associate your GOCDB account with this ID string, please validate your request by clicking on the link below:\n"
             ."$link".
             "\n\nIf you did not create this request in GOCDB, please immediately contact gocdb-admins@mailman.egi.eu";
 
@@ -227,14 +255,17 @@ class LinkAccount extends AbstractEntityService {
      *
      * @param \User $primaryUser user who will have new log-in added
      * @param type $confirmationCode generated confirmation code
-     * @param type $primaryIdString id string $primaryUser
-     * @param type $currentIdString id string for current user
+     * @param type $primaryIdString ID string $primaryUser
+     * @param type $primaryAuthType auth type of $primaryIdString
+     * @param type $currentIdString ID string for current user
+     * @param type $currentAuthType auth type of $currentIdString
+     * @param type $registered true if the current user is registered
      * @throws \Exception
      */
-    private function sendConfirmationEmail(\User $primaryUser, $confirmationCode, $primaryIdString, $currentIdString, $requestType) {
+    private function sendConfirmationEmail(\User $primaryUser, $confirmationCode, $primaryIdString, $primaryAuthType, $currentIdString, $currentAuthType, $requestType, $registered) {
         $portalUrl = \Factory::getConfigService()->GetPortalURL();
         $link = $portalUrl."/index.php?Page_Type=User_Validate_Account_Link&c=".$confirmationCode;
-        $composedEmail = $this->composeEmail($primaryIdString, $currentIdString, $requestType, $link);
+        $composedEmail = $this->composeEmail($primaryIdString, $primaryAuthType, $currentIdString, $currentAuthType, $requestType, $link, $registered);
         $subject = $composedEmail['subject'];
         $body = $composedEmail['body'];
 
@@ -275,7 +306,7 @@ class LinkAccount extends AbstractEntityService {
         // Are we recovering or linking an account? True if linking
         $linking = ($request->getPrimaryAuthType() !== $request->getSecondaryAuthType());
 
-        // Recovering: Allow overwrite in addProperties, which will edit the property id string
+        // Recovering: Allow overwrite in addProperties, which will edit the property ID string
         // Linking: Prevent overwriting, as we want to add a new property
         $preventOverwrite = $linking;
 

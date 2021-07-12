@@ -64,9 +64,9 @@ function submit() {
         die();
     }
 
-    // Check id string of account to be linked is different to current id
+    // Check ID string of account to be linked is different to current id
     if($currentId === $primaryId) {
-        show_view('error.php', "The id string entered must differ to your current id string");
+        show_view('error.php', "The ID string entered must differ to your current ID string");
         die();
     }
 
