@@ -138,10 +138,15 @@
                     <?php if(!$params['portalIsReadOnly'] && $params['ShowEdit']):?>
                         <td class="site_table">
                             <form action="index.php?Page_Type=Remove_User_Property&amp;id=<?=$params['user']->getId();?>&amp;propertyId=<?=$prop->getId();?>" method="post">
-                                <input
-                                    id="revokeButton" type="submit" value="Remove" class="btn btn-sm btn-danger" onclick="return confirmSubmit()"
-                                    <?=($params['lastProperty'] || $params['currentIdString'] === $prop->getKeyValue()) ? "disabled " : "";?>
+                                <div class="btn-like"
+                                    <?php if ($params['lastProperty']) echo "title='Cannot remove all ID strings from a user'";?>
+                                    <?php if ($params['currentIdString'] === $prop->getKeyValue()) echo "title='Cannot remove the ID string you are using'";?>
                                 >
+                                    <input
+                                        id="revokeButton" type="submit" value="Remove" class="btn btn-sm btn-danger" onclick="return confirmSubmit()"
+                                        <?php if ($params['lastProperty'] || $params['currentIdString'] === $prop->getKeyValue()) echo "disabled";?>
+                                    >
+                                </div>
                             </form>
                         </td>
                     <?php endif;?>
@@ -345,3 +350,12 @@
     //    $('#revokeButton').tooltip();
     //});
 </script>
+
+<style>
+    div.btn-like {
+        padding: 0px 0px;
+        display: inline-block;
+        margin-bottom: 0;
+        font-size: 12px;
+    }
+</style>
