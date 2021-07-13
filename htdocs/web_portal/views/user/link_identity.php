@@ -8,7 +8,7 @@
                 You can use this process to add your current authentication method as a way to log in to an existing account.
             </li>
             <li>
-                This allows access to a single account through two or more authentication methods.
+                This allows access to a single account through two or more identifiers.
             </li>
             <li>
                 You must have access to the email address associated with the account being linked.
@@ -39,7 +39,7 @@
         <h2>What is account recovery?</h2>
         <ul>
             <li>
-                If you no longer have access to your old account, you can use this process to regain control of your account.
+                If your identifier has changed, you can use this process to update it and regain control of your old account.
             </li>
             <li>
                 You must have access to the email address associated with your old account.
