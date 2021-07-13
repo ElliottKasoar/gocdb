@@ -6,8 +6,11 @@ class LinkIdentity extends AbstractEntityService {
 
     /**
      * Processes an identity link request
-     * @param \User $primaryUser
-     * @param \User $currentUser
+     * @param string $currentIdString
+     * @param string $givenEmail
+     * @param string $primaryIdString
+     * @param string $primaryAuthType
+     * @param string $currentAuthType
      */
     public function newLinkIdentityRequest($currentIdString, $givenEmail, $primaryIdString, $primaryAuthType, $currentAuthType) {
 
