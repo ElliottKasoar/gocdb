@@ -5,11 +5,11 @@ require_once __DIR__.'/../../components/Get_User_Principle.php';
 require_once __DIR__.'/utils.php';
 
 /**
- * Controller for a link account request.
+ * Controller for a link identity request.
  * @global array $_POST only set if the browser has POSTed data
  * @return null
  */
-function link_account() {
+function link_identity() {
     //Check the portal is not in read only mode, returns exception if it is
     checkPortalIsNotReadOnly();
 
@@ -45,7 +45,7 @@ function draw() {
     $params['CURRENTAUTHTYPE'] = $authType;
     $params['AUTHTYPES'] = $authTypes;
 
-    show_view('user/link_account.php', $params, 'Link Account');
+    show_view('user/link_identity.php', $params, 'Link Identity');
 }
 
 function submit() {
@@ -64,18 +64,18 @@ function submit() {
         die();
     }
 
-    // Check ID string of account to be linked is different to current id
+    // Check ID string to be linked is different to current ID string
     if($currentId === $primaryId) {
         show_view('error.php', "The ID string entered must differ to your current ID string");
         die();
     }
 
     try {
-        $linkReq = \Factory::getLinkAccountService()->newLinkAccountRequest($currentId, $givenEmail, $primaryId, $primaryAuthType, $currentAuthType);
+        $linkReq = \Factory::getLinkIdentityService()->newLinkIdentityRequest($currentId, $givenEmail, $primaryId, $primaryAuthType, $currentAuthType);
     } catch(\Exception $e) {
         show_view('error.php', $e->getMessage());
         die();
     }
 // secondary, email, promary. auth
-    show_view('user/link_account_accepted.php');
+    show_view('user/link_identity_accepted.php');
 }

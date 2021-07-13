@@ -3,40 +3,14 @@ namespace org\gocdb\services;
 
 require_once __DIR__ . '/AbstractEntityService.php';
 
-class LinkAccount extends AbstractEntityService {
+class LinkIdentity extends AbstractEntityService {
 
     /**
-     * Validates an account link request
-     * @param string $primaryIdString
-     * @param string $authType
-     * @param string $email
-     */
-    public function validate($idString, $authType, $email) {
-
-        $serv = \Factory::getUserService();
-
-        // Ideally, the ID string and auth type match a user property
-        $user = $serv->getUserByPrincipleAndType($idString, $authType);
-        if($user === null) {
-            // If no valid user properties, check certificateDNs
-            $user = $serv->getUserFromDn($idString);
-            if($user === null) {
-                throw new \Exception("Cannot find user with id $idString and auth type $authType");
-            }
-        }
-
-        // Check the given email address matches the one given
-        if(strcasecmp($user->getEmail(), $email)) {
-            throw new \Exception("E-mail address doesn't match id");
-        }
-    }
-
-    /**
-     * Processes an account link request
+     * Processes an identity link request
      * @param \User $primaryUser
      * @param \User $currentUser
      */
-    public function newLinkAccountRequest($currentIdString, $givenEmail, $primaryIdString, $primaryAuthType, $currentAuthType) {
+    public function newLinkIdentityRequest($currentIdString, $givenEmail, $primaryIdString, $primaryAuthType, $currentAuthType) {
 
         $serv = \Factory::getUserService();
 
@@ -56,7 +30,7 @@ class LinkAccount extends AbstractEntityService {
         }
 
         // $currentUser is user making request
-        // Referred to as "secondaryUser" in LinkAccountRequest
+        // Referred to as "secondaryUser" in LinkIdentityRequest
         // User may not be registered so don't throw exception if null/no email
         $currentUser = $serv->getUserByPrinciple($currentIdString);
         
@@ -64,14 +38,15 @@ class LinkAccount extends AbstractEntityService {
             throw new \Exception("The details entered are already associated with this account");
         }
 
-        // Check the portal is not in read only mode, throws exception if it is. If portal is read only, but the user linking to another account is an admin, we will still be able to proceed.
+        // Check the portal is not in read only mode, throws exception if it is
+        // If portal is read only, but the current user is an admin, we will still be able to proceed
         $this->checkPortalIsNotReadOnlyOrUserIsAdmin($currentUser);
 
         // Check if there has already been a request to link current id, if there has,
         // remove it. This must be in a seperate try catch block to the new one,
         // to prevent constraint violations
         // Currently request to link multiple ids to one primary id are permitted
-        $previousRequest = $this->getLinkAccountRequestByIdString($currentIdString);
+        $previousRequest = $this->getLinkIdentityRequestByIdString($currentIdString);
         if(!is_null($previousRequest)) {
             try{
                 $this->em->getConnection()->beginTransaction();
@@ -88,17 +63,17 @@ class LinkAccount extends AbstractEntityService {
         // Generate confirmation code
         $code = $this->generateConfirmationCode($primaryIdString);
 
-        // Create link account request
-        $linkAccountReq = new \LinkAccountRequest($primaryUser, $currentUser, $code, $primaryIdString, $currentIdString, $primaryAuthType, $currentAuthType);
+        // Create link identity request
+        $linkIdentityReq = new \LinkIdentityRequest($primaryUser, $currentUser, $code, $primaryIdString, $currentIdString, $primaryAuthType, $currentAuthType);
 
-        // Recovery or account linking
+        // Recovery or identity linking
         if ($primaryAuthType === $currentAuthType) {
             $requestType = 'recover';
         } else {
             $requestType = 'link';
         }
 
-        // Recovery or account linking
+        // Recovery or identity linking
         if ($currentUser === null) {
             $registered = false;
         } else {
@@ -108,7 +83,7 @@ class LinkAccount extends AbstractEntityService {
         //apply change
         try {
             $this->em->getConnection()->beginTransaction();
-            $this->em->persist($linkAccountReq);
+            $this->em->persist($linkIdentityReq);
             $this->em->flush();
 
             // Send email (before commit - if it fails we'll need a rollback)
@@ -130,14 +105,14 @@ class LinkAccount extends AbstractEntityService {
     }
 
     /**
-     * Gets a link account request from the database based on userid
+     * Gets a link identity request from the database based on userid
      * Not currently in use
      * @param integer $userId userid of the request to be linked
      * @return arraycollection
      */
-    public function getLinkAccountRequestByUserId($userId) {
+    public function getLinkIdentityRequestByUserId($userId) {
         $dql = "SELECT l
-                FROM LinkAccountRequest l
+                FROM LinkIdentityRequest l
                 JOIN l.primaryUser u
                 WHERE u.id = :id";
 
@@ -150,14 +125,14 @@ class LinkAccount extends AbstractEntityService {
     }
 
     /**
-     * Gets a link account request from the database based on current ID string
+     * Gets a link identity request from the database based on current ID string
      * Id string my be present as primary or secondary user
      * @param string $idString ID string of user to be linked in primary account
      * @return arraycollection
      */
-    public function getLinkAccountRequestByIdString($idString) {
+    public function getLinkIdentityRequestByIdString($idString) {
         $dql = "SELECT l
-                FROM LinkAccountRequest l
+                FROM LinkIdentityRequest l
                 WHERE l.primaryIdString = :idString
                 OR l.secondaryIdString = :idString";
 
@@ -170,13 +145,13 @@ class LinkAccount extends AbstractEntityService {
     }
 
     /**
-     * Gets an account link request from the database based on the confirmation code
+     * Gets an identity link request from the database based on the confirmation code
      * @param string $code confirmation code of the request being retrieved
      * @return arraycollection
      */
-    public function getLinkAccountRequestByConfirmationCode($code) {
+    public function getLinkIdentityRequestByConfirmationCode($code) {
         $dql = "SELECT l
-                FROM LinkAccountRequest l
+                FROM LinkIdentityRequest l
                 WHERE l.confirmCode = :code";
 
         $request = $this->em
@@ -264,7 +239,7 @@ class LinkAccount extends AbstractEntityService {
      */
     private function sendConfirmationEmail(\User $primaryUser, $confirmationCode, $primaryIdString, $primaryAuthType, $currentIdString, $currentAuthType, $requestType, $registered) {
         $portalUrl = \Factory::getConfigService()->GetPortalURL();
-        $link = $portalUrl."/index.php?Page_Type=User_Validate_Account_Link&c=".$confirmationCode;
+        $link = $portalUrl."/index.php?Page_Type=User_Validate_Identity_Link&c=".$confirmationCode;
         $composedEmail = $this->composeEmail($primaryIdString, $primaryAuthType, $currentIdString, $currentAuthType, $requestType, $link, $registered);
         $subject = $composedEmail['subject'];
         $body = $composedEmail['body'];
@@ -278,10 +253,10 @@ class LinkAccount extends AbstractEntityService {
         }
     }
 
-    public function confirmAccountLinking ($code, $currentId) {
+    public function confirmIdentityLinking ($code, $currentId) {
 
         // Get the request
-        $request = $this->getLinkAccountRequestByConfirmationCode($code);
+        $request = $this->getLinkIdentityRequestByConfirmationCode($code);
 
         // Check there is a result
         if(is_null($request)) {
@@ -303,7 +278,7 @@ class LinkAccount extends AbstractEntityService {
         $propArr = array($request->getSecondaryAuthType(), $request->getSecondaryIdString());
         require_once __DIR__ . '/User.php';
 
-        // Are we recovering or linking an account? True if linking
+        // Are we recovering or linking an identity? True if linking
         $linking = ($request->getPrimaryAuthType() !== $request->getSecondaryAuthType());
 
         // Recovering: Allow overwrite in addProperties, which will edit the property ID string

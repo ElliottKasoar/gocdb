@@ -1,8 +1,8 @@
 <div class="rightPageContainer">
-    <h1>Link or Recover an Account</h1>
+    <h1>Link Identity or Recover an Account</h1>
     <br />
     <div>
-        <h2>What is account linking?</h2>
+        <h2>What is identity linking?</h2>
         <ul>
             <li>
                 You can use this process to add your current authentication method as a way to log in to an existing account.
@@ -69,8 +69,8 @@
     <br/>
     <div class=Form_Holder>
         <div class=Form_Holder_2>
-            <form name="Link_Cert_Req" action="index.php?Page_Type=Link_Account"
-                  method="post" class="inputForm" id="linkAccountForm">
+            <form name="Link_Cert_Req" action="index.php?Page_Type=Link_Identity"
+                  method="post" class="inputForm" id="linkIdentityForm">
                 <span>Your current ID string (e.g. certificate DN) is: <?=$params['IDSTRING'];?></span>
                 <br/>
                 <span>Your current authentication type is: <?=$params['CURRENTAUTHTYPE'];?></span>
@@ -161,7 +161,7 @@
 
     $(document).ready(function() {
         // Add the jQuery form change event handlers
-        $("#linkAccountForm").find(":input").change(function() {
+        $("#linkIdentityForm").find(":input").change(function() {
             validate();
         });
     });
@@ -207,7 +207,7 @@
 
         } else {
             authTypeText1 += '"' + selectedAuthType + '" is different to your current authentication type.';
-            authTypeText2 += 'Proceeding will begin the account linking process.'
+            authTypeText2 += 'Proceeding will begin the identity linking process.'
             $('#authTypeLabel2').removeClass("auth-warning");
             $('#authTypeLabel3').addClass("hidden");
             $('#authPlaceholder3').removeClass("hidden");
@@ -391,9 +391,9 @@
             $("#idPlaceholder").addClass("hidden");
         }
         if (!valid && !empty) {
-            $("#idError").text("You have entered an invalid id for the selected authentication method");
+            $("#idError").text("You have entered an invalid ID for the selected authentication method");
         } else if (empty) {
-            $("#idError").text("Please enter the id of the account you want to link to");
+            $("#idError").text("Please enter the ID string of the account you want to be linked");
         }
     }
 
