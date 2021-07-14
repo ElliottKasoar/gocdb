@@ -49,127 +49,127 @@ while test $# -gt 0; do
             ;;
         --all)
             shift
-            arrMethods+=("get_site" "get_site_list" "get_site_contacts" "get_site_security_info" "get_roc_list" "get_roc_contacts" "get_downtime" "get_downtime_nested_services" "get_service_endpoint" "get_service" "get_service_types" "get_user" "get_downtime_to_broadcast" "get_cert_status_changes" "get_cert_status_date" "get_service_group" "get_service_group_role" "get_ngi" "get_project_contacts" "get_site_count_per_country")
+            arrMethods+=("site" "site_list" "site_contacts" "site_security_info" "roc_list" "roc_contacts" "downtime&startdate=2021-01-01" "downtime_nested_services&startdate=2021-01-01" "service_endpoint" "service" "service_types" "user" "downtime_to_broadcast" "cert_status_changes" "cert_status_date" "service_group" "service_group_role" "ngi" "project_contacts" "site_count_per_country")
             arrFiles+=("sites" "sites_list" "site_contacts" "site_security_info" "roc_list" "roc_contacts" "downtimes" "downtime_services" "service_endpoints" "services" "service_types" "users" "downtimes_to_broadcast" "cert_status_changes" "cert_status_dates" "service_groups" "service_group_roles" "ngis" "project_contacts" "site_counts")
             arrPermissions+=(2 1 2 2 1 2 1 1 1 1 1 2 1 2 2 2 2 2 2 1)
             ;;
         --sites)
             shift
-            arrMethods+=("get_site")
+            arrMethods+=("site")
             arrFiles+=("sites")
             arrPermissions+=(2)
             ;;
         --sites_list)
             shift
-            arrMethods+=("get_site_list")
+            arrMethods+=("site_list")
             arrFiles+=("sites_list")
             arrPermissions+=(1)
             ;;
         --site_contacts)
             shift
-            arrMethods+=("get_site_contacts")
+            arrMethods+=("site_contacts")
             arrFiles+=("site_contacts")
             arrPermissions+=(2)
             ;;
         --site_security_info)
             shift
-            arrMethods+=("get_site_security_info")
+            arrMethods+=("site_security_info")
             arrFiles+=("site_security_info")
             arrPermissions+=(2)
             ;;
         --roc_list)
             shift
-            arrMethods+=("get_roc_list")
+            arrMethods+=("roc_list")
             arrFiles+=("roc_list")
             arrPermissions+=(1)
             ;;
         --roc_contacts)
             shift
-            arrMethods+=("get_roc_contacts")
+            arrMethods+=("roc_contacts")
             arrFiles+=("roc_contacts")
             arrPermissions+=(2)
             ;;
         --downtimes)
             shift
-            arrMethods+=("get_downtime")
+            arrMethods+=("downtime&startdate=2021-01-01")
             arrFiles+=("downtimes")
             arrPermissions+=(1)
             ;;
         --downtime_services)
             shift
-            arrMethods+=("get_downtime_nested_services")
+            arrMethods+=("downtime_nested_services&startdate=2021-01-01")
             arrFiles+=("downtime_services")
             arrPermissions+=(1)
             ;;
         --service_endpoints)
             shift
-            arrMethods+=("get_service_endpoint")
+            arrMethods+=("service_endpoint")
             arrFiles+=("service_endpoints")
             arrPermissions+=(1)
             ;;
         --services)
             shift
-            arrMethods+=("get_service")
+            arrMethods+=("service")
             arrFiles+=("services")
             arrPermissions+=(1)
             ;;
         --service_types)
             shift
-            arrMethods+=("get_service_types")
+            arrMethods+=("service_types")
             arrFiles+=("service_types")
             arrPermissions+=(1)
             ;;
         --users)
             shift
-            arrMethods+=("get_user")
+            arrMethods+=("user")
             arrFiles+=("users")
             arrPermissions+=(2)
             ;;
         --downtimes_to_broadcast)
             shift
-            arrMethods+=("get_downtime_to_broadcast")
+            arrMethods+=("downtime_to_broadcast")
             arrFiles+=("downtimes_to_broadcast")
             arrPermissions+=(1)
             ;;
         --cert_status_changes)
             shift
-            arrMethods+=("get_cert_status_changes")
+            arrMethods+=("cert_status_changes")
             arrFiles+=("cert_status_changes")
             arrPermissions+=(2)
             ;;
         --cert_status_dates)
             shift
-            arrMethods+=("get_cert_status_date")
+            arrMethods+=("cert_status_date")
             arrFiles+=("cert_status_dates")
             arrPermissions+=(2)
             ;;
         --service_groups)
             shift
-            arrMethods+=("get_service_group")
+            arrMethods+=("service_group")
             arrFiles+=("service_groups")
             arrPermissions+=(2)
             ;;
         --service_group_roles)
             shift
-            arrMethods+=("get_service_group_role")
+            arrMethods+=("service_group_role")
             arrFiles+=("service_group_roles")
             arrPermissions+=(2)
             ;;
         --ngis)
             shift
-            arrMethods+=("get_ngi")
+            arrMethods+=("ngi")
             arrFiles+=("ngis")
             arrPermissions+=(2)
             ;;
         --project_contacts)
             shift
-            arrMethods+=("get_project_contacts")
+            arrMethods+=("project_contacts")
             arrFiles+=("project_contacts")
             arrPermissions+=(2)
             ;;
         --site_counts)
             shift
-            arrMethods+=("get_site_count_per_country")
+            arrMethods+=("site_count_per_country")
             arrFiles+=("site_counts")
             arrPermissions+=(1)
             ;;
@@ -196,8 +196,8 @@ do
         public="public"
     fi
  
-    wget $wgetOptionsOracle -O $oracle_dir/${arrFiles[i]}.xml "${oracle_URL}/gocdbpi/${public}/?method=${arrMethods[i]}"
-    wget --no-check-certificate $wgetOptionsMaria -O $maria_dir/${arrFiles[i]}.xml "${maria_URL}/gocdbpi/${public}/?method=${arrMethods[i]}"
+    wget $wgetOptionsOracle -O $oracle_dir/${arrFiles[i]}.xml "${oracle_URL}/gocdbpi/${public}/?method=get_${arrMethods[i]}"
+    wget --no-check-certificate $wgetOptionsMaria -O $maria_dir/${arrFiles[i]}.xml "${maria_URL}/gocdbpi/${public}/?method=get_${arrMethods[i]}"
 
     if grep -q "$searchString"  "$oracle_dir/${arrFiles[i]}.xml"; then
         echo ${arrFiles[i]}.xml downloaded successfully 
