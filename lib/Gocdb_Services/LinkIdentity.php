@@ -47,21 +47,8 @@ class LinkIdentity extends AbstractEntityService {
         // If portal is read only, but the current user is an admin, we will still be able to proceed
         $this->checkPortalIsNotReadOnlyOrUserIsAdmin($currentUser);
 
-        // Check if there has already been a request to link current ID, if there has, remove it.
-        // Currently request to link multiple ids to one primary id are permitted
-        $previousRequest = $this->getLinkIdentityRequestByIdString($currentIdString);
-        if(!is_null($previousRequest)) {
-            try{
-                $this->em->getConnection()->beginTransaction();
-                $this->em->remove($previousRequest);
-                $this->em->flush();
-                $this->em->getConnection()->commit();
-            } catch(\Exception $e) {
-                $this->em->getConnection()->rollback();
-                $this->em->close();
-                throw $e;
-            }
-        }
+        // Remove any existing requests involving either user
+        $this->removeRelatedRequests($currentIdString, $primaryUser, $currentUser);
 
         // Generate confirmation code
         $code = $this->generateConfirmationCode($primaryIdString);
@@ -104,6 +91,41 @@ class LinkIdentity extends AbstractEntityService {
             $this->em->getConnection()->rollback();
             $this->em->close();
             throw $e;
+        }
+    }
+
+    /**
+     * Removes any existing requests which involve either user
+     * @param string $currentIdString
+     * @param \User $primaryUser
+     * @param \User $currentUser
+     */
+    private function removeRelatedRequests($currentIdString, $primaryUser, $currentUser) {
+
+        $previousRequests = [];
+
+        // Check for a previous request
+        $previousRequests[] = $this->getLinkIdentityRequestByUserId($primaryUser->getId());
+        if ($currentUser !== null) {
+            $previousRequests[] = $this->getLinkIdentityRequestByUserId($currentUser->getId());
+        } else {
+            $previousRequests[] = $this->getLinkIdentityRequestByIdString($currentIdString);
+        }
+
+        // Remove any requests found
+        foreach ($previousRequests as $previousRequest) {
+            if(!is_null($previousRequest)) {
+                try{
+                    $this->em->getConnection()->beginTransaction();
+                    $this->em->remove($previousRequest);
+                    $this->em->flush();
+                    $this->em->getConnection()->commit();
+                } catch(\Exception $e) {
+                    $this->em->getConnection()->rollback();
+                    $this->em->close();
+                    throw $e;
+                }
+            }
         }
     }
 
