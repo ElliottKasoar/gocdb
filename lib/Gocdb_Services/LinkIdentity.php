@@ -47,9 +47,7 @@ class LinkIdentity extends AbstractEntityService {
         // If portal is read only, but the current user is an admin, we will still be able to proceed
         $this->checkPortalIsNotReadOnlyOrUserIsAdmin($currentUser);
 
-        // Check if there has already been a request to link current id, if there has,
-        // remove it. This must be in a seperate try catch block to the new one,
-        // to prevent constraint violations
+        // Check if there has already been a request to link current ID, if there has, remove it.
         // Currently request to link multiple ids to one primary id are permitted
         $previousRequest = $this->getLinkIdentityRequestByIdString($currentIdString);
         if(!is_null($previousRequest)) {
@@ -85,7 +83,7 @@ class LinkIdentity extends AbstractEntityService {
             $registered = true;
         }
 
-        //apply change
+        // Apply change
         try {
             $this->em->getConnection()->beginTransaction();
             $this->em->persist($linkIdentityReq);
@@ -102,10 +100,10 @@ class LinkIdentity extends AbstractEntityService {
             }
 
             $this->em->getConnection()->commit();
-        } catch(\Exception $ex) {
+        } catch(\Exception $e) {
             $this->em->getConnection()->rollback();
             $this->em->close();
-            throw $ex;
+            throw $e;
         }
     }
 
