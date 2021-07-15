@@ -16,7 +16,8 @@ class LinkIdentity extends AbstractEntityService {
 
         $serv = \Factory::getUserService();
 
-        // Ideally, the ID string and auth type match a user property
+        // $primaryUser is user who will have ID string updated/added
+        // Ideally, ID string and auth type match a user property
         $primaryUser = $serv->getUserByPrincipleAndType($primaryIdString, $primaryAuthType);
         if($primaryUser === null) {
             // If no valid user properties, check certificateDNs
@@ -27,20 +28,19 @@ class LinkIdentity extends AbstractEntityService {
             }
         }
 
-        // Check the given email address matches the one given
-        if(strcasecmp($primaryUser->getEmail(), $givenEmail)) {
-            // Don't throw exception to limit info shared
-            return;
-        }
-
-        // $currentUser is user making request
-        // Referred to as "secondaryUser" in LinkIdentityRequest
-        // User may not be registered so don't throw exception if null/no email
+        // $currentUser is user making request, referred to as "secondaryUser" in LinkIdentityRequest
+        // May not be registered so can be null
         $currentUser = $serv->getUserByPrinciple($currentIdString);
         
         if($primaryUser === $currentUser) {
             // Can throw exception as it's their own ID string
             throw new \Exception("The details entered are already associated with this account");
+        }
+
+        // Check the given email address matches the one given
+        if(strcasecmp($primaryUser->getEmail(), $givenEmail)) {
+            // Don't throw exception to limit info shared
+            return;
         }
 
         // Check the portal is not in read only mode, throws exception if it is
@@ -136,12 +136,11 @@ class LinkIdentity extends AbstractEntityService {
     }
 
     /**
-     * Gets a link identity request from the database based on userid
-     * Not currently in use
+     * Gets a link identity request from the database based on user ID
      * @param integer $userId userid of the request to be linked
      * @return arraycollection
      */
-    public function getLinkIdentityRequestByUserId($userId) {
+    private function getLinkIdentityRequestByUserId($userId) {
         $dql = "SELECT l
                 FROM LinkIdentityRequest l
                 JOIN l.primaryUser u
@@ -161,7 +160,7 @@ class LinkIdentity extends AbstractEntityService {
      * @param string $idString ID string of user to be linked in primary account
      * @return arraycollection
      */
-    public function getLinkIdentityRequestByIdString($idString) {
+    private function getLinkIdentityRequestByIdString($idString) {
         $dql = "SELECT l
                 FROM LinkIdentityRequest l
                 WHERE l.primaryIdString = :idString
