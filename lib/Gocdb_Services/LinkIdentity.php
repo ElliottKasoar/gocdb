@@ -22,13 +22,15 @@ class LinkIdentity extends AbstractEntityService {
             // If no valid user properties, check certificateDNs
             $primaryUser = $serv->getUserFromDn($primaryIdString);
             if($primaryUser === null) {
-                throw new \Exception("Cannot find user with id $primaryIdString and auth type $primaryAuthType");
+                // Don't throw exception to limit info shared
+                return;
             }
         }
 
         // Check the given email address matches the one given
         if(strcasecmp($primaryUser->getEmail(), $givenEmail)) {
-            throw new \Exception("E-mail address doesn't match id");
+            // Don't throw exception to limit info shared
+            return;
         }
 
         // $currentUser is user making request
@@ -37,6 +39,7 @@ class LinkIdentity extends AbstractEntityService {
         $currentUser = $serv->getUserByPrinciple($currentIdString);
         
         if($primaryUser === $currentUser) {
+            // Can throw exception as it's their own ID string
             throw new \Exception("The details entered are already associated with this account");
         }
 
