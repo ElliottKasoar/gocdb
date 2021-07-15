@@ -93,5 +93,16 @@ function submit() {
         die();
     }
 
-    show_view('user/link_identity_accepted.php');
+    $params['IDSTRING'] = $primaryId;
+    $params['AUTHTYPE'] = $primaryAuthType;
+    $params['EMAIL'] = $givenEmail;
+
+    // Recovery or identity linking
+    if ($primaryAuthType === $currentAuthType) {
+        $params['REQUESTTEXT'] = 'account recovery';
+    } else {
+        $params['REQUESTTEXT'] = 'identity linking';
+    }
+
+    show_view('user/link_identity_accepted.php', $params);
 }
