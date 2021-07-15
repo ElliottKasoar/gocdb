@@ -66,12 +66,14 @@ function draw() {
 
 function submit() {
 
-    // "Primary" account info
+    // "Primary" account info entered by the user, corresponding to a registered account
+    // This account will have its ID string updated, or an identifier added to it
     $primaryId = $_REQUEST['PRIMARYID'];
     $givenEmail = $_REQUEST['EMAIL'];
     $primaryAuthType = $_REQUEST['AUTHTYPE'];
 
-    // "Secondary" account info
+    // "Secondary" account info, inferred from the in-use authentication
+    // There may or may not be a corresponding registered account
     $currentId = Get_User_Principle();
     $currentAuthType = Get_User_AuthType();
 
