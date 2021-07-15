@@ -129,6 +129,10 @@ class LinkIdentity extends AbstractEntityService {
         }
     }
 
+    /**
+     * Generates a confirmation code
+     * @param string $idString ID string used to generated code
+     */
     private function generateConfirmationCode($idString) {
         $confirm_code = rand(1, 10000000);
         $confirm_hash = sha1($idString.$confirm_code);
