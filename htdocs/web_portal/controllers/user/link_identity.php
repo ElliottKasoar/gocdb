@@ -37,16 +37,6 @@ function draw() {
     $user = $serv->getUserByPrinciple($idString);
     $authTypes = $serv->getAuthTypes();
 
-    if (sizeof($user->getUserProperties()) > 1) {
-        $errorMsg = "You cannot recover or link  your identifier to another account while registered with an account"
-        . " associated with multiple identifiers."
-        . " If you wish to associate your current identifier with another account,"
-        . " please unlink all other identifiers first. If you wish to add new identifiers to this account, please "
-        . " access GOCDB while authenticated with the new identifer.";
-        show_view('error.php', $errorMsg);
-        die();
-    }
-
     if(is_null($user)) {
         $params['REGISTERED'] = false;
     } else {
@@ -56,6 +46,20 @@ function draw() {
     $params['IDSTRING'] = $idString;
     $params['CURRENTAUTHTYPE'] = $authType;
     $params['AUTHTYPES'] = $authTypes;
+
+    // Prevent users with multiple properties from continuing
+    if ($user !== null) {
+        if (sizeof($user->getUserProperties()) > 1) {
+            // Store properties that aren't the one currently in use
+            foreach ($user->getUserProperties() as $prop){
+                if ($prop->getKeyName() !== $params['CURRENTAUTHTYPE']) {
+                    $params['OTHERPROPERTIES'][] = $prop;
+                }
+            }
+            show_view('user/link_identity_rejected.php', $params);
+            die();
+        }
+    }
 
     show_view('user/link_identity.php', $params, 'Link Identity');
 }
