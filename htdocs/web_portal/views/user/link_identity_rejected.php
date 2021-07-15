@@ -1,10 +1,10 @@
 <div class="rightPageContainer">
     <h1 class="Error">Error</h1>
-    <p>You cannot recover or link  your identifier to another account while registered with an account
+    <p>You cannot recover or link your identifier to another account while registered with an account
     associated with multiple identifiers. Your current identifier is:</p>
-    
+
     <?php echo "<p>{$params['CURRENTAUTHTYPE']}: {$params['IDSTRING']}</p>"?>
-    
+
     <p>The other identifiers associated with this account are:</p>
     <ul>
         <?php foreach ($params['OTHERPROPERTIES'] as $prop) {
