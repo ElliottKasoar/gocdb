@@ -48,7 +48,7 @@ class LinkIdentity extends AbstractEntityService {
         $this->checkPortalIsNotReadOnlyOrUserIsAdmin($currentUser);
 
         // Remove any existing requests involving either user
-        $this->removeRelatedRequests($currentIdString, $primaryUser, $currentUser);
+        $this->removeRelatedRequests($primaryIdString, $currentIdString, $primaryUser, $currentUser);
 
         // Generate confirmation code
         $code = $this->generateConfirmationCode($primaryIdString);
@@ -96,21 +96,29 @@ class LinkIdentity extends AbstractEntityService {
 
     /**
      * Removes any existing requests which involve either user
+     * @param string $primaryIdString
      * @param string $currentIdString
      * @param \User $primaryUser
      * @param \User $currentUser
      */
-    private function removeRelatedRequests($currentIdString, $primaryUser, $currentUser) {
+    private function removeRelatedRequests($primaryIdString, $currentIdString, $primaryUser, $currentUser) {
 
+        // Set up list for previous requests matching various criteria
         $previousRequests = [];
 
-        // Check for a previous request
+        // Matching the primary user
         $previousRequests[] = $this->getLinkIdentityRequestByUserId($primaryUser->getId());
+
+        // Matching the primary user's ID string - unlikely to exist but not impossible
+        $previousRequests[] = $this->getLinkIdentityRequestByIdString($primaryIdString);
+
+        // Matching the current user, if registered
         if ($currentUser !== null) {
             $previousRequests[] = $this->getLinkIdentityRequestByUserId($currentUser->getId());
-        } else {
-            $previousRequests[] = $this->getLinkIdentityRequestByIdString($currentIdString);
         }
+
+        // Matching the current ID string
+        $previousRequests[] = $this->getLinkIdentityRequestByIdString($currentIdString);
 
         // Remove any requests found
         foreach ($previousRequests as $previousRequest) {
@@ -147,8 +155,9 @@ class LinkIdentity extends AbstractEntityService {
     private function getLinkIdentityRequestByUserId($userId) {
         $dql = "SELECT l
                 FROM LinkIdentityRequest l
-                JOIN l.primaryUser u
-                WHERE u.id = :id";
+                JOIN l.primaryUser pu
+                JOIN l.secondaryUser su
+                WHERE pu.id = :id OR su.id = :id";
 
         $request = $this->em
             ->createQuery($dql)
