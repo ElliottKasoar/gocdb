@@ -22,30 +22,15 @@ class LinkIdentity extends AbstractEntityService {
         if($primaryUser === null) {
             // If no valid user properties, check certificateDNs
             $primaryUser = $serv->getUserFromDn($primaryIdString);
-            if($primaryUser === null) {
-                // Don't throw exception to limit info shared
-                return;
-            }
         }
 
         // $currentUser is user making request, referred to as "secondaryUser" in LinkIdentityRequest
         // May not be registered so can be null
         $currentUser = $serv->getUserByPrinciple($currentIdString);
-        
-        if($primaryUser === $currentUser) {
-            // Can throw exception as it's their own ID string
-            throw new \Exception("The details entered are already associated with this account");
-        }
 
-        // Check the given email address matches the one given
-        if(strcasecmp($primaryUser->getEmail(), $givenEmail)) {
-            // Don't throw exception to limit info shared
+        if ($this->validate($primaryUser, $currentUser, $givenEmail) === 1) {
             return;
         }
-
-        // Check the portal is not in read only mode, throws exception if it is
-        // If portal is read only, but the current user is an admin, we will still be able to proceed
-        $this->checkPortalIsNotReadOnlyOrUserIsAdmin($currentUser);
 
         // Remove any existing requests involving either user
         $this->removeRelatedRequests($primaryIdString, $currentIdString, $primaryUser, $currentUser);
@@ -92,6 +77,39 @@ class LinkIdentity extends AbstractEntityService {
             $this->em->close();
             throw $e;
         }
+    }
+
+
+/**
+     * Performs validation on request
+     * @param string $primaryIdString
+     * @param string $currentIdString
+     * @param \User $primaryUser
+     * @param \User $currentUser
+     */
+    private function validate($primaryUser, $currentUser, $givenEmail) {
+
+        if($primaryUser === null) {
+            // Don't throw exception to limit info shared
+            return 1;
+        }
+
+        if($primaryUser === $currentUser) {
+            // Can throw exception as it's their own ID string
+            throw new \Exception("The details entered are already associated with this account");
+        }
+
+        // Check the portal is not in read only mode, throws exception if it is
+        // If portal is read only, but the current user is an admin, we will still be able to proceed
+        $this->checkPortalIsNotReadOnlyOrUserIsAdmin($currentUser);
+
+        // Check the given email address matches the one given
+        if(strcasecmp($primaryUser->getEmail(), $givenEmail)) {
+            // Don't throw exception to limit info shared
+            return 1;
+        }
+
+        return 0;
     }
 
     /**
