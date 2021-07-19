@@ -67,7 +67,7 @@ function draw() {
             throw new \Exception("A property id must be specified for this user");
         }
 
-        $property = $serv->getProperty($_REQUEST['propertyId']);
+        $property = $serv->getPropertybyId($_REQUEST['propertyId']);
 
         // Throw exception if not property doesn't exist
         if(is_null($property)) {
@@ -131,12 +131,9 @@ function submit() {
     // If property exists, fetch and prepare updated values for edit
     $property = null;
     if ($propertyId !== "") {
-        $property = $serv->getProperty($propertyId);
-        $newValues = array('USERPROPERTIES' => array('NAME' => $newAuthType, 'VALUE' => $newIdString));
-    } else {
-        // Prepare new values to add
-        $propArr = array($newAuthType, $newIdString);
+        $property = $serv->getPropertyById($propertyId);
     }
+    $propArr = array($newAuthType, $newIdString);
 
     // Get the user data for the edit user property function (so it can check permissions)
     $currentIdString = Get_User_Principle();
@@ -145,7 +142,7 @@ function submit() {
     try {
         // Function will throw error if user does not have the correct permissions
         if ($property !== null) {
-            $serv->editUserProperty($user, $property, $newValues, $currentUser);
+            $serv->editUserProperty($user, $property, $propArr, $currentUser);
         } else {
             $serv->addUserProperty($user, $propArr, $currentUser);
         }
