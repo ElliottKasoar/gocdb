@@ -19,7 +19,7 @@ class LinkIdentity extends AbstractEntityService {
         // $primaryUser is user who will have ID string updated/added
         // Ideally, ID string and auth type match a user property
         $primaryUser = $serv->getUserByPrincipleAndType($primaryIdString, $primaryAuthType);
-        if($primaryUser === null) {
+        if ($primaryUser === null) {
             // If no valid user properties, check certificateDNs
             $primaryUser = $serv->getUserFromDn($primaryIdString);
         }
@@ -28,7 +28,8 @@ class LinkIdentity extends AbstractEntityService {
         // May not be registered so can be null
         $currentUser = $serv->getUserByPrinciple($currentIdString);
 
-        if ($this->validate($primaryUser, $currentUser, $givenEmail) === 1) {
+        // Validate details. For most errors, return without throwing an error to avoid sharing info
+        if ($this->validate($primaryUser, $currentUser, $currentAuthType, $givenEmail) === 1) {
             return;
         }
 
@@ -82,19 +83,19 @@ class LinkIdentity extends AbstractEntityService {
 
 /**
      * Performs validation on request
-     * @param string $primaryIdString
-     * @param string $currentIdString
      * @param \User $primaryUser
      * @param \User $currentUser
+     * @param string $currentAuthType
+     * @param string $givenEmail
      */
-    private function validate($primaryUser, $currentUser, $givenEmail) {
+    private function validate($primaryUser, $currentUser, $currentAuthType, $givenEmail) {
 
-        if($primaryUser === null) {
+        if ($primaryUser === null) {
             // Don't throw exception to limit info shared
             return 1;
         }
 
-        if($primaryUser === $currentUser) {
+        if ($primaryUser === $currentUser) {
             // Can throw exception as it's their own ID string
             throw new \Exception("The details entered are already associated with this account");
         }
@@ -104,9 +105,16 @@ class LinkIdentity extends AbstractEntityService {
         $this->checkPortalIsNotReadOnlyOrUserIsAdmin($currentUser);
 
         // Check the given email address matches the one given
-        if(strcasecmp($primaryUser->getEmail(), $givenEmail)) {
+        if (strcasecmp($primaryUser->getEmail(), $givenEmail)) {
             // Don't throw exception to limit info shared
             return 1;
+        }
+
+        // Prevent attempt to add duplicate auth type
+        foreach ($primaryUser->getUserProperties() as $prop) {
+            if ($prop->getKeyName() === $currentAuthType) {
+                return 1;
+            }
         }
 
         return 0;
@@ -140,7 +148,7 @@ class LinkIdentity extends AbstractEntityService {
 
         // Remove any requests found
         foreach ($previousRequests as $previousRequest) {
-            if(!is_null($previousRequest)) {
+            if (!is_null($previousRequest)) {
                 try{
                     $this->em->getConnection()->beginTransaction();
                     $this->em->remove($previousRequest);
@@ -414,7 +422,7 @@ class LinkIdentity extends AbstractEntityService {
         $this->checkPortalIsNotReadOnlyOrUserIsAdmin($primaryUser);
 
         // Check the id currently being used by the user is same as in the request
-        if($currentId !== $request->getSecondaryIdString()) {
+        if ($currentId !== $request->getSecondaryIdString()) {
             throw new \Exception($invalidURL);
         }
 
