@@ -453,9 +453,20 @@ class User extends AbstractEntityService{
      * @param $id ID of user property
      * @return \UserProperty
      */
-    public function getProperty($id) {
+    public function getPropertyById($id) {
         $dql = "SELECT p FROM UserProperty p WHERE p.id = :ID";
         $property = $this->em->createQuery($dql)->setParameter('ID', $id)->getOneOrNullResult();
+        return $property;
+    }
+
+    /**
+     * Returns a single user property from its ID string
+     * @param $idString ID string of user property
+     * @return \UserProperty
+     */
+    public function getPropertyByIdString($idString) {
+        $dql = "SELECT p FROM UserProperty p WHERE p.keyValue = :IDSTRING";
+        $property = $this->em->createQuery($dql)->setParameter('IDSTRING', $idString)->getOneOrNullResult();
         return $property;
     }
 
@@ -557,10 +568,9 @@ class User extends AbstractEntityService{
      * @param \User $user
      * @param array $propArr
      * @param \User $currentUser
-     * @param bool $preventOverwrite
      * @throws \Exception
      */
-    public function addUserProperty(\User $user, array $propArr, \User $currentUser, $preventOverwrite=true) {
+    public function addUserProperty(\User $user, array $propArr, \User $currentUser) {
         //Check the portal is not in read only mode, throws exception if it is
         $this->checkPortalIsNotReadOnlyOrUserIsAdmin($user);
 
@@ -570,7 +580,7 @@ class User extends AbstractEntityService{
         //Add the properties
         $this->em->getConnection()->beginTransaction();
         try {
-            $this->addUserPropertyLogic($user, $propArr, $preventOverwrite);
+            $this->addUserPropertyLogic($user, $propArr);
             $this->em->flush();
             $this->em->getConnection()->commit();
         } catch (\Exception $e) {
@@ -584,10 +594,9 @@ class User extends AbstractEntityService{
      * Logic to add an extension property to a user.
      * @param \User $user
      * @param array $propArr
-     * @param bool $preventOverwrite
      * @throws \Exception
      */
-    protected function addUserPropertyLogic(\User $user, array $propArr, $preventOverwrite=true) {
+    protected function addUserPropertyLogic(\User $user, array $propArr) {
 
         // We will use this variable to track the keys as we go along, this will be used check they are all unique later
         $keys = array();
@@ -601,7 +610,7 @@ class User extends AbstractEntityService{
         $keyName = trim($propArr[0]);
         $keyValue = trim($propArr[1]);
 
-        $this->addUserPropertyValidation($user, $keyName, $keyValue, $preventOverwrite);
+        $this->addUserPropertyValidation($user, $keyName, $keyValue);
 
         /* Find out if a property with the provided key already exists for this user.
         * If we are preventing overwrites, this will be a problem. If we are not,
@@ -627,8 +636,6 @@ class User extends AbstractEntityService{
 
             // Increment the property counter to enable check against property limit
             $propertyCount++;
-        } elseif (!$preventOverwrite) {
-            $this->editUserPropertyLogic($user, $property, array('USERPROPERTIES'=>array('NAME'=>$keyName,'VALUE'=>$keyValue)));
         } else {
             throw new \Exception("A property with name \"$keyName\" already exists for this object, no properties were added.");
         }
@@ -655,23 +662,17 @@ class User extends AbstractEntityService{
      * @param \User $user
      * @param string $keyName
      * @param string $keyValue
-     * @param bool $preventOverwrite
      * @throws \Exception
      */
-    protected function addUserPropertyValidation($user, $keyName, $keyValue, $preventOverwrite) {
+    protected function addUserPropertyValidation($user, $keyName, $keyValue) {
         // Validate against schema
         $validateArray['NAME'] = $keyName;
         $validateArray['VALUE'] = $keyValue;
         $this->validate($validateArray, 'userproperty');
 
-        // If certificateDn is not yet null:
-        // 1. Check the new property value matches, or is "overwriting"
-        // 2. Set certificateDn to null
+        // Set certificateDn to null if not already
         $certificateDn = $user->getCertificateDn();
         if ($certificateDn !== null) {
-            if ($certificateDn !== $keyValue && $preventOverwrite) {
-                throw new \Exception("Property value does not match certificateDn");
-            }
             $user->setCertificateDn(null);
             $this->em->persist($user);
             $this->em->flush();
@@ -689,11 +690,11 @@ class User extends AbstractEntityService{
      *
      * @param \User $user
      * @param \UserProperty $prop
-     * @param array $newValues
+     * @param array $propArr
      * @param \User $currentUser
      * @throws \Exception
      */
-    public function editUserProperty(\User $user, \UserProperty $prop, $newValues, \User $currentUser) {
+    public function editUserProperty(\User $user, \UserProperty $prop, array $propArr, \User $currentUser) {
         // Check the portal is not in read only mode, throws exception if it is
         $this->checkPortalIsNotReadOnlyOrUserIsAdmin($currentUser);
 
@@ -703,7 +704,7 @@ class User extends AbstractEntityService{
         // Make the change
         $this->em->getConnection()->beginTransaction();
         try {
-            $this->editUserPropertyLogic($user, $prop, $newValues);
+            $this->editUserPropertyLogic($user, $prop, $propArr);
             $this->em->flush ();
             $this->em->getConnection ()->commit();
         } catch (\Exception $e) {
@@ -718,14 +719,14 @@ class User extends AbstractEntityService{
      * Validation of the edited property values is performed by a seperate function.
      * @param \User $user
      * @param \UserProperty $prop
-     * @param array $newValues
+     * @param array $propArr
      * @throws \Exception
      */
-    protected function editUserPropertyLogic(\User $user, \UserProperty $prop, $newValues) {
+    protected function editUserPropertyLogic(\User $user, \UserProperty $prop, array $propArr) {
 
         // Trim off trailing and leading whitespace
-        $keyName = trim($newValues['USERPROPERTIES']['NAME']);
-        $keyValue = trim($newValues['USERPROPERTIES']['VALUE']);
+        $keyName = trim($propArr[0]);
+        $keyValue = trim($propArr[1]);
 
         // Validate new property
         $this->editUserPropertyValidation($user, $prop, $keyName, $keyValue);

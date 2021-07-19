@@ -393,6 +393,8 @@ class LinkIdentity extends AbstractEntityService {
 
     public function confirmIdentityLinking ($code, $currentId) {
 
+        $serv = \Factory::getUserService();
+
         // Get the request
         $request = $this->getLinkIdentityRequestByConfirmationCode($code);
 
@@ -414,22 +416,21 @@ class LinkIdentity extends AbstractEntityService {
 
         // Create property array from the secondary user's credentials
         $propArr = array($request->getSecondaryAuthType(), $request->getSecondaryIdString());
-        require_once __DIR__ . '/User.php';
 
         // Are we recovering or linking an identity? True if linking
         $linking = ($request->getPrimaryAuthType() !== $request->getSecondaryAuthType());
 
-        // Recovering: Allow overwrite in addProperties, which will edit the property ID string
-        // Linking: Prevent overwriting, as we want to add a new property
-        $preventOverwrite = $linking;
-
-        // If linking, does primary user have user properties? If not, we will add this using the request info
+        // If linking, does primary user have user properties?
+        // If not, and linking, we will add this using the request info
         $oldUser = ($primaryUser->getCertificateDn() === $request->getPrimaryIdString());
         if ($linking && $oldUser) {
-            $propArrOld = array($request->getPrimaryAuthType(), $request->getPrimaryIdString());
+                $propArrOld = array($request->getPrimaryAuthType(), $request->getPrimaryIdString());
         }
 
-        $serv = \Factory::getUserService();
+        // If recovering, get property being updated (if it exists)
+        if (!$linking && !$oldUser) {
+            $property = $serv->getPropertyByIdString($request->getPrimaryIdString());
+        }
 
         // Update primary user, remove request (and secondary user)
         try{
@@ -449,8 +450,12 @@ class LinkIdentity extends AbstractEntityService {
             $this->em->remove($request);
             $this->em->flush();
 
-            // Add (or update if recovering i.e. $preventOverwrite=false) the ID string
-            $serv->addUserProperty($primaryUser, $propArr, $primaryUser, $preventOverwrite);
+            // Add or update the ID string
+            if ($linking || $oldUser) {
+                $serv->addUserProperty($primaryUser, $propArr, $primaryUser);
+            } else {
+                $serv->editUserProperty($primaryUser, $property, $propArr, $primaryUser);
+            }
 
             $this->em->flush();
             $this->em->getConnection()->commit();

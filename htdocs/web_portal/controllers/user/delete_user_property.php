@@ -46,7 +46,7 @@ function delete_property() {
     $propertyId = $_REQUEST['propertyId'];
 
     $user = $serv->getUser($userId);
-    $property = $serv->getProperty($propertyId);
+    $property = $serv->getPropertyById($propertyId);
 
     // Throw exception if not a valid user id
     if(is_null($user)) {
