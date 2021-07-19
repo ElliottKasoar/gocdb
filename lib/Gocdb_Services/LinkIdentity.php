@@ -398,9 +398,13 @@ class LinkIdentity extends AbstractEntityService {
         // Get the request
         $request = $this->getLinkIdentityRequestByConfirmationCode($code);
 
+        $invalidURL = "Confirmation URL invalid."
+        . " If you have submitted multiple requests for the same account, please ensure you have used the link in the most recent email."
+        . " Please also ensure you are authenticated in the same way as when you made the request.";
+
         // Check there is a result
-        if(is_null($request)) {
-            throw new \Exception("Confirmation URL invalid. If you have submitted multiple requests for the same account, please ensure you have used the link in the most recent email");
+        if (is_null($request)) {
+            throw new \Exception($invalidURL);
         }
 
         $primaryUser = $request->getPrimaryUser();
@@ -411,7 +415,7 @@ class LinkIdentity extends AbstractEntityService {
 
         // Check the id currently being used by the user is same as in the request
         if($currentId !== $request->getSecondaryIdString()) {
-            throw new \Exception("Your current ID does not match the one to which requested be linked. The link will only work once, if you have refreshed the page or clicked the link a second time you will see this messaage"); //TODO: reword
+            throw new \Exception($invalidURL);
         }
 
         // Create property array from the secondary user's credentials
