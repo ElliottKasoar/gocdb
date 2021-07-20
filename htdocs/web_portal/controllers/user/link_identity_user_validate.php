@@ -17,14 +17,14 @@ function validate_identity_link() {
     }
     $confirmationCode = $_REQUEST['c'];
 
-    $currentId = Get_User_Principle();
-    if(empty($currentId)){
+    $currentIdString = Get_User_Principle();
+    if(empty($currentIdString)){
         show_view('error.php', "Could not authenticate user - null user principle");
         die();
     }
 
     try {
-        Factory::getLinkIdentityService()->confirmIdentityLinking($confirmationCode, $currentId);
+        Factory::getLinkIdentityService()->confirmIdentityLinking($confirmationCode, $currentIdString);
     } catch(\Exception $e) {
         show_view('error.php', $e->getMessage());
         die();

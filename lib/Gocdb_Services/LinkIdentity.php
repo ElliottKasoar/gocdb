@@ -6,13 +6,13 @@ class LinkIdentity extends AbstractEntityService {
 
     /**
      * Processes an identity link request
-     * @param string $currentIdString
-     * @param string $givenEmail
-     * @param string $primaryIdString
-     * @param string $primaryAuthType
-     * @param string $currentAuthType
+     * @param string $primaryIdString ID string of primary user
+     * @param string $currentIdString ID string of current user
+     * @param string $primaryAuthType auth type of primary ID string
+     * @param string $currentAuthType auth type of current ID string
+     * @param string $givenEmail email of primary user
      */
-    public function newLinkIdentityRequest($currentIdString, $givenEmail, $primaryIdString, $primaryAuthType, $currentAuthType) {
+    public function newLinkIdentityRequest($primaryIdString, $currentIdString, $primaryAuthType, $currentAuthType, $givenEmail) {
 
         $serv = \Factory::getUserService();
 
@@ -34,7 +34,7 @@ class LinkIdentity extends AbstractEntityService {
         }
 
         // Remove any existing requests involving either user
-        $this->removeRelatedRequests($primaryIdString, $currentIdString, $primaryUser, $currentUser);
+        $this->removeRelatedRequests($primaryUser, $currentUser, $primaryIdString, $currentIdString);
 
         // Generate confirmation code
         $code = $this->generateConfirmationCode($primaryIdString);
@@ -44,16 +44,16 @@ class LinkIdentity extends AbstractEntityService {
 
         // Recovery or identity linking
         if ($primaryAuthType === $currentAuthType) {
-            $requestType = 'recover';
+            $isLinking = false;
         } else {
-            $requestType = 'link';
+            $isLinking = true;
         }
 
         // Recovery or identity linking
         if ($currentUser === null) {
-            $registered = false;
+            $isRegistered = false;
         } else {
-            $registered = true;
+            $isRegistered = true;
         }
 
         // Apply change
@@ -62,15 +62,9 @@ class LinkIdentity extends AbstractEntityService {
             $this->em->persist($linkIdentityReq);
             $this->em->flush();
 
-            // Send confirmation email to primary user (before commit - if it fails we'll need a rollback)
-            $this->sendPrimaryConfirmationEmail($primaryUser, $code, $primaryIdString, $primaryAuthType, $currentIdString, $currentAuthType, $requestType, $registered);
-
-            // Send confirmation email to secondary user, if registered with different email to primary user
-            if ($registered) {
-                if ($currentUser->getEmail() !== $primaryUser->getEmail()) {
-                    $this->sendSecondaryConfirmationEmail($currentUser, $primaryIdString, $primaryAuthType, $currentIdString, $currentAuthType, $requestType);
-                }
-            }
+            // Send confirmation email(s) to primary user, and current user if registered with a different email
+            // (before commit - if it fails we'll need a rollback)
+            $this->sendConfirmationEmails($primaryUser, $currentUser, $code, $primaryIdString, $currentIdString, $primaryAuthType, $currentAuthType, $isLinking, $isRegistered);
 
             $this->em->getConnection()->commit();
         } catch(\Exception $e) {
@@ -80,13 +74,12 @@ class LinkIdentity extends AbstractEntityService {
         }
     }
 
-
 /**
      * Performs validation on request
-     * @param \User $primaryUser
-     * @param \User $currentUser
-     * @param string $currentAuthType
-     * @param string $givenEmail
+     * @param \User $primaryUser user who will have property added/updated
+     * @param \User $currentUser user creating the request
+     * @param string $currentAuthType auth type of current ID string
+     * @param string $givenEmail email of primary user
      */
     private function validate($primaryUser, $currentUser, $currentAuthType, $givenEmail) {
 
@@ -122,12 +115,12 @@ class LinkIdentity extends AbstractEntityService {
 
     /**
      * Removes any existing requests which involve either user
-     * @param string $primaryIdString
-     * @param string $currentIdString
-     * @param \User $primaryUser
-     * @param \User $currentUser
+     * @param \User $primaryUser user who will have property added/updated
+     * @param \User $currentUser user creating the request
+     * @param string $primaryIdString ID string of primary user
+     * @param string $currentIdString ID string of current user
      */
-    private function removeRelatedRequests($primaryIdString, $currentIdString, $primaryUser, $currentUser) {
+    private function removeRelatedRequests($primaryUser, $currentUser, $primaryIdString, $currentIdString) {
 
         // Set up list for previous requests matching various criteria
         $previousRequests = [];
@@ -168,9 +161,9 @@ class LinkIdentity extends AbstractEntityService {
      * @param string $idString ID string used to generated code
      */
     private function generateConfirmationCode($idString) {
-        $confirm_code = rand(1, 10000000);
-        $confirm_hash = sha1($idString.$confirm_code);
-        return $confirm_hash;
+        $confirmCode = rand(1, 10000000);
+        $confirmHash = sha1($idString.$confirmCode);
+        return $confirmHash;
     }
 
     /**
@@ -231,20 +224,20 @@ class LinkIdentity extends AbstractEntityService {
         return $request;
     }
 
-
     /**
      * Composes confimation email to be sent to the user
-     *
-     * @param string $primaryIdString ID string $primaryUser
-     * @param string $currentIdString ID string for current user
-     * @param string $requestType account recovery or linking
+     * @param string $primaryIdString ID string of primary user
+     * @param string $currentIdString ID string of current user
+     * @param string $primaryAuthType auth type of primary ID string
+     * @param string $currentAuthType auth type of current ID string
+     * @param bool $isLinking true if linking, false if recovering
+     * @param bool $isRegistered true if current user is registered
      * @param string $link to be clicked
-     * @param bool $registered true if the current user is registered
      * @return arraycollection
      */
-    private function composePrimaryEmail($primaryIdString, $primaryAuthType, $currentIdString, $currentAuthType, $requestType, $link, $registered) {
+    private function composePrimaryEmail($primaryIdString, $currentIdString, $primaryAuthType, $currentAuthType, $isLinking, $isRegistered, $link) {
 
-        if ($requestType === 'link') {
+        if ($isLinking) {
 
             $subject = "Validation of linking your GOCDB account";
 
@@ -255,7 +248,7 @@ class LinkIdentity extends AbstractEntityService {
             . "\nID string: $currentIdString"
             . "\nAuthentication type: $currentAuthType";
 
-            if ($registered) {
+            if ($isRegistered) {
                 $body .= "\n\nThe new authentication method is currently associated with a second registered account."
                 . " If linking is sucessful, any roles currently associated with this second account (ID string: $currentIdString)"
                 . " will be requested for your GOCDB account (ID string: $primaryIdString)."
@@ -267,7 +260,7 @@ class LinkIdentity extends AbstractEntityService {
             . "\n$link"
             . "\n\nIf you did not create this request in GOCDB, please immediately contact gocdb-admins@mailman.egi.eu";
 
-        } elseif ($requestType === 'recover') {
+        } else {
 
             $subject = "Validation of recovering your GOCDB account";
 
@@ -276,7 +269,7 @@ class LinkIdentity extends AbstractEntityService {
             . " and privileges with a new ID string has just been made on GOCDB."
             ."\n\nThe new ID string is: $currentIdString";
 
-            if ($registered) {
+            if ($isRegistered) {
                 $body .= "\n\nThis new ID string is currently associated with a second registered account."
                 . " If recovery is sucessful, any roles currently associated with this second account (ID string: $currentIdString)"
                 . " will be requested for your GOCDB account (ID string: $primaryIdString)."
@@ -287,58 +280,22 @@ class LinkIdentity extends AbstractEntityService {
             $body .= "\n\nIf you wish to associate your GOCDB account with this ID string, please validate your request by clicking on the link below:\n"
             . "$link"
             . "\n\nIf you did not create this request in GOCDB, please immediately contact gocdb-admins@mailman.egi.eu";
-
-        } else {
-            throw new \Exception("Invalid request type");
         }
         return array('subject'=>$subject, 'body'=>$body);
     }
 
     /**
-     * Sends a confimation email to the user being linked or recovered
-     *
-     * @param \User $primaryUser user who will have new log-in added
-     * @param string $confirmationCode generated confirmation code
-     * @param string $primaryIdString ID string $primaryUser
-     * @param string $primaryAuthType auth type of $primaryIdString
-     * @param string $currentIdString ID string for current user
-     * @param string $currentAuthType auth type of $currentIdString
-     * @param bool $registered true if the current user is registered
-     * @throws \Exception
-     */
-    private function sendPrimaryConfirmationEmail(\User $primaryUser, $confirmationCode, $primaryIdString, $primaryAuthType, $currentIdString, $currentAuthType, $requestType, $registered) {
-
-        // Create link to be clicked in email
-        $portalUrl = \Factory::getConfigService()->GetPortalURL();
-        $link = $portalUrl."/index.php?Page_Type=User_Validate_Identity_Link&c=".$confirmationCode;
-
-        // Compose emails for identity linking or recovery
-        $composedEmail = $this->composePrimaryEmail($primaryIdString, $primaryAuthType, $currentIdString, $currentAuthType, $requestType, $link, $registered);
-        $subject = $composedEmail['subject'];
-        $body = $composedEmail['body'];
-
-        // If "sendmail_from" is set in php.ini, use second line ($headers = '';):
-        $headers = "From: no-reply@goc.egi.eu";
-
-        // Mail command returns boolean. False if message not accepted for delivery.
-        if (!mail($primaryUser->getEmail(), $subject, $body, $headers)) {
-            throw new \Exception("Unable to send email message");
-        }
-    }
-
-    /**
      * Composes confimation email to be sent to the user
-     *
-     * @param string $primaryIdString ID string $primaryUser
-     * @param string $primaryAuthType auth type of $primaryIdString
-     * @param string $currentIdString ID string for current user
-     * @param string $currentAuthType auth type for current user
-     * @param string $requestType account recovery or linking
+     * @param string $primaryIdString ID string of primary user
+     * @param string $currentIdString ID string of current user
+     * @param string $primaryAuthType auth type of primary ID string
+     * @param string $currentAuthType auth type of current ID string
+     * @param bool $isLinking true if linking, false if recovering
      * @return arraycollection
      */
-    private function composeSecondaryEmail($primaryIdString, $primaryAuthType, $currentIdString, $currentAuthType, $requestType) {
+    private function composeCurrentEmail($primaryIdString, $currentIdString, $primaryAuthType, $currentAuthType, $isLinking) {
 
-        if ($requestType === 'link') {
+        if ($isLinking) {
 
             $subject = "Validation of linking your GOCDB account";
 
@@ -352,7 +309,7 @@ class LinkIdentity extends AbstractEntityService {
             . " on completetion of the identity linking process."
             . "\n\nIf you did not create this request in GOCDB, please immediately contact gocdb-admins@mailman.egi.eu";
 
-        } elseif ($requestType === 'recover') {
+        } else {
 
             $subject = "Validation of recovering your GOCDB account";
 
@@ -364,42 +321,63 @@ class LinkIdentity extends AbstractEntityService {
             . "\n\nThis new ID string is current associated with a different GOCDB account, which will be deleted"
             . " on completetion of the account recovery process."
             . "\n\nIf you did not create this request in GOCDB, please immediately contact gocdb-admins@mailman.egi.eu";
-
-        } else {
-            throw new \Exception("Invalid request type");
         }
         return array('subject'=>$subject, 'body'=>$body);
     }
 
-
     /**
-     * Sends a confimation email to the user carrying out the process
-     *
-     * @param \User $currentUser user that will be deleted
-     * @param string $primaryIdString ID string $primaryUser
-     * @param string $primaryAuthType auth type of $primaryIdString
-     * @param string $currentIdString ID string for current user
-     * @param string $currentAuthType auth type for current user
-     * @param  $requestType "link" identity or "recover" account
-     * @throws \Exception
+     * Send confirmation email(s) to primary user, and current user if registered with a different email
+     * @param \User $primaryUser user who will have property added/updated
+     * @param \User $currentUser user creating the request
+     * @param string $code confirmation code of the request being retrieved
+     * @param string $primaryIdString ID string of primary user
+     * @param string $currentIdString ID string of current user
+     * @param string $primaryAuthType auth type of primary ID string
+     * @param string $currentAuthType auth type of current ID string
+     * @param bool $isLinking true if linking, false if recovering
+     * @param bool $isRegistered true if current user is registered
      */
-    private function sendSecondaryConfirmationEmail(\User $currentUser, $primaryIdString, $primaryAuthType, $currentIdString, $currentAuthType, $requestType) {
+    private function sendConfirmationEmails($primaryUser, $currentUser, $code, $primaryIdString, $currentIdString, $primaryAuthType, $currentAuthType, $isLinking, $isRegistered) {
+
+        // Create link to be clicked in email
+        $portalUrl = \Factory::getConfigService()->GetPortalURL();
+        $link = $portalUrl."/index.php?Page_Type=User_Validate_Identity_Link&c=" . $code;
 
         // Compose emails for identity linking or recovery
-        $composedEmail = $this->composeSecondaryEmail($primaryIdString, $primaryAuthType, $currentIdString, $currentAuthType, $requestType);
-        $subject = $composedEmail['subject'];
-        $body = $composedEmail['body'];
+        $composedPrimaryEmail = $this->composePrimaryEmail($primaryIdString, $currentIdString, $primaryAuthType, $currentAuthType, $isLinking, $isRegistered, $link);
+        $primarySubject = $composedPrimaryEmail['subject'];
+        $primaryBody = $composedPrimaryEmail['body'];
 
-        //If "sendmail_from" is set in php.ini, use second line ($headers = '';):
+        // If "sendmail_from" is set in php.ini, use second line ($headers = '';):
         $headers = "From: no-reply@goc.egi.eu";
 
         // Mail command returns boolean. False if message not accepted for delivery.
-        if (!mail($currentUser->getEmail(), $subject, $body, $headers)) {
+        if (!mail($primaryUser->getEmail(), $primarySubject, $primaryBody, $headers)) {
             throw new \Exception("Unable to send email message");
+        }
+
+        // Send confirmation email to current user, if registered with different email to primary user
+        if ($isRegistered) {
+            if ($currentUser->getEmail() !== $primaryUser->getEmail()) {
+
+                $composedCurrentEmail = $this->composeCurrentEmail($primaryIdString, $currentIdString, $primaryAuthType, $currentAuthType, $isLinking);
+                $currentSubject = $composedCurrentEmail['subject'];
+                $currentBody = $composedCurrentEmail['body'];
+
+                // Mail command returns boolean. False if message not accepted for delivery.
+                if (!mail($currentUser->getEmail(), $currentSubject, $currentBody, $headers)) {
+                    throw new \Exception("Unable to send email message");
+                }
+            }
         }
     }
 
-    public function confirmIdentityLinking ($code, $currentId) {
+    /**
+     * Confirm and execute linking or recovery request
+     * @param string $code confirmation code of the request being retrieved
+     * @param string $currentIdString ID string of current user
+     */
+    public function confirmIdentityLinking ($code, $currentIdString) {
 
         $serv = \Factory::getUserService();
 
@@ -416,54 +394,54 @@ class LinkIdentity extends AbstractEntityService {
         }
 
         $primaryUser = $request->getPrimaryUser();
-        $secondaryUser = $request->getSecondaryUser();
+        $currentUser = $request->getSecondaryUser();
 
         // Check the portal is not in read only mode, throws exception if it is. If portal is read only, but the user whose id is being changed is an admin, we will still be able to proceed.
         $this->checkPortalIsNotReadOnlyOrUserIsAdmin($primaryUser);
 
         // Check the id currently being used by the user is same as in the request
-        if ($currentId !== $request->getSecondaryIdString()) {
+        if ($currentIdString !== $request->getSecondaryIdString()) {
             throw new \Exception($invalidURL);
         }
 
-        // Create property array from the secondary user's credentials
+        // Create property array from the current user's credentials
         $propArr = array($request->getSecondaryAuthType(), $request->getSecondaryIdString());
 
         // Are we recovering or linking an identity? True if linking
-        $linking = ($request->getPrimaryAuthType() !== $request->getSecondaryAuthType());
+        $isLinking = ($request->getPrimaryAuthType() !== $request->getSecondaryAuthType());
 
         // If linking, does primary user have user properties?
         // If not, and linking, we will add this using the request info
         $oldUser = ($primaryUser->getCertificateDn() === $request->getPrimaryIdString());
-        if ($linking && $oldUser) {
+        if ($isLinking && $oldUser) {
                 $propArrOld = array($request->getPrimaryAuthType(), $request->getPrimaryIdString());
         }
 
         // If recovering, get property being updated (if it exists)
-        if (!$linking && !$oldUser) {
+        if (!$isLinking && !$oldUser) {
             $property = $serv->getPropertyByIdString($request->getPrimaryIdString());
         }
 
-        // Update primary user, remove request (and secondary user)
+        // Update primary user, remove request (and current user)
         try{
             $this->em->getConnection()->beginTransaction();
 
             // Add old certificateDn as property if linking
-            if ($oldUser && $linking) {
+            if ($oldUser && $isLinking) {
                 $serv->addUserProperty($primaryUser, $propArrOld, $primaryUser);
             }
 
-            // Merge roles and remove secondary user so their ID string is free to be added
-            if ($secondaryUser !== null) {
-                \Factory::getRoleService()->mergeRoles($primaryUser, $secondaryUser);
-                $serv->deleteUser($secondaryUser, $secondaryUser);
+            // Merge roles and remove current user so their ID string is free to be added
+            if ($currentUser !== null) {
+                \Factory::getRoleService()->mergeRoles($primaryUser, $currentUser);
+                $serv->deleteUser($currentUser, $currentUser);
             }
 
             $this->em->remove($request);
             $this->em->flush();
 
             // Add or update the ID string
-            if ($linking || $oldUser) {
+            if ($isLinking || $oldUser) {
                 $serv->addUserProperty($primaryUser, $propArr, $primaryUser);
             } else {
                 $serv->editUserProperty($primaryUser, $property, $propArr, $primaryUser);
