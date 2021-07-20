@@ -456,5 +456,7 @@ class LinkIdentity extends AbstractEntityService {
             $this->em->close();
             throw $e;
         }
+
+        return $request;
     }
 }
