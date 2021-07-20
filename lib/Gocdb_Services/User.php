@@ -54,7 +54,7 @@ class User extends AbstractEntityService{
      * @return User object or null if no user can be found with the specified principle
      */
     public function getUserFromDn($userPrinciple) {
-        if(empty($userPrinciple)) {
+        if (empty($userPrinciple)) {
             return null;
         }
         $dql = "SELECT u from User u WHERE u.certificateDn = :certDn";
@@ -70,7 +70,7 @@ class User extends AbstractEntityService{
      * @return User object or null if no user can be found with the specified principle
      */
     public function getUserByPrinciple($userPrinciple) {
-        if(empty($userPrinciple)) {
+        if (empty($userPrinciple)) {
             return null;
         }
 
@@ -89,7 +89,7 @@ class User extends AbstractEntityService{
      * @return User object or null if no user can be found with the specified principle
      */
     public function getUserByPrincipleAndType($userPrinciple, $authType) {
-        if(empty($userPrinciple) || empty($authType)) {
+        if (empty($userPrinciple) || empty($authType)) {
             return null;
         }
 
@@ -343,7 +343,7 @@ class User extends AbstractEntityService{
         $serv = new \org\gocdb\services\Validate();
         foreach($userData as $field => $value) {
             $valid = $serv->validate($type, $field, $value);
-            if(!$valid) {
+            if (!$valid) {
                 $error = "$field contains an invalid value: $value";
                 throw new \Exception($error);
             }
@@ -556,7 +556,7 @@ class User extends AbstractEntityService{
         }
 
         // If no user properties and want IGTF X509 Cert, return certificateDn
-        if (sizeof($props) === 0 && $authType === 'IGTF X509 Cert') {
+        if (count($props) === 0 && $authType === 'IGTF X509 Cert') {
             $idString = $user->getCertificateDn();
         }
 
@@ -604,7 +604,7 @@ class User extends AbstractEntityService{
         $existingProperties = $user->getUserProperties();
 
         // We will use this variable to track the final number of properties and ensure we do not exceede the specified limit
-        $propertyCount = sizeof($existingProperties);
+        $propertyCount = count($existingProperties);
 
         // Trim off any trailing and leading whitespace
         $keyName = trim($propArr[0]);
@@ -644,7 +644,7 @@ class User extends AbstractEntityService{
         $keys[] = $keyName;
 
         // Keys should be unique, create an exception if they are not
-        if(count(array_unique($keys)) !== count($keys)) {
+        if (count(array_unique($keys)) !== count($keys)) {
             throw new \Exception(
                 "Property names should be unique. The requested new properties include multiple properties with the same name."
             );
@@ -759,12 +759,12 @@ class User extends AbstractEntityService{
         }
 
         // Check the property has changed
-        if($keyName === $prop->getKeyName() && $keyValue === $prop->getKeyValue()) {
+        if ($keyName === $prop->getKeyName() && $keyValue === $prop->getKeyValue()) {
             throw new \Exception("The specified user property is the same as the current user property");
         }
 
         // Check the ID string is unique if it is being changed
-        if($keyValue !== $prop->getKeyValue()) {
+        if ($keyValue !== $prop->getKeyValue()) {
             $this->valdidateUniqueIdString($keyValue);
         }
 
@@ -802,7 +802,7 @@ class User extends AbstractEntityService{
     protected function valdidateUniqueIdString($idString) {
         $oldUser = $this->getUserFromDn($idString);
         $newUser = $this->getUserByPrinciple($idString);
-        if(!is_null($oldUser) || !is_null($newUser)) {
+        if (!is_null($oldUser) || !is_null($newUser)) {
             throw new \Exception("ID string is already registered in GOCDB");
         }
     }
@@ -848,7 +848,7 @@ class User extends AbstractEntityService{
             throw new \Exception("Property {$id} does not belong to the specified user");
         }
         // Check the user has more than one property
-        if (sizeof($user->getUserProperties()) < 2) {
+        if (count($user->getUserProperties()) < 2) {
             throw new \Exception("Users must have at least one identity string.");
         }
         // User is the owning side so remove elements from the user

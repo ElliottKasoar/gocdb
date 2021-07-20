@@ -55,7 +55,7 @@
                         <select
                             class="form-control"
                             name="AUTHTYPE" id="authType"
-                            size=<?=sizeof($params['AUTHTYPES']);?>
+                            size=<?=count($params['AUTHTYPES']);?>
                             onchange="updateWarningMessage(); formatAuthType(); formatIdFromAuth();">
                             <?php
                                 foreach ($params['AUTHTYPES'] as $authType) {

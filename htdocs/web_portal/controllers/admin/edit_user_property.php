@@ -30,7 +30,7 @@ function edit_property() {
     // The following line will be needed if this controller is ever used for non administrators:
     // checkPortalIsNotReadOnlyOrUserIsAdmin($user);
 
-    if($_POST) {     // If we receive a POST request it's to edit a user property
+    if ($_POST) {     // If we receive a POST request it's to edit a user property
         submit();
     } else { // If there is no post data, draw the edit property page
         draw();
@@ -55,12 +55,12 @@ function draw() {
     $user = $serv->getUser($_REQUEST['id']);
 
     // Throw exception if not a valid user id
-    if(is_null($user)) {
+    if (is_null($user)) {
         throw new \Exception("A user with ID '" . $_REQUEST['id'] . "' cannot be found");
     }
 
     // Only use property ID if user has properties
-    if (sizeof($user->getUserProperties()) !== 0) {
+    if (count($user->getUserProperties()) !== 0) {
 
         // Throw exception if property ID not set or invalid
         if (!isset($_REQUEST['propertyId']) || !is_numeric($_REQUEST['propertyId'])) {
@@ -70,7 +70,7 @@ function draw() {
         $property = $serv->getPropertybyId($_REQUEST['propertyId']);
 
         // Throw exception if not property doesn't exist
-        if(is_null($property)) {
+        if (is_null($property)) {
             throw new \Exception("A property with ID '" . $_REQUEST['propertyId'] . "' cannot be found");
         }
 

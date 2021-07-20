@@ -13,7 +13,7 @@ function link_identity() {
     //Check the portal is not in read only mode, returns exception if it is
     checkPortalIsNotReadOnly();
 
-    if($_POST) { // If we receive a POST request it's to update a user
+    if ($_POST) { // If we receive a POST request it's to update a user
         submit();
     } else { // If there is no post data, draw the edit user form
         draw();
@@ -28,7 +28,7 @@ function draw() {
     $idString = Get_User_Principle();
     $authType = Get_User_AuthType();
 
-    if(empty($idString)) {
+    if (empty($idString)) {
         show_view('error.php', "Could not authenticate user - null user principle");
         die();
     }
@@ -37,7 +37,7 @@ function draw() {
     $user = $serv->getUserByPrinciple($idString);
     $authTypes = $serv->getAuthTypes();
 
-    if(is_null($user)) {
+    if (is_null($user)) {
         $params['REGISTERED'] = false;
     } else {
         $params['REGISTERED'] = true;
@@ -49,7 +49,7 @@ function draw() {
 
     // Prevent users with multiple properties from continuing
     if ($user !== null) {
-        if (sizeof($user->getUserProperties()) > 1) {
+        if (count($user->getUserProperties()) > 1) {
             // Store properties that aren't the one currently in use
             foreach ($user->getUserProperties() as $prop){
                 if ($prop->getKeyName() !== $params['CURRENTAUTHTYPE']) {
@@ -77,13 +77,13 @@ function submit() {
     $currentId = Get_User_Principle();
     $currentAuthType = Get_User_AuthType();
 
-    if(empty($currentId)){
+    if (empty($currentId)){
         show_view('error.php', "Could not authenticate user - null user principle");
         die();
     }
 
     // Check ID string to be linked is different to current ID string
-    if($currentId === $primaryId) {
+    if ($currentId === $primaryId) {
         show_view('error.php', "The ID string entered must differ to your current ID string");
         die();
     }

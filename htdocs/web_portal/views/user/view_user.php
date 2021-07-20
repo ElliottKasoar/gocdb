@@ -16,7 +16,7 @@
     if(!$params['portalIsReadOnly']) {
     ?>
     <div style="float: right;">
-        <?php if($params['ShowEdit']):?>
+        <?php if ($params['ShowEdit']):?>
             <div style="float: right; margin-left: 2em;">
                 <a href="index.php?Page_Type=Edit_User&amp;id=<?php echo $params['user']->getId()?>">
                     <img src="<?php echo \GocContextPath::getPath()?>img/pencil.png" height="25px" style="float: right;" />
@@ -115,7 +115,7 @@
             <tr class="site_table_row_1">
                 <th class="site_table">ID String</th>
                 <th class="site_table">Authentication type</th>
-                <?php if(!$params['portalIsReadOnly'] && $params['ShowEdit']):?>
+                <?php if (!$params['portalIsReadOnly'] && $params['ShowEdit']):?>
                     <th class="site_table">Unlink</th>
                 <?php endif; ?>
             </tr>
@@ -135,7 +135,7 @@
                             <?php xecho($prop->getKeyName())?>
                         </div>
                     </td>
-                    <?php if(!$params['portalIsReadOnly'] && $params['ShowEdit']):?>
+                    <?php if (!$params['portalIsReadOnly'] && $params['ShowEdit']):?>
                         <td class="site_table">
                             <form action="index.php?Page_Type=Remove_User_Property&amp;id=<?=$params['user']->getId();?>&amp;propertyId=<?=$prop->getId();?>" method="post">
                                 <div class="btn-like"

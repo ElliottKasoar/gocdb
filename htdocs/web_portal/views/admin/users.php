@@ -102,7 +102,7 @@
 
                     <td class="site_table">
                         <div style="background-color: inherit;">
-                            <?php if (sizeof($user->getUserProperties()) > 0) {
+                            <?php if (count($user->getUserProperties()) > 0) {
                                     foreach ($user->getUserProperties() as $i => $prop) {
                             ?>
                             <span style="vertical-align: middle;">
