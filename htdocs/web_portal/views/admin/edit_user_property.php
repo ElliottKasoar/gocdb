@@ -8,7 +8,7 @@
     <b><?php echo xssafe($params['Title']) ." ". xssafe($params['Forename']) ." ". xssafe($params['Surname']) ?></b>
     is:
     <br />
-    <?php xecho($params['IdString']) ?>
+    <?php xecho($params['idString']) ?>
     <br />
     <br />
     <div class=<?= $params['dnWarning'] ? "" : "hidden"; ?>>
@@ -18,7 +18,7 @@
     </div>
     <form class="inputForm" method="post" action="index.php?Page_Type=Admin_Edit_User_Property" name="editSType">
         <span class="input_name">New ID String</span>
-        <input type="text" value="<?php xecho($params['IdString']) ?>" name="IdString" class="input_input_text">
+        <input type="text" value="<?php xecho($params['idString']) ?>" name="idString" class="input_input_text">
         <br />
 
         <div>
