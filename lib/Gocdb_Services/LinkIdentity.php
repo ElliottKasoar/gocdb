@@ -28,8 +28,15 @@ class LinkIdentity extends AbstractEntityService {
         // May not be registered so can be null
         $currentUser = $serv->getUserByPrinciple($currentIdString);
 
+        // Recovery or identity linking
+        if ($primaryAuthType === $currentAuthType) {
+            $isLinking = false;
+        } else {
+            $isLinking = true;
+        }
+
         // Validate details. For most errors, return without throwing an error to avoid sharing info
-        if ($this->validate($primaryUser, $currentUser, $currentAuthType, $givenEmail) === 1) {
+        if ($this->validate($primaryUser, $currentUser, $currentAuthType, $isLinking, $givenEmail) === 1) {
             return;
         }
 
@@ -41,13 +48,6 @@ class LinkIdentity extends AbstractEntityService {
 
         // Create link identity request
         $linkIdentityReq = new \LinkIdentityRequest($primaryUser, $currentUser, $code, $primaryIdString, $currentIdString, $primaryAuthType, $currentAuthType);
-
-        // Recovery or identity linking
-        if ($primaryAuthType === $currentAuthType) {
-            $isLinking = false;
-        } else {
-            $isLinking = true;
-        }
 
         // Recovery or identity linking
         if ($currentUser === null) {
@@ -79,9 +79,10 @@ class LinkIdentity extends AbstractEntityService {
      * @param \User $primaryUser user who will have property added/updated
      * @param \User $currentUser user creating the request
      * @param string $currentAuthType auth type of current ID string
+     * @param bool $isLinking true if linking, false if recovering
      * @param string $givenEmail email of primary user
      */
-    private function validate($primaryUser, $currentUser, $currentAuthType, $givenEmail) {
+    private function validate($primaryUser, $currentUser, $currentAuthType, $isLinking, $givenEmail) {
 
         if ($primaryUser === null) {
             // Don't throw exception to limit info shared
@@ -103,13 +104,14 @@ class LinkIdentity extends AbstractEntityService {
             return 1;
         }
 
-        // Prevent attempt to add duplicate auth type
-        foreach ($primaryUser->getUserProperties() as $prop) {
-            if ($prop->getKeyName() === $currentAuthType) {
-                return 1;
+        // Prevent attempt to add duplicate auth type when linking
+        if ($isLinking) {
+            foreach ($primaryUser->getUserProperties() as $prop) {
+                if ($prop->getKeyName() === $currentAuthType) {
+                    return 1;
+                }
             }
         }
-
         return 0;
     }
 
