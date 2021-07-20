@@ -1,5 +1,5 @@
 <?php $users = $params["Users"] ?>
-<?php $numUsers = sizeof($users) ?>
+<?php $numUsers = count($users) ?>
 
 <div class="rightPageContainer">
     <div style="float: left; text-align: center;">
@@ -71,12 +71,12 @@
     <!--  Users -->
     <div class="listContainer">
         <span class="header listHeader">
-            <?php if($numUsers == 0)    {echo "Your search returned no results";}
-                  elseif ($numUsers ==1){echo "1 User";}
-                  else                  {echo $numUsers . "Users";} ?>
+            <?php if ($numUsers === 0)     {echo "Your search returned no results";}
+                  elseif ($numUsers === 1) {echo "1 User";}
+                  else                     {echo $numUsers . " Users";} ?>
         </span>
         <img src="<?php echo \GocContextPath::getPath()?>img/user.png" class="decoration" />
-        <?php if ($numUsers!=0): ?>
+        <?php if ($numUsers > 0): ?>
             <table class="vSiteResults" id="selectedSETable">
                 <tr class="site_table_row_1">
                     <th class="site_table">Name</th>
@@ -85,10 +85,10 @@
                 </tr>
                 <?php
                 $num = 2;
-                if($numUsers > 0) {
-                foreach($users as $user) {
+                if ($numUsers > 0) {
+                foreach ($users as $user) {
                 ?>
-                <?php if($user->isAdmin()) { $style = " style=\"background-color: #A3D7A3;\""; } else { $style = ""; } ?>
+                <?php if ($user->isAdmin()) { $style = " style=\"background-color: #A3D7A3;\""; } else { $style = ""; } ?>
                 <tr class="site_table_row_<?php echo $num ?>" <?php echo $style ?>>
                     <td class="site_table">
                         <div style="background-color: inherit;">
