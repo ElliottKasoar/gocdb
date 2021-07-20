@@ -30,13 +30,13 @@ function view_user() {
 
     $serv = \Factory::getUserService();
     $user = $serv->getUser($userId);
-    if($user === null){
+    if ($user === null){
        throw new Exception("No user with that ID");
     }
     $params['user'] = $user;
 
     // Check if user only has one property to disable unlinking
-    $params['lastProperty'] = (sizeof($user->getUserProperties()) === 1);
+    $params['lastProperty'] = (count($user->getUserProperties()) === 1);
 
     // 2D array, each element stores role and a child array holding project Ids
     $role_ProjIds = array();

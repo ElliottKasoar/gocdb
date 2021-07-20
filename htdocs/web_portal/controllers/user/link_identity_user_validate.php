@@ -13,21 +13,29 @@ function validate_identity_link() {
     checkPortalIsNotReadOnly();
 
     if(!isset($_REQUEST['c'])){
-        show_view('error.php', "a confirmation code must be specified");
+        show_view('error.php', "A confirmation code must be specified.");
     }
-    $confirmationCode = $_REQUEST['c'];
+    $code = $_REQUEST['c'];
 
-    $currentId = Get_User_Principle();
-    if(empty($currentId)){
+    $currentIdString = Get_User_Principle();
+    if(empty($currentIdString)){
         show_view('error.php', "Could not authenticate user - null user principle");
         die();
     }
 
     try {
-        Factory::getLinkIdentityService()->confirmIdentityLinking($confirmationCode, $currentId);
+        $request = Factory::getLinkIdentityService()->confirmIdentityLinking($code, $currentIdString);
     } catch(\Exception $e) {
         show_view('error.php', $e->getMessage());
         die();
     }
-    show_view('user/linked_identity.php');
+
+    // Recovery or identity linking
+    if ($request->getPrimaryAuthType() === $request->getSecondaryAuthType()) {
+        $params['REQUESTTEXT'] = 'recovered';
+    } else {
+        $params['REQUESTTEXT'] = 'linked';
+    }
+
+    show_view('user/linked_identity.php', $params);
 }

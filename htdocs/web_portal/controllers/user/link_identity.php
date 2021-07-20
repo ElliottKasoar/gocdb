@@ -13,7 +13,7 @@ function link_identity() {
     //Check the portal is not in read only mode, returns exception if it is
     checkPortalIsNotReadOnly();
 
-    if($_POST) { // If we receive a POST request it's to update a user
+    if ($_POST) { // If we receive a POST request it's to update a user
         submit();
     } else { // If there is no post data, draw the edit user form
         draw();
@@ -28,7 +28,7 @@ function draw() {
     $idString = Get_User_Principle();
     $authType = Get_User_AuthType();
 
-    if(empty($idString)) {
+    if (empty($idString)) {
         show_view('error.php', "Could not authenticate user - null user principle");
         die();
     }
@@ -37,7 +37,7 @@ function draw() {
     $user = $serv->getUserByPrinciple($idString);
     $authTypes = $serv->getAuthTypes();
 
-    if(is_null($user)) {
+    if (is_null($user)) {
         $params['REGISTERED'] = false;
     } else {
         $params['REGISTERED'] = true;
@@ -49,7 +49,7 @@ function draw() {
 
     // Prevent users with multiple properties from continuing
     if ($user !== null) {
-        if (sizeof($user->getUserProperties()) > 1) {
+        if (count($user->getUserProperties()) > 1) {
             // Store properties that aren't the one currently in use
             foreach ($user->getUserProperties() as $prop){
                 if ($prop->getKeyName() !== $params['CURRENTAUTHTYPE']) {
@@ -68,34 +68,34 @@ function submit() {
 
     // "Primary" account info entered by the user, corresponding to a registered account
     // This account will have its ID string updated, or an identifier added to it
-    $primaryId = $_REQUEST['PRIMARYID'];
+    $primaryIdString = $_REQUEST['PRIMARYIDSTRING'];
     $givenEmail = $_REQUEST['EMAIL'];
     $primaryAuthType = $_REQUEST['AUTHTYPE'];
 
     // "Secondary" account info, inferred from the in-use authentication
     // There may or may not be a corresponding registered account
-    $currentId = Get_User_Principle();
+    $currentIdString = Get_User_Principle();
     $currentAuthType = Get_User_AuthType();
 
-    if(empty($currentId)){
+    if (empty($currentIdString)){
         show_view('error.php', "Could not authenticate user - null user principle");
         die();
     }
 
     // Check ID string to be linked is different to current ID string
-    if($currentId === $primaryId) {
+    if ($currentIdString === $primaryIdString) {
         show_view('error.php', "The ID string entered must differ to your current ID string");
         die();
     }
 
     try {
-        \Factory::getLinkIdentityService()->newLinkIdentityRequest($currentId, $givenEmail, $primaryId, $primaryAuthType, $currentAuthType);
+        \Factory::getLinkIdentityService()->newLinkIdentityRequest($primaryIdString, $currentIdString, $primaryAuthType, $currentAuthType, $givenEmail);
     } catch(\Exception $e) {
         show_view('error.php', $e->getMessage());
         die();
     }
 
-    $params['IDSTRING'] = $primaryId;
+    $params['IDSTRING'] = $primaryIdString;
     $params['AUTHTYPE'] = $primaryAuthType;
     $params['EMAIL'] = $givenEmail;
 

@@ -1041,7 +1041,7 @@ class Site extends AbstractEntityService{
         $keys=array();
 
         //We will use this variable to track teh final number of properties and ensure we do not exceede the specified limit
-        $propertyCount = sizeof($existingProperties);
+        $propertyCount = count($existingProperties);
 
         foreach ($propArr as $i => $prop) {
             /*Trim off trailing and leading whitspace - as we currently don't want this.

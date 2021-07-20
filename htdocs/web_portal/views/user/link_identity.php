@@ -55,7 +55,7 @@
                         <select
                             class="form-control"
                             name="AUTHTYPE" id="authType"
-                            size=<?=sizeof($params['AUTHTYPES']);?>
+                            size=<?=count($params['AUTHTYPES']);?>
                             onchange="updateWarningMessage(); formatAuthType(); formatIdFromAuth();">
                             <?php
                                 foreach ($params['AUTHTYPES'] as $authType) {
@@ -75,12 +75,12 @@
                 </div>
 
                 <div class="form-group" id="primaryIdGroup">
-                    <label class="control-label" for="primaryId">ID string *
+                    <label class="control-label" for="primaryIdString">ID string *
                         <label class="input_syntax" >(e.g. for IGTF X509 Cert: /C=.../OU=.../...)</label>
                     </label>
 
                     <div class="controls">
-                        <input class="form-control" type="text" name="PRIMARYID" id="primaryId" onchange="formatId();" disabled/>
+                        <input class="form-control" type="text" name="PRIMARYIDSTRING" id="primaryIdString" onchange="formatId();" disabled/>
                     </div>
                     <span id="idError" class="label label-danger hidden"></span>
                     <br id="idPlaceholder">
@@ -89,7 +89,7 @@
                 <br/>
 
                 <div class="form-group" id="emailGroup">
-                    <label class="control-label" for="primaryId">E-mail address *
+                    <label class="control-label" for="email">E-mail address *
                         <label class="input_syntax" >(valid e-mail format)</label>
                     </label>
 

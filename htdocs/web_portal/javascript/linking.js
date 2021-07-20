@@ -116,7 +116,7 @@ function validate() {
 
     // Validate ID string
     var regExId = getRegExId();
-    var inputId = '#primaryId';
+    var inputId = '#primaryIdString';
     idValid = isInputValid(regExId, inputId);
     idEmpty = isInputEmpty(inputId);
 
@@ -165,9 +165,9 @@ function isInputEmpty(input) {
 function enableId(valid, empty) {
     // Disable/enable ID string based on auth type validity
     if(valid && !empty) {
-        $('#primaryId').prop('disabled', false);
+        $('#primaryIdString').prop('disabled', false);
     } else {
-        $('#primaryId').prop('disabled', true);
+        $('#primaryIdString').prop('disabled', true);
     }
 }
 
@@ -195,7 +195,7 @@ function formatAuthType() {
 // Only apply if value has been entered (valid/invalid based on regex)
 function formatIdFromAuth() {
     var regEx = getRegExId();
-    var input = '#primaryId';
+    var input = '#primaryIdString';
     var valid = isInputValid(regEx, input);
     var empty = isInputEmpty(input)
 
@@ -223,7 +223,7 @@ function formatIdFromAuth() {
 // Error if invalid (regex) format or if nothing entered
 function formatId() {
     var regEx = getRegExId();
-    var input = '#primaryId';
+    var input = '#primaryIdString';
     var valid = isInputValid(regEx, input);
     var empty = isInputEmpty(input);
 
