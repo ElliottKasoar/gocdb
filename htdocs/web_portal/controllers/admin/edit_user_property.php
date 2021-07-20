@@ -2,7 +2,7 @@
 /*______________________________________________________
  *======================================================
  * File: edit_user_property.php
- * Author: George Ryall, John Casson, David Meredith
+ * Author: George Ryall, John Casson, David Meredith, Elliott Kasoar
  * Description: Allows GOCD Admins to update a user's id.
  *
  * License information
@@ -30,7 +30,7 @@ function edit_property() {
     // The following line will be needed if this controller is ever used for non administrators:
     // checkPortalIsNotReadOnlyOrUserIsAdmin($user);
 
-    if ($_POST) {     // If we receive a POST request it's to edit a user property
+    if ($_POST) { // If we receive a POST request it's to edit a user property
         submit();
     } else { // If there is no post data, draw the edit property page
         draw();
@@ -42,24 +42,26 @@ function edit_property() {
  * @return null
  */
 function draw() {
-    // Check the user has permission to see the page, will throw exception
-    // if correct permissions are lacking
+    require_once __DIR__ . '/../../../../htdocs/web_portal/components/Get_User_Principle.php';
+
+    // Check the user has permission to see the page
     checkUserIsAdmin();
 
+    // Check user ID is given and is a number
     if (!isset($_REQUEST['id']) || !is_numeric($_REQUEST['id']) ) {
-        throw new Exception("An id must be specified");
+        throw new Exception("A user ID must be specified");
     }
 
     // Get user details
     $serv = \Factory::getUserService();
     $user = $serv->getUser($_REQUEST['id']);
 
-    // Throw exception if not a valid user id
+    // Check user ID is valid
     if (is_null($user)) {
         throw new \Exception("A user with ID '" . $_REQUEST['id'] . "' cannot be found");
     }
 
-    // Only use property ID if user has properties
+    // Can only use property ID if user has properties
     if (count($user->getUserProperties()) !== 0) {
 
         // Throw exception if property ID not set or invalid
@@ -75,18 +77,23 @@ function draw() {
         }
 
         $params["propertyId"] = $property->getId();
-        $params["IdString"] = $property->getKeyValue();
+        $params["idString"] = $property->getKeyValue();
         $params["authType"] = $property->getKeyName();
 
+        // Prevent user editing the identifier they are currently using
+        if ($params["idString"] === Get_User_Principle()) {
+            throw new \Exception("You cannot edit the identifier you are using");
+        }
+
         // Check property belongs to user
-        if ($user !== $serv->getUserByPrinciple($params["IdString"])) {
+        if ($user !== $serv->getUserByPrinciple($params["idString"])) {
             throw new \Exception("The ID string must belong to the user");
         }
 
     } else {
-        // Use certificateDN
+        // Use certificate DN
         $params["propertyId"] = null;
-        $params["IdString"] = $user->getCertificateDn();
+        $params["idString"] = $user->getCertificateDn();
         $params["authType"] = null;
     }
 
@@ -122,7 +129,7 @@ function submit() {
 
     // Get the posted data
     $userID = $_REQUEST['ID'];
-    $newIdString = $_REQUEST['IdString'];
+    $newIdString = $_REQUEST['idString'];
     $propertyId = $_REQUEST['propertyId'];
     $newAuthType = $_REQUEST['authType'];
 
