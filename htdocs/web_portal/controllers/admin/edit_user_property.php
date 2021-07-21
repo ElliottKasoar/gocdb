@@ -49,7 +49,7 @@ function draw() {
 
     // Check user ID is given and is a number
     if (!isset($_REQUEST['id']) || !is_numeric($_REQUEST['id']) ) {
-        throw new Exception("A user ID must be specified");
+        throw new \Exception("A user ID must be specified");
     }
 
     // Get user details
@@ -66,7 +66,7 @@ function draw() {
 
         // Throw exception if property ID not set or invalid
         if (!isset($_REQUEST['propertyId']) || !is_numeric($_REQUEST['propertyId'])) {
-            throw new \Exception("A property id must be specified for this user");
+            throw new \Exception("A property ID must be specified for this user");
         }
 
         $property = $serv->getPropertybyId($_REQUEST['propertyId']);
@@ -157,7 +157,7 @@ function submit() {
         $params = array('Name' => $user->getForename() . " " . $user->getSurname(),
                         'ID' => $user->getId());
         show_view("admin/edited_user_property.php", $params, "Success");
-    } catch (Exception $e) {
+    } catch (\Exception $e) {
         show_view('error.php', $e->getMessage());
         die();
     }
