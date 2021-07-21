@@ -26,7 +26,9 @@
             <select name="authType" class="input_input_text">
                 <?php
                     foreach ($params['authTypes'] as $authType) {
-                        echo "<option value=\"". $authType . "\">" . $authType. "</option>";
+                        echo '<option value="' . $authType . '"';
+                        if ($authType === $params['authType']) {echo 'selected';}
+                        echo '>' . $authType . '</option>';
                     }
                 ?>
             </select>
