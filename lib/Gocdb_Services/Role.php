@@ -747,16 +747,17 @@ class Role extends AbstractEntityService{
     }
 
     /**
-     * Calling (current) user attempts to merge roles with another
-     * (primary) user.
-     * Logic is handled by a seperate function.
+     * Calling (current) user attempts to 'merge' roles with another (primary) user
+     * All roles the current user has are requested for the primary user
+     * Both users attempt to grant these requests, and the current user self-revokes their roles
+     * Logic is handled by a seperate function
      *
-     * @param \User $primaryUser
-     * @param \User $currentUser
+     * @param \User $primaryUser user to be granted the roles
+     * @param \User $currentUser user currently holding the roles
      */
     public function mergeRoles(\User $primaryUser, \User $currentUser) {
 
-        //Check the portal is not in read only mode, throws exception if it is
+        // Check the portal is not in read only mode or user is an admin
         $this->checkPortalIsNotReadOnlyOrUserIsAdmin($currentUser);
 
         $this->em->getConnection()->beginTransaction();
@@ -772,16 +773,14 @@ class Role extends AbstractEntityService{
     }
 
     /**
-     * Logic to merge current user's roles with another user
-     * If successful, any roles the current user has are given
-     * to the primary user.
-     * It is logged that the roles are revoked from current user
-     * and granted to the primary user.
+     * Logic to 'merge' current user's roles with another user
+     * All roles the current user has are requested for the primary user
+     * Both users attempt to grant these requests, and the current user self-revokes their roles
      *
-     * @param \User $primaryUser
-     * @param \User $currentUser
+     * @param \User $primaryUser user to be granted the roles
+     * @param \User $currentUser user currently holding the roles
      */
-    protected function mergeRolesLogic(\User $primaryUser, \User $currentUser) {
+    private function mergeRolesLogic(\User $primaryUser, \User $currentUser) {
 
         $currentRoles = $currentUser->getRoles();
         foreach ($currentRoles as $currentRole) {
@@ -789,32 +788,58 @@ class Role extends AbstractEntityService{
             $roleTypeName = $currentRole->getRoleType()->getName();
             $entity = $currentRole->getOwnedEntity();
 
-            // If primary user already has the same type of role GRANTED over entity, revoke from current user
+            // If primary user already has the same role GRANTED over entity, no need to grant again
             if (in_array($roleTypeName, $this->getUserRoleNamesOverEntity($entity, $primaryUser, \RoleStatus::GRANTED))) {
-                $this->revokeRole($currentRole, $currentUser);
                 continue;
             }
-            // If primary user already has the same type of role PENDING over entity, revoke from current user
-            // and attempt to approve existing request?
-            if (in_array($roleTypeName, $this->getUserRoleNamesOverEntity($entity, $primaryUser, \RoleStatus::PENDING))) {
-                // continue;
-                $newRole = $this->getRoleByUserEntityType($primaryUser, $entity, $roleTypeName);
-            } else {
-                $newRole = $this->requestRole($roleTypeName, $primaryUser, $entity);
-            }
 
-            // Attempt to self-grant role
+            // If primary user already has the same role PENDING over entity, will attempt to grant
+            if (in_array($roleTypeName, $this->getUserRoleNamesOverEntity($entity, $primaryUser, \RoleStatus::PENDING))) {
+                $rolesToGrant[] = $this->getRoleByUserEntityType($primaryUser, $entity, $roleTypeName);
+            } else {
+                // Request role on behalf of primary user
+                $rolesToGrant[] = $this->requestRole($roleTypeName, $primaryUser, $entity);
+            }
+        }
+
+        // Attempt to self-grant roles
+        foreach ($rolesToGrant as $role) {
+            $this->selfGrantRole($primaryUser, $currentUser, $role);
+        }
+
+        // Revoke roles after granting
+        foreach ($currentRoles as $role) {
+            $this->revokeRole($role, $currentUser);
+        }
+    }
+
+    /**
+     * Attempt to "self-grant" a role based on two user permissions
+     *
+     * @param \User $primaryUser user to be granted the role
+     * @param \User $currentUser user currently holding the role
+     * @param \Role $role role to be granted
+     */
+    private function selfGrantRole(\User $primaryUser, \User $currentUser, \Role $role) {
+
+        // Allow this exception as users may not have permission
+        $grantMessage = 'You do not have permission to grant this role';
+
+        // Try approving based on primary user permissions
+        try {
+            $this->grantRole($role, $primaryUser);
+        } catch (\Exception $e) {
+            if ($e->getMessage() !== $grantMessage) {
+                throw $e;
+            }
+            // Try approving based on current user permissions
             try {
-                $this->grantRole($newRole, $primaryUser);
+                $this->grantRole($role, $currentUser);
             } catch (\Exception $e) {
-                try {
-                    $this->grantRole($newRole, $currentUser);
-                } catch (\Exception $e) {
-                    // continue;
+                if ($e->getMessage() !== $grantMessage) {
+                    throw $e;
                 }
             }
-            // Revoke roles (after granting)
-            $this->revokeRole($currentRole, $currentUser);
         }
     }
 
