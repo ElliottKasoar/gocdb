@@ -55,7 +55,7 @@ function updateWarningMessage() {
         $('#recoveryDetails').addClass("hidden");
         $('#requestPlaceholder').removeClass("hidden");
 
-        authTypeText1 = '"' + selectedAuthType + '" is different to your current authentication type.';
+        authTypeText1 = "'" + selectedAuthType + "' is different to your current authentication type.";
         authTypeText2 = 'Proceeding will begin the identity linking process.'
         $('#authTypeLabel3').addClass("hidden");
         $('#authPlaceholder3').removeClass("hidden");

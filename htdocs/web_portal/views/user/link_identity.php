@@ -38,7 +38,9 @@
         <div class=Form_Holder_2>
             <form name="Link_Cert_Req" action="index.php?Page_Type=Link_Identity"
                   method="post" class="inputForm" id="linkIdentityForm">
-                <span>Your current ID string (e.g. certificate DN) is: <?=$params['IDSTRING'];?></span>
+                <span>
+                    Your current ID string (e.g. certificate DN) is: <label><?=$params['IDSTRING'];?></label>
+                </span>
                 <br/>
                 <span>
                     Your current authentication type is: <label id="currentAuthType"><?=$params['CURRENTAUTHTYPE'];?></label>
