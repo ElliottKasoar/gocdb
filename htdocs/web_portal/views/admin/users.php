@@ -94,7 +94,7 @@
                         <div style="background-color: inherit;">
                             <span style="vertical-align: middle;">
                                 <a href="index.php?Page_Type=User&amp;id=<?php echo $user->getId() ?>">
-                                    <?php echo xssafe($user->getSurname()).", ".xssafe($user->getForename()); ?>
+                                    <?php xecho($user->getSurname() . ", ". $user->getForename()); ?>
                                 </a>
                             </span>
                         </div>

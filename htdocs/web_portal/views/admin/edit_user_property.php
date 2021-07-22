@@ -1,21 +1,24 @@
 <div class="rightPageContainer">
     <h1>Update User Property</h1>
+
     <br />
+
+    <div>
+        The <b><?php xecho($params['authType'])?></b> ID string for
+        <b><?php xecho($params['Title'] . " " . $params['Forename'] . " " . $params['Surname']) ?></b>
+        is:
+        <br />
+        <b><?php xecho($params['idString']) ?></b>
+    </div>
+
     <br />
-    The
-    <b><?php echo xssafe($params['authType'])?></b>
-    ID string for
-    <b><?php echo xssafe($params['Title']) ." ". xssafe($params['Forename']) ." ". xssafe($params['Surname']) ?></b>
-    is:
-    <br />
-    <?php xecho($params['idString']) ?>
-    <br />
-    <br />
+
     <div class=<?= $params['dnWarning'] ? "" : "hidden"; ?>>
         <span style="color: red">Warning: This user does not have user properties!</span>
         <br />
         <br />
     </div>
+
     <form class="inputForm" method="post" action="index.php?Page_Type=Admin_Edit_User_Property" name="editSType">
         <span class="input_name">New ID String</span>
         <input type="text" value="<?php xecho($params['idString']) ?>" name="idString" class="input_input_text">
