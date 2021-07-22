@@ -1,6 +1,6 @@
 $(document).ready(function() {
     // Add the jQuery form change event handlers
-    $("#linkIdentityForm").find(":input").change(function() {
+    $('#linkIdentityForm').find(":input").change(function() {
         validate();
     });
 });
@@ -18,13 +18,15 @@ function updateWarningMessage() {
     var authTypeText1 = "";
     var authTypeText2 = "";
     var authTypeText3 = "";
+
     if (selectedAuthType !== null && selectedAuthType !== "") {
-        $('#authTypeLabel1').removeClass("hidden");
-        $('#authTypeLabel2').removeClass("hidden");
+        $('.authTypeShared').removeClass("hidden");
     } else {
-        $('#authTypeLabel1').addClass("hidden");
-        $('#authTypeLabel2').addClass("hidden");
+        $('.authTypeShared').addClass("hidden");
     }
+
+    $('.authTextPlaceholder').addClass("hidden");
+    $('.authTypeSelected').text(selectedAuthType);
 
     // Different warnings if selected auth type is same as method currently in use
     if (selectedAuthType === currentAuthType) {
@@ -32,21 +34,22 @@ function updateWarningMessage() {
         $('#linkingDetails').addClass("hidden");
         $('#recoveryDetails').removeClass("hidden");
         $('#requestPlaceholder').addClass("hidden");
+        $('#authTypeRecoverPlaceholder').addClass("hidden");
 
-        authTypeText1 = "'" + selectedAuthType + "' is the same as your current authentication type.";
-        authTypeText2 = "Proceeding will begin the account recovery process.";
+        authTypeText1 = " is the same as your current authentication type.";
+        authTypeText3 = "account recovery";
 
         // Stronger warning for certain types. Certificates will be less severe?
         if (selectedAuthType === "IGTF X509 Cert") {
-            authTypeText3 = 'X509 Certificates sometimes expire. Are you sure you wish to continue?';
-            $('#authTypeLabel3').removeClass("hidden");
-            $('#authTypeLabel3').removeClass("auth-warning-severe");
-            $('#authPlaceholder3').addClass("hidden");
+            authTypeText2 = "Are you sure you wish to continue?";
+            $('#authTypeRecover').removeClass("hidden");
+            $('#authTypeRecover').removeClass("auth-warning");
+            $('#authTypeSelected').addClass("hidden");
         } else {
-            authTypeText3 = "'" + selectedAuthType + "' ID strings rarely expire. Are you sure you wish to continue?";
-            $('#authTypeLabel3').removeClass("hidden");
-            $('#authTypeLabel3').addClass("auth-warning-severe");
-            $('#authPlaceholder3').addClass("hidden");
+            authTypeText2 = "These identifiers rarely expire. Are you sure you wish to continue?";
+            $('#authTypeRecover').removeClass("hidden");
+            $('#authTypeRecover').addClass("auth-warning");
+            $('#authTypeSelected').removeClass("hidden");
         }
 
     } else {
@@ -55,15 +58,15 @@ function updateWarningMessage() {
         $('#recoveryDetails').addClass("hidden");
         $('#requestPlaceholder').removeClass("hidden");
 
-        authTypeText1 = "'" + selectedAuthType + "' is different to your current authentication type.";
-        authTypeText2 = 'Proceeding will begin the identity linking process.'
-        $('#authTypeLabel3').addClass("hidden");
-        $('#authPlaceholder3').removeClass("hidden");
+        authTypeText1 = " is different to your current authentication type.";
+        authTypeText3 = "identity linking";
+        $('#authTypeRecover').addClass("hidden");
+        $('#authTypeRecoverPlaceholder').removeClass("hidden");
     }
 
-    $('#authTypeLabel1').text(authTypeText1);
-    $('#authTypeLabel2').text(authTypeText2);
-    $('#authTypeLabel3').text(authTypeText3);
+    $('#authTypeMsg1').text(authTypeText1);
+    $('#authTypeMsg2').text(authTypeText2);
+    $('.requestType').text(authTypeText3);
 }
 
 function getRegExAuthType() {
@@ -126,12 +129,12 @@ function validate() {
 
     // Set the button based on validate status
     if (authTypeValid && idStringValid && emailValid && !authTypeEmpty && !idStringEmpty && !emailEmpty) {
-        $('#submitRequest_btn').addClass('btn btn-success');
-        $('#submitRequest_btn').prop('disabled', false);
+        $('#submitRequest_btn').addClass("btn btn-success");
+        $('#submitRequest_btn').prop("disabled", false);
     } else {
-        $('#submitRequest_btn').removeClass('btn btn-success');
-        $('#submitRequest_btn').addClass('btn btn-default');
-        $('#submitRequest_btn').prop('disabled', true);
+        $('#submitRequest_btn').removeClass("btn btn-success");
+        $('#submitRequest_btn').addClass("btn btn-default");
+        $('#submitRequest_btn').prop("disabled", true);
     }
 }
 
@@ -163,9 +166,9 @@ function isInputEmpty(input) {
 function enableIdString(valid, empty) {
     // Disable/enable ID string based on auth type validity
     if (valid && !empty) {
-        $('#primaryIdString').prop('disabled', false);
+        $('#primaryIdString').prop("disabled", false);
     } else {
-        $('#primaryIdString').prop('disabled', true);
+        $('#primaryIdString').prop("disabled", true);
     }
 }
 
@@ -201,19 +204,19 @@ function formatIdStringFromAuth() {
         if (valid) {
             $('#primaryIdStringGroup').addClass("has-success");
             $('#primaryIdStringGroup').removeClass("has-error");
-            $("#idStringError").addClass("hidden");
-            $("#idStringPlaceholder").removeClass("hidden");
+            $('#idStringError').addClass("hidden");
+            $('#idStringPlaceholder').removeClass("hidden");
         } else {
             $('#primaryIdStringGroup').removeClass("has-success");
             $('#primaryIdStringGroup').addClass("has-error");
-            $("#idStringError").removeClass("hidden");
-            $("#idStringPlaceholder").addClass("hidden");
-            $("#idStringError").text("You have entered an invalid ID string for the selected authentication method");
+            $('#idStringError').removeClass("hidden");
+            $('#idStringPlaceholder').addClass("hidden");
+            $('#idStringError').text("You have entered an invalid ID string for the selected authentication method");
         }
     } else {
         $('#primaryIdStringGroup').removeClass("has-error");
-        $("#idStringError").addClass("hidden");
-        $("#idStringPlaceholder").removeClass("hidden");
+        $('#idStringError').addClass("hidden");
+        $('#idStringPlaceholder').removeClass("hidden");
     }
 }
 
@@ -228,18 +231,18 @@ function formatIdString() {
     if (valid && !empty) {
         $('#primaryIdStringGroup').addClass("has-success");
         $('#primaryIdStringGroup').removeClass("has-error");
-        $("#idStringError").addClass("hidden");
-        $("#idStringPlaceholder").removeClass("hidden");
+        $('#idStringError').addClass("hidden");
+        $('#idStringPlaceholder').removeClass("hidden");
     } else {
         $('#primaryIdStringGroup').removeClass("has-success");
         $('#primaryIdStringGroup').addClass("has-error");
-        $("#idStringError").removeClass("hidden");
-        $("#idStringPlaceholder").addClass("hidden");
+        $('#idStringError').removeClass("hidden");
+        $('#idStringPlaceholder').addClass("hidden");
     }
     if (!valid && !empty) {
-        $("#idStringError").text("You have entered an invalid ID string for the selected authentication method");
+        $('#idStringError').text("You have entered an invalid ID string for the selected authentication method");
     } else if (empty) {
-        $("#idStringError").text("Please enter the ID string of the account you want to be linked");
+        $('#idStringError').text("Please enter the account's ID string");
     }
 }
 
@@ -254,17 +257,17 @@ function formatEmail() {
     if (valid && !empty) {
         $('#emailGroup').addClass("has-success");
         $('#emailGroup').removeClass("has-error");
-        $("#emailError").addClass("hidden");
-        $("#emailPlaceholder").removeClass("hidden");
+        $('#emailError').addClass("hidden");
+        $('#emailPlaceholder').removeClass("hidden");
     } else {
         $('#emailGroup').removeClass("has-success");
         $('#emailGroup').addClass("has-error");
-        $("#emailError").removeClass("hidden");
-        $("#emailPlaceholder").addClass("hidden");
+        $('#emailError').removeClass("hidden");
+        $('#emailPlaceholder').addClass("hidden");
     }
     if (!valid && !empty) {
-        $("#emailError").text("Please enter a valid email");
+        $('#emailError').text("Please enter a valid email");
     } else if (empty) {
-        $("#emailError").text("Please enter the account's email");
+        $('#emailError').text("Please enter the account's email");
     }
 }

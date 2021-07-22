@@ -54,7 +54,7 @@
             <div class="topMargin leftFloat siteFilter">
                 <span class="middle" style="margin-right: 0.4em">ID String: </span>
                 <input class="middle" style="width: 11em;" type="text" name="IdString"
-                    <?php if(isset($params['IdString']))
+                    <?php if (isset($params['IdString']))
                         xecho("value=".$params['IdString']);
                     ?>
                 />
@@ -94,7 +94,7 @@
                         <div style="background-color: inherit;">
                             <span style="vertical-align: middle;">
                                 <a href="index.php?Page_Type=User&amp;id=<?php echo $user->getId() ?>">
-                                    <?php echo xssafe($user->getSurname()).", ".xssafe($user->getForename()); ?>
+                                    <?php xecho($user->getSurname() . ", ". $user->getForename()); ?>
                                 </a>
                             </span>
                         </div>
@@ -106,15 +106,15 @@
                                     foreach ($user->getUserProperties() as $i => $prop) {
                             ?>
                             <span style="vertical-align: middle;">
-                                <a href="index.php?Page_Type=Admin_Edit_User_Property&amp;id=<?=$user->getId();?>&amp;propertyId=<?=$prop->getId();?>">
-                                <?php xecho($prop->getKeyName() . ": " . $prop->getKeyValue());?>
-                                <?='<br>';?>
+                                <a href="index.php?Page_Type=Admin_Edit_User_Property&amp;id=<?php echo $user->getId(); ?>&amp;propertyId=<?php echo $prop->getId(); ?>">
+                                <?php echo $prop->getKeyName() . ": " . $prop->getKeyValue(); ?>
+                                <br />
                                 </a>
                             </span>
                             <?php }} else { ?>
                                 <span style="vertical-align: middle;">
-                                    <a href="index.php?Page_Type=Admin_Edit_User_Property&amp;id=<?=$user->getId();?>">
-                                        <?php xecho("Certificate DN (legacy): " . $user->getCertificateDn()); ?>
+                                    <a href="index.php?Page_Type=Admin_Edit_User_Property&amp;id=<?php echo $user->getId(); ?>">
+                                        <?php echo "Certificate DN (legacy): " . $user->getCertificateDn(); ?>
                                     </a>
                                 </span>
                         </div>
@@ -149,7 +149,7 @@
             </table>
 
             <div style="margin-right: 0.4em">
-                <br>
+                <br />
                 &nbsp; Click on a user's name to view more details, or to edit or
                 delete them. Click on their ID string to update it.
                 <!-- Click on the tick or cross to promote them to or demote them from GOCDB admin status-->

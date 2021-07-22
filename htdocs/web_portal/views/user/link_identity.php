@@ -1,6 +1,8 @@
 <div class="rightPageContainer">
     <h1>Link Identity or Recover an Account</h1>
+
     <br />
+
     <div>
         <h2>What is identity linking?</h2>
         <ul>
@@ -32,48 +34,61 @@
             </li>
     </div>
 
-    <br/>
+    <br />
 
     <div class=Form_Holder>
         <div class=Form_Holder_2>
-            <form name="Link_Cert_Req" action="index.php?Page_Type=Link_Identity"
+            <form name="Link_Identity" action="index.php?Page_Type=Link_Identity"
                   method="post" class="inputForm" id="linkIdentityForm">
                 <span>
-                    Your current ID string (e.g. certificate DN) is: <label><?=$params['IDSTRING'];?></label>
+                    Your current ID string (e.g. certificate DN) is: <label><?php echo $params['idString']; ?></label>
                 </span>
-                <br/>
+                <br />
                 <span>
-                    Your current authentication type is: <label id="currentAuthType"><?=$params['CURRENTAUTHTYPE'];?></label>
+                    Your current authentication type is: <label id="currentAuthType"><?php echo $params['currentAuthType']; ?></label>
                 </span>
-                <br/>
-                <br/>
+
+                <br />
+                <br />
 
                 <h2>Details of account to be linked or recovered</h2>
-                <br/>
+
+                <br />
 
                 <div class="form-group" id="authTypeGroup">
                     <label class="control-label" for="authType">Authentication type *</label>
                     <div class="controls">
                         <select
                             class="form-control"
-                            name="AUTHTYPE" id="authType"
-                            size=<?=count($params['AUTHTYPES']);?>
+                            name="authType" id="authType"
+                            size=<?php echo count($params['authTypes']); ?>
                             onchange="updateWarningMessage(); formatAuthType(); formatIdStringFromAuth();">
                             <?php
-                                foreach ($params['AUTHTYPES'] as $authType) {
+                                foreach ($params['authTypes'] as $authType) {
                                     echo "<option onclick=\"updateWarningMessage(); formatAuthType(); formatIdStringFromAuth();\" value=\"";
                                     echo $authType . "\">" . $authType . "</option>";
                                 }
                             ?>
                         </select>
                     </div>
-                    <br/>
-                    <span class="auth-message hidden" id="authTypeLabel1"></span>
-                    <br/>
-                    <span class="auth-message hidden" id="authTypeLabel2"></span>
-                    <br/>
-                    <span class="auth-message auth-warning hidden" id="authTypeLabel3"></span>
-                    <br id="authPlaceholder3">
+
+                    <br />
+                    <br class="authTextPlaceholder" />
+
+                    <div class="hidden authTypeShared">
+                        <b><span class="authTypeSelected"></span></b>
+                        <span id="authTypeMsg1"></span>
+                        <span>Proceeding will begin the </span>
+                        <b><span class="requestType"></span></b>
+                        <span> process.</span>
+                    </div>
+                    <div class="hidden authTypeShared">
+
+                    </div>
+                    <div class="hidden" id="authTypeRecover">
+                        <span id="authTypeMsg2"></span>
+                    </div>
+                    <br id="authTypeRecoverPlaceholder" />
                 </div>
 
                 <div class="form-group" id="primaryIdStringGroup">
@@ -82,13 +97,14 @@
                     </label>
 
                     <div class="controls">
-                        <input class="form-control" type="text" name="PRIMARYIDSTRING" id="primaryIdString" onchange="formatIdString();" disabled/>
+                        <input class="form-control" type="text" name="primaryIdString" id="primaryIdString" onchange="formatIdString();" disabled/>
                     </div>
+
                     <span id="idStringError" class="label label-danger hidden"></span>
-                    <br id="idStringPlaceholder">
+                    <br id="idStringPlaceholder" />
                 </div>
 
-                <br/>
+                <br />
 
                 <div class="form-group" id="emailGroup">
                     <label class="control-label" for="email">E-mail address *
@@ -96,10 +112,10 @@
                     </label>
 
                     <div class="controls">
-                        <input class="form-control" type="text" name="EMAIL" id="email" onchange="formatEmail();"/>
+                        <input class="form-control" type="text" name="email" id="email" onchange="formatEmail();"/>
                     </div>
                     <span id="emailError" class="label label-danger hidden"></span>
-                    <br id="emailPlaceholder">
+                    <br id="emailPlaceholder" />
                 </div>
 
                 <h2>What happens next?</h2>
@@ -112,40 +128,42 @@
                         Any existing linking or recovery requests you have made will expire.
                     </li>
 
-                    <li class="hidden" id="linkingDetails"> If you successfully validate your linking request:
+                    <li class="hidden" id="linkingDetails"> If you successfully validate your <b>linking</b> request:
                         <ul>
-                            <li <?= $params['REGISTERED'] ? "" : "hidden"; ?>>
+                            <li>
+                                Your <b>current ID string</b> and <b>authentication type</b> will be added as an alternative identifier to the account being linked.
+                            </li>
+                            </li>
+                            <li <?php echo $params['registered'] ? "" : "hidden"; ?>>
                                 Any roles you have with the account you are currently using will be requested
                                 for the account being linked.
                             </li>
-                            <li <?= $params['REGISTERED'] ? "" : "hidden"; ?>>
+                            <li <?php echo $params['registered'] ? "" : "hidden"; ?>>
                                 These roles will be approved automatically if either account has permission to do so.
                             </li>
-                            <li>
-                                Your current ID string and authentication type will be added to the account being linked.
-                            </li>
-                            <li <?= $params['REGISTERED'] ? "" : "hidden"; ?>>
-                                <b>The account you are currently using will then be deleted.</b>
+                            <li <?php echo $params['registered'] ? "" : "hidden"; ?>>
+                                <b>The account you are currently using will be deleted.</b>
                             </li>
                         </ul>
                     </li>
 
-                    <li id="recoveryDetails"> If you successfully validate your recovery request:
+                    <li id="recoveryDetails"> If you successfully validate your <b>recovery</b> request:
                         <ul>
-                            <li <?= $params['REGISTERED'] ? "" : "hidden"; ?>>
-                                Any roles you have with the account you are currently using will be requested for your old account.
-                            </li>
-                            <li <?= $params['REGISTERED'] ? "" : "hidden"; ?>>
-                                These roles will be approved automatically if either account has permission to do so.
-                            </li>
                             <li>
-                                The ID string of your old account that matches your current authentication type will be updated to your current ID string.
+                                The <b>ID string</b> of your old account that matches your <b>current authentication type</b> will be updated to your <b>current ID string</b>.
                             </li>
                             <li>
                                 <b>You will no longer be able to log in with your old ID string</b>.
                             </li>
-                            <li <?= $params['REGISTERED'] ? "" : "hidden"; ?>>
-                                <b>The account you are currently using will then be deleted.</b>
+                            <li <?php echo $params['registered'] ? "" : "hidden"; ?>>
+                                Any roles you have with the account you are currently using will be requested for your old account.
+                            </li>
+                            <li <?php echo $params['registered'] ? "" : "hidden"; ?>>
+                                These roles will be approved automatically if either account has permission to do so.
+                            </li>
+
+                            <li <?php echo $params['registered'] ? "" : "hidden"; ?>>
+                                <b>The account you are currently using will be deleted.</b>
                             </li>
                         </ul>
                     </li>
@@ -153,7 +171,7 @@
                     <li class="hidden invis" id="requestPlaceholder"></li>
                 </div>
 
-                <br>
+                <br />
 
                 <button type="submit" id="submitRequest_btn" class="btn btn-default" style="width: 100%" value="Execute" disabled>Submit</button>
 
@@ -166,13 +184,9 @@
     .auth-warning {
         color: red;
     }
-    .auth-warning-severe {
-        color: red;
-        font-style: italic;
-    }
     .invis {
         opacity: 0;
     }
 </style>
 
-<script type="text/javascript" src="<?php echo \GocContextPath::getPath() ?>javascript/linking.js"></script>
+<script type="text/javascript" src="<?php echo \GocContextPath::getPath(); ?>javascript/linking.js"></script>

@@ -30,7 +30,7 @@ function view_user() {
 
     $serv = \Factory::getUserService();
     $user = $serv->getUser($userId);
-    if ($user === null){
+    if ($user === null) {
        throw new Exception("No user with that ID");
     }
     $params['user'] = $user;
@@ -117,10 +117,6 @@ function view_user() {
     } catch (Exception $e) {
         $params['ShowEdit'] = false;
     }
-
-    /* @var $authToken \org\gocdb\security\authentication\IAuthentication */
-    $authToken = Get_User_AuthToken();
-    $params['authAttributes'] = $authToken->getDetails();
 
     $params['idString'] = $serv->getIdString($user);
 

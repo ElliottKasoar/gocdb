@@ -43,15 +43,15 @@ function show_users() {
     $params["Forename"] = $forename;
 
     $idString = null;
-    if(!empty($_REQUEST['IdString'])) {
+    if (!empty($_REQUEST['IdString'])) {
         $idString = $_REQUEST['IdString'];
     }
     $params["IdString"] = $idString;
 
     //Note that the true/false specified must be converted into boolean true/false.
     $isAdmin = null;
-    if(!empty($_REQUEST['IsAdmin'])) {
-       if($_REQUEST['IsAdmin'] === "true") {
+    if (!empty($_REQUEST['IsAdmin'])) {
+       if ($_REQUEST['IsAdmin'] === "true") {
             $isAdmin = true;
        }
        elseif ($_REQUEST['IsAdmin'] === "false") {

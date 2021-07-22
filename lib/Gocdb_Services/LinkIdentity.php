@@ -112,6 +112,7 @@ class LinkIdentity extends AbstractEntityService {
                 }
             }
         }
+
         return 0;
     }
 
@@ -240,49 +241,38 @@ class LinkIdentity extends AbstractEntityService {
     private function composePrimaryEmail($primaryIdString, $currentIdString, $primaryAuthType, $currentAuthType, $isLinking, $isRegistered, $link) {
 
         if ($isLinking) {
-
-            $subject = "Validation of linking your GOCDB account";
-
-            $body = "Dear GOCDB User,"
-            . "\n\nA request to add a new authentication method to your GOCDB account"
-            . " (ID string: $primaryIdString, authentication type: $primaryAuthType) has just been made on GOCDB."
-            . "\n\nThe new authentication details are:"
-            . "\nID string: $currentIdString"
-            . "\nAuthentication type: $currentAuthType";
-
-            if ($isRegistered) {
-                $body .= "\n\nThe new authentication method is currently associated with a second registered account."
-                . " If linking is sucessful, any roles currently associated with this second account (ID string: $currentIdString)"
-                . " will be requested for your GOCDB account (ID string: $primaryIdString)."
-                . " These roles will be approved automatically if either account has permission to do so."
-                . "\n\n The second account will then be deleted.";
-            }
-
-            $body .= "\n\nIf you wish to associate your GOCDB account with this authentication method, please validate your request by clicking on the link below:"
-            . "\n$link"
-            . "\n\nIf you did not create this request in GOCDB, please immediately contact gocdb-admins@mailman.egi.eu";
-
+            $subText = ['link', 'add a new identifier to', 'Identifier', 'to be added to your account', 'identity linking'];
         } else {
-
-            $subject = "Validation of recovering your GOCDB account";
-
-            $body = "Dear GOCDB User,\n\n"
-            ."A request to retrieve and associate your GOCDB account (ID string: $primaryIdString, authentication type: $primaryAuthType)"
-            . " and privileges with a new ID string has just been made on GOCDB."
-            ."\n\nThe new ID string is: $currentIdString";
-
-            if ($isRegistered) {
-                $body .= "\n\nThis new ID string is currently associated with a second registered account."
-                . " If recovery is sucessful, any roles currently associated with this second account (ID string: $currentIdString)"
-                . " will be requested for your GOCDB account (ID string: $primaryIdString)."
-                . " These roles will be approved automatically if either account has permission to do so."
-                . "\n\n The second account will then be deleted.";
-            }
-
-            $body .= "\n\nIf you wish to associate your GOCDB account with this ID string, please validate your request by clicking on the link below:\n"
-            . "$link"
-            . "\n\nIf you did not create this request in GOCDB, please immediately contact gocdb-admins@mailman.egi.eu";
+            $subText = ['recover', 'update an identifier of', 'Current identifier', 'with updated ID string', 'account recovery'];
         }
+        $subject = "Validation of $subText[0]ing your GOCDB account";
+
+        $body = "Dear GOCDB User,"
+        . "\n\nA request to $subText[1] one of your GOCDB accounts has just been made on GOCDB."
+        . " The details of this request are:"
+        . "\n\n$subText[2] of GOCDB account being $subText[0]ed:"
+        . "\n\n    - Authentication type: $primaryAuthType"
+        . "\n    - ID string: $primaryIdString"
+        . "\n\nRequested new identifier $subText[3]:"
+        . "\n\n    - Authentication type: $currentAuthType"
+        . "\n    - ID string: $currentIdString";
+
+        if ($isRegistered) {
+            $body .= "\n\nThis new identifier is currently associated with a second registered account."
+            . " If $subText[4] is sucessful, any roles currently associated with this second account ($currentIdString)"
+            . " will be requested for your primary GOCDB account ($primaryIdString)."
+            . " These roles will be approved automatically if either account has permission to do so."
+            . "\n\n The second account will then be deleted.";
+        }
+
+        if (!$isLinking) {
+            $body .= "\n\nPlease note that you will no longer be able to access your account using your old ID string ($primaryIdString).";
+        }
+
+        $body .= "\n\nIf you wish to associate your GOCDB account with this new identifier, please validate your request by clicking on the link below:"
+        . "\n$link"
+        . "\n\nIf you did not create this request in GOCDB, please immediately contact gocdb-admins@mailman.egi.eu";
+
         return array('subject'=>$subject, 'body'=>$body);
     }
 
@@ -298,32 +288,25 @@ class LinkIdentity extends AbstractEntityService {
     private function composeCurrentEmail($primaryIdString, $currentIdString, $primaryAuthType, $currentAuthType, $isLinking) {
 
         if ($isLinking) {
-
-            $subject = "Validation of linking your GOCDB account";
-
-            $body = "Dear GOCDB User,"
-            . "\n\nA request to add a new authentication method to one of your accounts"
-            . " (ID string: $primaryIdString, authentication type: $primaryAuthType) has just been made on GOCDB."
-            . "\n\nThe authentication details to be added are:"
-            . "\nID string: $currentIdString"
-            . "\nAuthentication type: $currentAuthType"
-            . "\n\nThese details are currently associated with a different GOCDB account, which will be deleted"
-            . " on completetion of the identity linking process."
-            . "\n\nIf you did not create this request in GOCDB, please immediately contact gocdb-admins@mailman.egi.eu";
-
+            $subText = ['link', 'add a new identifier to', 'Identifier', 'to be added to your account', 'identity linking'];
         } else {
-
-            $subject = "Validation of recovering your GOCDB account";
-
-            $body = "Dear GOCDB User,"
-            . "\n\nA request to recover one of your accounts"
-            . " (ID string: $primaryIdString, authentication type: $primaryAuthType) has just been made on GOCDB."
-            . "\n\nThe new ID string will be:"
-            . "\n$currentIdString"
-            . "\n\nThis new ID string is current associated with a different GOCDB account, which will be deleted"
-            . " on completetion of the account recovery process."
-            . "\n\nIf you did not create this request in GOCDB, please immediately contact gocdb-admins@mailman.egi.eu";
+            $subText = ['recover', 'recover', 'Current identifier', 'with updated ID string', 'account recovery'];
         }
+        $subject = "Request to $subText[0] your GOCDB account";
+
+        $body = "Dear GOCDB User,"
+        . "\n\nA request to $subText[1] one of your GOCDB accounts has just been made on GOCDB."
+        . " The details of this request are:"
+        . "\n\n$subText[2] of GOCDB account being $subText[0]ed:"
+        . "\n\n    - Authentication type: $primaryAuthType"
+        . "\n    - ID string: $primaryIdString"
+        . "\n\nRequested new identifier $subText[3]:"
+        . "\n\n    - Authentication type: $currentAuthType"
+        . "\n    - ID string: $currentIdString"
+        . "\n\nThis new identifier is currently associated with a second GOCDB account, which will be deleted"
+        . " on completetion of the $subText[4] process."
+        . "\n\nIf you did not create this request on GOCDB, please immediately contact gocdb-admins@mailman.egi.eu";
+
         return array('subject'=>$subject, 'body'=>$body);
     }
 
@@ -379,7 +362,7 @@ class LinkIdentity extends AbstractEntityService {
      * @param string $code confirmation code of the request being retrieved
      * @param string $currentIdString ID string of current user
      */
-    public function confirmIdentityLinking ($code, $currentIdString) {
+    public function confirmIdentityLinking($code, $currentIdString) {
 
         $serv = \Factory::getUserService();
 
@@ -398,10 +381,11 @@ class LinkIdentity extends AbstractEntityService {
         $primaryUser = $request->getPrimaryUser();
         $currentUser = $request->getCurrentUser();
 
-        // Check the portal is not in read only mode, throws exception if it is. If portal is read only, but the user whose id is being changed is an admin, we will still be able to proceed.
+        // Check the portal is not in read only mode, throws exception if it is.
+        // If portal is read only, but the primary user is an admin, we will still be able to proceed.
         $this->checkPortalIsNotReadOnlyOrUserIsAdmin($primaryUser);
 
-        // Check the id currently being used by the user is same as in the request
+        // Check the ID string currently being used by the user is same as in the request
         if ($currentIdString !== $request->getCurrentIdString()) {
             throw new \Exception($invalidURL);
         }
@@ -413,23 +397,23 @@ class LinkIdentity extends AbstractEntityService {
         $isLinking = ($request->getPrimaryAuthType() !== $request->getCurrentAuthType());
 
         // If linking, does primary user have user properties?
-        // If not, and linking, we will add this using the request info
-        $oldUser = ($primaryUser->getCertificateDn() === $request->getPrimaryIdString());
-        if ($isLinking && $oldUser) {
+        // If not, and linking, we will add an additional property using the request info
+        $isOldUser = ($primaryUser->getCertificateDn() === $request->getPrimaryIdString());
+        if ($isLinking && $isOldUser) {
                 $propArrOld = array($request->getPrimaryAuthType(), $request->getPrimaryIdString());
         }
 
         // If recovering, get property being updated (if it exists)
-        if (!$isLinking && !$oldUser) {
+        if (!$isLinking && !$isOldUser) {
             $property = $serv->getPropertyByIdString($request->getPrimaryIdString());
         }
 
         // Update primary user, remove request (and current user)
-        try{
+        try {
             $this->em->getConnection()->beginTransaction();
 
             // Add old certificateDn as property if linking
-            if ($oldUser && $isLinking) {
+            if ($isOldUser && $isLinking) {
                 $serv->addUserProperty($primaryUser, $propArrOld, $primaryUser);
             }
 
@@ -442,15 +426,16 @@ class LinkIdentity extends AbstractEntityService {
                 $serv->deleteUser($currentUser, $currentUser);
             }
 
-            $this->em->remove($request);
             $this->em->flush();
 
             // Add or update the ID string
-            if ($isLinking || $oldUser) {
+            if ($isLinking || $isOldUser) {
                 $serv->addUserProperty($primaryUser, $propArr, $primaryUser);
             } else {
                 $serv->editUserProperty($primaryUser, $property, $propArr, $primaryUser);
             }
+
+            $this->em->remove($request);
 
             $this->em->flush();
             $this->em->getConnection()->commit();

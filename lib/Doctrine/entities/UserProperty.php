@@ -34,7 +34,7 @@ class UserProperty {
     /** @Column(type="string", nullable=true, unique=true) */
     protected $keyValue = null;
 
-    public function __construct(){
+    public function __construct() {
     }
 
     /**
@@ -42,7 +42,7 @@ class UserProperty {
      * these properties are also cascade deleted.
      * @return \User
      */
-    public function getParentUser(){
+    public function getParentUser() {
         return $this->parentUser;
     }
 
@@ -51,7 +51,7 @@ class UserProperty {
      * enforced by the entity.
      * @return string
      */
-    public function getKeyName(){
+    public function getKeyName() {
         return $this->keyName;
     }
 
@@ -59,14 +59,14 @@ class UserProperty {
      * Get the key value, can contain any char.
      * @return String
      */
-    public function getKeyValue(){
+    public function getKeyValue() {
         return $this->keyValue;
     }
 
     /**
      * @return int The PK of this entity or null if not persisted
      */
-    public function getId(){
+    public function getId() {
         return $this->id;
     }
 
@@ -81,7 +81,7 @@ class UserProperty {
      *
      * @param \User $user
      */
-    public function _setParentUser(\User $user){
+    public function _setParentUser(\User $user) {
         $this->parentUser = $user;
     }
 
@@ -91,7 +91,7 @@ class UserProperty {
      * this is not enforced here by the entity.
      * @param string $keyName
      */
-    public function setKeyName($keyName){
+    public function setKeyName($keyName) {
         $this->keyName = $keyName;
     }
 
@@ -100,7 +100,7 @@ class UserProperty {
      * This value can contain any chars.
      * @param string $keyValue
      */
-    public function setKeyValue($keyValue){
+    public function setKeyValue($keyValue) {
         $this->keyValue = $keyValue;
     }
 

@@ -14,7 +14,7 @@ $idStrings = array();
 
 $em->getConnection()->beginTransaction();
 try {
-    foreach($usersRoles as $user) {
+    foreach ($usersRoles as $user) {
 
         // CERTDN remains the XML tag for IGTF X509 Certs
         // All ID strings are currently certificate DNs
@@ -23,7 +23,7 @@ try {
 
         // Some User ID strings are present twice in the output XML
         // This is often because a user has two (or more!) home sites
-        if(isset($idStrings[$idString])) {
+        if (isset($idStrings[$idString])) {
             continue;
         }
         $idStrings[$idString] = true;
@@ -40,7 +40,7 @@ try {
         $doctrineUser->setAdmin(false);
 
         // Roughly half of users don't have a home site set
-        if($user->HOMESITE != "" &&  !isBad($user->HOMESITE)) {
+        if ($user->HOMESITE !== "" &&  !isBad($user->HOMESITE)) {
             // Get the home site entity
             $dql = "SELECT s from Site s WHERE s.shortName = ?1";
             $homeSites = $em->createQuery($dql)
@@ -60,7 +60,7 @@ try {
         }
 
         // Make Dave an admin
-        if ($user->CERTDN === "/C=UK/O=eScience/OU=CLRC/L=DL/CN=david meredith"){
+        if ($user->CERTDN === "/C=UK/O=eScience/OU=CLRC/L=DL/CN=david meredith") {
             $doctrineUser->setAdmin(true);
         }
 

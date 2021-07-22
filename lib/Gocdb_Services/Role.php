@@ -739,7 +739,7 @@ class Role extends AbstractEntityService{
         // addRole perfoms role validation and throws exceptions accordingly
         $newRole = $this->addRole($roleTypeName, $user, $entity);
 
-        if(\Factory::getConfigService()->getSendEmails()) {
+        if (\Factory::getConfigService()->getSendEmails()) {
             \Factory::getNotificationService()->roleRequest($entity);
         }
         return $newRole;
@@ -748,10 +748,10 @@ class Role extends AbstractEntityService{
     /**
      * Calling (current) user attempts to 'merge' roles with another (primary) user
      * All roles the current user has are requested for the primary user
-     * Both users attempt to grant these requests, and the current user self-revokes their roles
+     * Both users attempt to grant these requests, and current user self-revokes their roles
      * Logic is handled by a seperate function
      *
-     * @param \User $primaryUser user to be granted the roles
+     * @param \User $primaryUser user to request and be granted roles
      * @param \User $currentUser user currently holding the roles
      */
     public function mergeRoles(\User $primaryUser, \User $currentUser) {
@@ -801,19 +801,19 @@ class Role extends AbstractEntityService{
             }
         }
 
-        // Attempt to self-grant roles
+        // Attempt to 'self-grant' roles for primary user
         foreach ($rolesToGrant as $role) {
             $this->selfGrantRole($primaryUser, $currentUser, $role);
         }
 
-        // Revoke roles after granting
+        // Revoke roles from current user after granting
         foreach ($currentRoles as $role) {
             $this->revokeRole($role, $currentUser);
         }
     }
 
     /**
-     * Attempt to "self-grant" a role based on two user permissions
+     * Attempt to 'self-grant' a role based on two user permissions
      *
      * @param \User $primaryUser user to be granted the role
      * @param \User $currentUser user currently holding the role
@@ -821,7 +821,7 @@ class Role extends AbstractEntityService{
      */
     private function selfGrantRole(\User $primaryUser, \User $currentUser, \Role $role) {
 
-        // Allow this exception as users may not have permission
+        // Allow this exception as users may not have permission to grant
         $grantMessage = 'You do not have permission to grant this role';
 
         // Try approving based on primary user permissions
