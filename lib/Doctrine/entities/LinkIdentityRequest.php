@@ -17,7 +17,7 @@ class LinkIdentityRequest {
 
     /**
      * @OneToOne(targetEntity="User")
-     * @JoinColumn(name="primary_user_id", referencedColumnName="id", onDelete="CASCADE", nullable=false)
+     * @JoinColumn(name="primaryUserId", referencedColumnName="id", onDelete="CASCADE", nullable=false)
      */
     protected $primaryUser;
 
@@ -26,7 +26,7 @@ class LinkIdentityRequest {
 
     /**
      * @OneToOne(targetEntity="User")
-     * @JoinColumn(name="current_user_id", referencedColumnName="id", onDelete="CASCADE", nullable=true)
+     * @JoinColumn(name="currentUserId", referencedColumnName="id", onDelete="CASCADE", nullable=true)
      */
     protected $currentUser;
 
