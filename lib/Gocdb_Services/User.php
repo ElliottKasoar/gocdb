@@ -492,6 +492,7 @@ class User extends AbstractEntityService{
         } else {
             $shibRealms = ['EUDAT_SSO_IDP', 'UK_ACCESS_FED', 'EGI Proxy IdP'];
         }
+        $iamRealms = ['IRIS IAM - OIDC'];
 
         // Add auth types to a list in the correct order
         $authTypes = array();
@@ -502,9 +503,10 @@ class User extends AbstractEntityService{
             if (strpos($authTokenName, 'X509') !== false) {
                 $authTypes = array_merge($authTypes, $x509Realms);
             }
+            if (strpos($authTokenName, 'IAM') !== false) {
+                $authTypes = array_merge($authTypes, $iamRealms);
+            }
         }
-        // Remove after testing
-        $authTypes[] = 'FAKE';
         return $authTypes;
     }
 
