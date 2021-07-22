@@ -140,7 +140,7 @@ class TestUtil {
         return $scope;
     }
 
-    public static function createSampleUserProperty($name, $key){
+    public static function createSampleUserProperty($name, $key) {
         $prop = new UserProperty();
         $prop->setKeyName($name);
         $prop->setKeyValue($key);

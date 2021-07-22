@@ -51,7 +51,7 @@ function draw() {
     if ($user !== null) {
         if (count($user->getUserProperties()) > 1) {
             // Store properties that aren't the one currently in use
-            foreach ($user->getUserProperties() as $prop){
+            foreach ($user->getUserProperties() as $prop) {
                 if ($prop->getKeyValue() !== $params['IDSTRING']) {
                     $params['OTHERPROPERTIES'][] = $prop;
                 }
@@ -77,7 +77,7 @@ function submit() {
     $currentIdString = Get_User_Principle();
     $currentAuthType = Get_User_AuthType();
 
-    if (empty($currentIdString)){
+    if (empty($currentIdString)) {
         show_view('error.php', "Could not authenticate user - null user principle");
         die();
     }

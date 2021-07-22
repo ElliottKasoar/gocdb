@@ -60,7 +60,7 @@ try {
         }
 
         // Make Dave an admin
-        if ($user->CERTDN === "/C=UK/O=eScience/OU=CLRC/L=DL/CN=david meredith"){
+        if ($user->CERTDN === "/C=UK/O=eScience/OU=CLRC/L=DL/CN=david meredith") {
             $doctrineUser->setAdmin(true);
         }
 
