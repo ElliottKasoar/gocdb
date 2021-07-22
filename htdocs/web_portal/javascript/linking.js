@@ -70,30 +70,28 @@ function getRegExAuthType() {
     return regExAuthType = /^[^`'\";<>]{0,4000}$/;
 }
 
-function getRegExId() {
+function getRegExIdString() {
     var inputAuthType = '#authType';
     var authType = $(inputAuthType).val();
 
-    // Start with slash only?
+    // Start with slash only
     if (authType === "IGTF X509 Cert") {
-        // var regExId = /^(\/[a-zA-Z]+=[a-zA-Z0-9\-\_\s\.@,'\/]+)+$/;
-        // var regExId = /^(\/[a-zA-Z]+=[a-zA-Z0-9\-\_\s\.@,'\/]+)+$/;
-        var regExId = /^\/.+$/;
+        // var regExIdString = /^(\/[a-zA-Z]+=[a-zA-Z0-9\-\_\s\.@,'\/]+)+$/;
+        var regExIdString = /^\/.+$/;
 
-    // End with @iris.iam.ac.uk only?
+    // End with @iris.iam.ac.uk
     } else if (authType === "IRIS IAM - OIDC") {
-        // var regExId = /^([a-f0-9]{8}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{12})@iris\.iam\.ac.uk$/;
-        var regExId = /^.+@iris\.iam\.ac.uk$/;
+        // var regExIdString = /^([a-f0-9]{8}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{12})@iris\.iam\.ac\.uk$/;
+        var regExIdString = /^.+@iris\.iam\.ac\.uk$/;
 
-    // Remove later
-    } else if (authType === "FAKE") {
-        var regExId = /^[^`'\";<>]{0,4000}$/;
+    // End with @egi.eu
+    } else if (authType === "EGI Proxy IdP") {
+        var regExIdString = /^.+@egi\.eu$/;
 
-    // Remove later?
     } else {
-        var regExId = /^$/;
+        var regExIdString = /^[^`'\";<>]{0,4000}$/;
     }
-    return regExId;
+    return regExIdString;
 }
 
 function getRegExEmail() {
@@ -104,7 +102,7 @@ function getRegExEmail() {
 // Enable/disabled ID string input based on selection of auth type
 // Enable/disable and format submit button based on all other inputs
 function validate() {
-    var idValid = false;
+    var idStringValid = false;
     var emailValid = false;
     var authTypeValid = false;
 
@@ -115,10 +113,10 @@ function validate() {
     authTypeEmpty = isInputEmpty(inputAuthType);
 
     // Validate ID string
-    var regExId = getRegExId();
-    var inputId = '#primaryIdString';
-    idValid = isInputValid(regExId, inputId);
-    idEmpty = isInputEmpty(inputId);
+    var regExIdString = getRegExIdString();
+    var inputIdString = '#primaryIdString';
+    idStringValid = isInputValid(regExIdString, inputIdString);
+    idStringEmpty = isInputEmpty(inputIdString);
 
     // Validate email
     var regExEmail = getRegExEmail();
@@ -127,7 +125,7 @@ function validate() {
     emailEmpty = isInputEmpty(inputEmail);
 
     // Set the button based on validate status
-    if(authTypeValid && idValid && emailValid && !authTypeEmpty && !idEmpty && !emailEmpty) {
+    if (authTypeValid && idStringValid && emailValid && !authTypeEmpty && !idStringEmpty && !emailEmpty) {
         $('#submitRequest_btn').addClass('btn btn-success');
         $('#submitRequest_btn').prop('disabled', false);
     } else {
@@ -143,7 +141,7 @@ function validate() {
 function isInputValid(regEx, input) {
     var inputValue = $(input).val();
     var inputValid = false;
-    if(regEx.test(inputValue) !== false) {
+    if (regEx.test(inputValue) !== false) {
         inputValid=true;
     }
     return inputValid;
@@ -155,16 +153,16 @@ function isInputValid(regEx, input) {
 function isInputEmpty(input) {
     var inputValue = $(input).val();
     var inputEmpty = true;
-    if(inputValue) {
+    if (inputValue) {
         inputEmpty=false;
     }
     return inputEmpty;
 }
 
 // Enable ID string input if auth type is valid
-function enableId(valid, empty) {
+function enableIdString(valid, empty) {
     // Disable/enable ID string based on auth type validity
-    if(valid && !empty) {
+    if (valid && !empty) {
         $('#primaryIdString').prop('disabled', false);
     } else {
         $('#primaryIdString').prop('disabled', true);
@@ -179,7 +177,7 @@ function formatAuthType() {
     var valid = isInputValid(regEx, input);
     var empty = isInputEmpty(input);
 
-    if(valid && !empty) {
+    if (valid && !empty) {
         $('#authTypeGroup').addClass("has-success");
         $('#authTypeGroup').removeClass("has-error");
     } else {
@@ -188,60 +186,60 @@ function formatAuthType() {
     }
 
     // Enable ID string input if auth type is valid
-    enableId(valid, empty);
+    enableIdString(valid, empty);
 }
 
 // Format ID string input on selection of auth type based on validation
 // Only apply if value has been entered (valid/invalid based on regex)
-function formatIdFromAuth() {
-    var regEx = getRegExId();
+function formatIdStringFromAuth() {
+    var regEx = getRegExIdString();
     var input = '#primaryIdString';
     var valid = isInputValid(regEx, input);
     var empty = isInputEmpty(input)
 
     if (!empty) {
         if (valid) {
-            $('#primaryIdGroup').addClass("has-success");
-            $('#primaryIdGroup').removeClass("has-error");
-            $("#idError").addClass("hidden");
-            $("#idPlaceholder").removeClass("hidden");
+            $('#primaryIdStringGroup').addClass("has-success");
+            $('#primaryIdStringGroup').removeClass("has-error");
+            $("#idStringError").addClass("hidden");
+            $("#idStringPlaceholder").removeClass("hidden");
         } else {
-            $('#primaryIdGroup').removeClass("has-success");
-            $('#primaryIdGroup').addClass("has-error");
-            $("#idError").removeClass("hidden");
-            $("#idPlaceholder").addClass("hidden");
-            $("#idError").text("You have entered an invalid id for the selected authentication method");
+            $('#primaryIdStringGroup').removeClass("has-success");
+            $('#primaryIdStringGroup').addClass("has-error");
+            $("#idStringError").removeClass("hidden");
+            $("#idStringPlaceholder").addClass("hidden");
+            $("#idStringError").text("You have entered an invalid ID string for the selected authentication method");
         }
     } else {
-        $('#primaryIdGroup').removeClass("has-error");
-        $("#idError").addClass("hidden");
-        $("#idPlaceholder").removeClass("hidden");
+        $('#primaryIdStringGroup').removeClass("has-error");
+        $("#idStringError").addClass("hidden");
+        $("#idStringPlaceholder").removeClass("hidden");
     }
 }
 
 // Format ID string input on entering value based on validation
 // Error if invalid (regex) format or if nothing entered
-function formatId() {
-    var regEx = getRegExId();
+function formatIdString() {
+    var regEx = getRegExIdString();
     var input = '#primaryIdString';
     var valid = isInputValid(regEx, input);
     var empty = isInputEmpty(input);
 
-    if(valid && !empty) {
-        $('#primaryIdGroup').addClass("has-success");
-        $('#primaryIdGroup').removeClass("has-error");
-        $("#idError").addClass("hidden");
-        $("#idPlaceholder").removeClass("hidden");
+    if (valid && !empty) {
+        $('#primaryIdStringGroup').addClass("has-success");
+        $('#primaryIdStringGroup').removeClass("has-error");
+        $("#idStringError").addClass("hidden");
+        $("#idStringPlaceholder").removeClass("hidden");
     } else {
-        $('#primaryIdGroup').removeClass("has-success");
-        $('#primaryIdGroup').addClass("has-error");
-        $("#idError").removeClass("hidden");
-        $("#idPlaceholder").addClass("hidden");
+        $('#primaryIdStringGroup').removeClass("has-success");
+        $('#primaryIdStringGroup').addClass("has-error");
+        $("#idStringError").removeClass("hidden");
+        $("#idStringPlaceholder").addClass("hidden");
     }
     if (!valid && !empty) {
-        $("#idError").text("You have entered an invalid ID for the selected authentication method");
+        $("#idStringError").text("You have entered an invalid ID string for the selected authentication method");
     } else if (empty) {
-        $("#idError").text("Please enter the ID string of the account you want to be linked");
+        $("#idStringError").text("Please enter the ID string of the account you want to be linked");
     }
 }
 
@@ -253,7 +251,7 @@ function formatEmail() {
     var valid = isInputValid(regEx, input);
     var empty = isInputEmpty(input);
 
-    if(valid && !empty) {
+    if (valid && !empty) {
         $('#emailGroup').addClass("has-success");
         $('#emailGroup').removeClass("has-error");
         $("#emailError").addClass("hidden");
@@ -264,7 +262,7 @@ function formatEmail() {
         $("#emailError").removeClass("hidden");
         $("#emailPlaceholder").addClass("hidden");
     }
-    if(!valid && !empty) {
+    if (!valid && !empty) {
         $("#emailError").text("Please enter a valid email");
     } else if (empty) {
         $("#emailError").text("Please enter the account's email");
