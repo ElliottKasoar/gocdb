@@ -26,12 +26,12 @@ class LinkIdentityRequest {
 
     /**
      * @OneToOne(targetEntity="User")
-     * @JoinColumn(name="secondary_user_id", referencedColumnName="id", onDelete="CASCADE", nullable=true)
+     * @JoinColumn(name="current_user_id", referencedColumnName="id", onDelete="CASCADE", nullable=true)
      */
-    protected $secondaryUser;
+    protected $currentUser;
 
     /** @Column(type="string") */
-    protected $secondaryIdString;
+    protected $currentIdString;
 
     /** @Column(type="string") */
     protected $confirmCode;
@@ -40,16 +40,16 @@ class LinkIdentityRequest {
     protected $primaryAuthType;
 
     /** @Column(type="string") */
-    protected $secondaryAuthType;
+    protected $currentAuthType;
 
-    public function __construct(\User $primaryUser, $secondaryUser, $code, $primaryIdString, $secondaryIdString, $primaryAuthType, $secondaryAuthType) {
+    public function __construct(\User $primaryUser, $currentUser, $code, $primaryIdString, $currentIdString, $primaryAuthType, $currentAuthType) {
         $this->setPrimaryUser($primaryUser);
-        $this->setSecondaryUser($secondaryUser);
+        $this->setCurrentUser($currentUser);
         $this->setConfirmCode($code);
         $this->setPrimaryIdString($primaryIdString);
-        $this->setSecondaryIdString($secondaryIdString);
+        $this->setCurrentIdString($currentIdString);
         $this->setPrimaryAuthType($primaryAuthType);
-        $this->setSecondaryAuthType($secondaryAuthType);
+        $this->setCurrentAuthType($currentAuthType);
     }
 
     /**
@@ -72,8 +72,8 @@ class LinkIdentityRequest {
      * Can be null if user not yet registered.
      * @return \User
      */
-    public function getSecondaryUser() {
-        return $this->secondaryUser;
+    public function getCurrentUser() {
+        return $this->currentUser;
     }
 
     /**
@@ -98,8 +98,8 @@ class LinkIdentityRequest {
      * Get the ID string to be added to the primary user.
      * @return string
      */
-    public function getSecondaryIdString() {
-        return $this->secondaryIdString;
+    public function getCurrentIdString() {
+        return $this->currentIdString;
     }
 
     /**
@@ -111,11 +111,11 @@ class LinkIdentityRequest {
     }
 
     /**
-     * Get the auth type of the secondary user.
+     * Get the auth type of the current user.
      * @return string
      */
-    public function getSecondaryAuthType() {
-        return $this->secondaryAuthType;
+    public function getCurrentAuthType() {
+        return $this->currentAuthType;
     }
 
     /**
@@ -127,11 +127,11 @@ class LinkIdentityRequest {
     }
 
     /**
-     * Set the secondary user.
-     * @param \User $secondaryUser
+     * Set the current user.
+     * @param \User $currentUser
      */
-    public function setSecondaryUser($secondaryUser) {
-        $this->secondaryUser = $secondaryUser;
+    public function setCurrentUser($currentUser) {
+        $this->currentUser = $currentUser;
     }
 
     /**
@@ -153,11 +153,11 @@ class LinkIdentityRequest {
     }
 
     /**
-     * Set the ID string of the secondary user account.
-     * @param string $secondaryIdString
+     * Set the ID string of the current user account.
+     * @param string $currentIdString
      */
-    public function setSecondaryIdString($secondaryIdString) {
-        $this->secondaryIdString = $secondaryIdString;
+    public function setCurrentIdString($currentIdString) {
+        $this->currentIdString = $currentIdString;
     }
 
     /**
@@ -169,10 +169,10 @@ class LinkIdentityRequest {
     }
 
     /**
-     * Set the auth type of the secondary user account.
-     * @param string $secondaryAuthType
+     * Set the auth type of the current user account.
+     * @param string $currentAuthType
      */
-    public function setSecondaryAuthType($secondaryAuthType) {
-        $this->secondaryAuthType = $secondaryAuthType;
+    public function setCurrentAuthType($currentAuthType) {
+        $this->currentAuthType = $currentAuthType;
     }
 }
