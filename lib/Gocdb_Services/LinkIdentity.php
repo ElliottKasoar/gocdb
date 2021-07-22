@@ -24,7 +24,7 @@ class LinkIdentity extends AbstractEntityService {
             $primaryUser = $serv->getUserFromDn($primaryIdString);
         }
 
-        // $currentUser is user making request, referred to as "secondaryUser" in LinkIdentityRequest
+        // $currentUser is user making request
         // May not be registered so can be null
         $currentUser = $serv->getUserByPrinciple($currentIdString);
 
@@ -177,8 +177,8 @@ class LinkIdentity extends AbstractEntityService {
         $dql = "SELECT l
                 FROM LinkIdentityRequest l
                 JOIN l.primaryUser pu
-                JOIN l.secondaryUser su
-                WHERE pu.id = :id OR su.id = :id";
+                JOIN l.currentUser cu
+                WHERE pu.id = :id OR cu.id = :id";
 
         $request = $this->em
             ->createQuery($dql)
@@ -190,7 +190,7 @@ class LinkIdentity extends AbstractEntityService {
 
     /**
      * Gets a link identity request from the database based on current ID string
-     * ID string may be present as primary or secondary user
+     * ID string may be present as primary or current user
      * @param string $idString ID string of user to be linked in primary account
      * @return arraycollection
      */
@@ -198,7 +198,7 @@ class LinkIdentity extends AbstractEntityService {
         $dql = "SELECT l
                 FROM LinkIdentityRequest l
                 WHERE l.primaryIdString = :idString
-                OR l.secondaryIdString = :idString";
+                OR l.currentIdString = :idString";
 
         $request = $this->em
             ->createQuery($dql)
@@ -396,21 +396,21 @@ class LinkIdentity extends AbstractEntityService {
         }
 
         $primaryUser = $request->getPrimaryUser();
-        $currentUser = $request->getSecondaryUser();
+        $currentUser = $request->getCurrentUser();
 
         // Check the portal is not in read only mode, throws exception if it is. If portal is read only, but the user whose id is being changed is an admin, we will still be able to proceed.
         $this->checkPortalIsNotReadOnlyOrUserIsAdmin($primaryUser);
 
         // Check the id currently being used by the user is same as in the request
-        if ($currentIdString !== $request->getSecondaryIdString()) {
+        if ($currentIdString !== $request->getCurrentIdString()) {
             throw new \Exception($invalidURL);
         }
 
         // Create property array from the current user's credentials
-        $propArr = array($request->getSecondaryAuthType(), $request->getSecondaryIdString());
+        $propArr = array($request->getCurrentAuthType(), $request->getCurrentIdString());
 
         // Are we recovering or linking an identity? True if linking
-        $isLinking = ($request->getPrimaryAuthType() !== $request->getSecondaryAuthType());
+        $isLinking = ($request->getPrimaryAuthType() !== $request->getCurrentAuthType());
 
         // If linking, does primary user have user properties?
         // If not, and linking, we will add this using the request info

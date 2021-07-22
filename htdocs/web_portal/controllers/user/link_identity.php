@@ -72,7 +72,7 @@ function submit() {
     $givenEmail = $_REQUEST['EMAIL'];
     $primaryAuthType = $_REQUEST['AUTHTYPE'];
 
-    // "Secondary" account info, inferred from the in-use authentication
+    // Current account info, inferred from the in-use authentication
     // There may or may not be a corresponding registered account
     $currentIdString = Get_User_Principle();
     $currentAuthType = Get_User_AuthType();
