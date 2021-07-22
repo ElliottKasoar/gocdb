@@ -21,15 +21,15 @@
     </form>
     <input class="btn btn-default expandMulti" value="Add multiple properties" style="float: right;" />
 
-    <br/>
-    <br/>
+    <br />
+    <br />
     <div class="multiInput">
     <form name="Add_Properties" action="index.php?Page_Type=<?php echo $addPropertiesURL;?>" method="post" class="inputForm" id="Properties_Form">
 
         <textarea name="PROPERTIES" id="propertiesTextArea" class="form-control" rows="10" style="width: 100%" placeholder="Input your properties in 'name = value' form, separated by newlines. You can also browse and upload a text file below"></textarea>
 
         <input class="input_input_text" type="hidden" name="PARENT" value="<?php echo $parentID;?>" />
-        <br/>
+        <br />
 
         <input class="btn btn-default" type=file id=files style="display: inline;" />
         <input type="button" class="btn btn-default" id="upload" value="Upload"/>

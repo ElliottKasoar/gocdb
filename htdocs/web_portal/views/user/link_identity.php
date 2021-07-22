@@ -32,7 +32,7 @@
             </li>
     </div>
 
-    <br/>
+    <br />
 
     <div class=Form_Holder>
         <div class=Form_Holder_2>
@@ -41,15 +41,15 @@
                 <span>
                     Your current ID string (e.g. certificate DN) is: <label><?=$params['IDSTRING'];?></label>
                 </span>
-                <br/>
+                <br />
                 <span>
                     Your current authentication type is: <label id="currentAuthType"><?=$params['CURRENTAUTHTYPE'];?></label>
                 </span>
-                <br/>
-                <br/>
+                <br />
+                <br />
 
                 <h2>Details of account to be linked or recovered</h2>
-                <br/>
+                <br />
 
                 <div class="form-group" id="authTypeGroup">
                     <label class="control-label" for="authType">Authentication type *</label>
@@ -67,11 +67,11 @@
                             ?>
                         </select>
                     </div>
-                    <br/>
+                    <br />
                     <span class="auth-message hidden" id="authTypeLabel1"></span>
-                    <br/>
+                    <br />
                     <span class="auth-message hidden" id="authTypeLabel2"></span>
-                    <br/>
+                    <br />
                     <span class="auth-message auth-warning hidden" id="authTypeLabel3"></span>
                     <br id="authPlaceholder3">
                 </div>
@@ -88,7 +88,7 @@
                     <br id="idStringPlaceholder">
                 </div>
 
-                <br/>
+                <br />
 
                 <div class="form-group" id="emailGroup">
                     <label class="control-label" for="email">E-mail address *
@@ -153,7 +153,7 @@
                     <li class="hidden invis" id="requestPlaceholder"></li>
                 </div>
 
-                <br>
+                <br />
 
                 <button type="submit" id="submitRequest_btn" class="btn btn-default" style="width: 100%" value="Execute" disabled>Submit</button>
 
