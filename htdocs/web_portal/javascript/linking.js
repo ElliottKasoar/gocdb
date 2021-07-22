@@ -38,14 +38,14 @@ function updateWarningMessage() {
 
         // Stronger warning for certain types. Certificates will be less severe?
         if (selectedAuthType === "IGTF X509 Cert") {
-            authTypeText3 = 'X509 Certificates sometimes expire. Are you sure you wish to continue?';
+            authTypeText3 = "'" + selectedAuthType + "' ID strings sometimes expire. Are you sure you wish to continue?";
             $('#authTypeLabel3').removeClass("hidden");
-            $('#authTypeLabel3').removeClass("auth-warning-severe");
+            $('#authTypeLabel3').removeClass("auth-warning");
             $('#authPlaceholder3').addClass("hidden");
         } else {
             authTypeText3 = "'" + selectedAuthType + "' ID strings rarely expire. Are you sure you wish to continue?";
             $('#authTypeLabel3').removeClass("hidden");
-            $('#authTypeLabel3').addClass("auth-warning-severe");
+            $('#authTypeLabel3').addClass("auth-warning");
             $('#authPlaceholder3').addClass("hidden");
         }
 

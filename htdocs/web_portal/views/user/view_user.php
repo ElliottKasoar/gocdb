@@ -108,7 +108,7 @@
     <!-- ID strings from user properties -->
     <div class="listContainer" style="width: 99.5%; float: left; margin-top: 3em; margin-right: 10px;">
         <span class="header" style="vertical-align:middle; float: left; padding-top: 0.9em; padding-left: 1em;">
-            Identity Strings
+            Identifiers
         </span>
 
         <table style="clear: both; width: 100%;">
@@ -116,7 +116,7 @@
                 <th class="site_table">ID String</th>
                 <th class="site_table">Authentication type</th>
                 <?php if (!$params['portalIsReadOnly'] && $params['ShowEdit']):?>
-                    <th class="site_table">Unlink</th>
+                    <th class="site_table">Remove Identifier</th>
                 <?php endif; ?>
             </tr>
             <?php
@@ -139,8 +139,8 @@
                         <td class="site_table">
                             <form action="index.php?Page_Type=Remove_User_Property&amp;id=<?=$params['user']->getId();?>&amp;propertyId=<?=$prop->getId();?>" method="post">
                                 <div class="btn-like"
-                                    <?php if ($params['lastProperty']) echo "title='Cannot remove all ID strings from a user'";?>
-                                    <?php if ($params['currentIdString'] === $prop->getKeyValue()) echo "title='Cannot remove the ID string you are using'";?>
+                                    <?php if ($params['lastProperty']) echo "title='Cannot remove all identifiers from a user'";?>
+                                    <?php if ($params['currentIdString'] === $prop->getKeyValue()) echo "title='Cannot remove the identifier you are using'";?>
                                 >
                                     <input
                                         id="revokeButton" type="submit" value="Remove" class="btn btn-sm btn-danger" onclick="return confirmSubmit()"
@@ -154,22 +154,6 @@
                 <?php if($num == 1) { $num = 2; } else { $num = 1; }
             endforeach;?>
         </table>
-    </div>
-
-    <div class="listContainer">
-        <b>Authentication Attributes:</b>
-        <br />
-        <?php
-        foreach ($params['authAttributes'] as $key => $val) {
-            $attributeValStr = '';
-            foreach ($val as $v) {
-                $attributeValStr .= ', '.$v;
-            }
-            if (strlen($attributeValStr) > 2){$attributeValStr = substr($attributeValStr, 2);}
-            xecho('[' . $key . ']  [' . $attributeValStr . ']');
-            echo '<br />';
-        }
-        ?>
     </div>
 
     <div style="float: left; width: 100%; margin-top: 2em;" class="alert alert-info" role="alert">

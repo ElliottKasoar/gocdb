@@ -52,7 +52,7 @@ function draw() {
         if (count($user->getUserProperties()) > 1) {
             // Store properties that aren't the one currently in use
             foreach ($user->getUserProperties() as $prop){
-                if ($prop->getKeyName() !== $params['CURRENTAUTHTYPE']) {
+                if ($prop->getKeyValue() !== $params['IDSTRING']) {
                     $params['OTHERPROPERTIES'][] = $prop;
                 }
             }

@@ -72,7 +72,7 @@
                     <br />
                     <span class="auth-message hidden" id="authTypeLabel2"></span>
                     <br />
-                    <span class="auth-message auth-warning hidden" id="authTypeLabel3"></span>
+                    <span class="auth-message hidden" id="authTypeLabel3"></span>
                     <br id="authPlaceholder3">
                 </div>
 
@@ -165,10 +165,6 @@
 <style>
     .auth-warning {
         color: red;
-    }
-    .auth-warning-severe {
-        color: red;
-        font-style: italic;
     }
     .invis {
         opacity: 0;

@@ -118,10 +118,6 @@ function view_user() {
         $params['ShowEdit'] = false;
     }
 
-    /* @var $authToken \org\gocdb\security\authentication\IAuthentication */
-    $authToken = Get_User_AuthToken();
-    $params['authAttributes'] = $authToken->getDetails();
-
     $params['idString'] = $serv->getIdString($user);
 
     $params['projectNamesIds'] = $projectNamesIds;
