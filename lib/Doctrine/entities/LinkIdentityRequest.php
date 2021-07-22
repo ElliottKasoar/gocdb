@@ -42,7 +42,11 @@ class LinkIdentityRequest {
     /** @Column(type="string") */
     protected $currentAuthType;
 
+    /** @Column(type="datetime", nullable=false)  */
+    protected $creationDate;
+
     public function __construct(\User $primaryUser, $currentUser, $code, $primaryIdString, $currentIdString, $primaryAuthType, $currentAuthType) {
+        $this->creationDate = new \DateTime("now");
         $this->setPrimaryUser($primaryUser);
         $this->setCurrentUser($currentUser);
         $this->setConfirmCode($code);
@@ -119,6 +123,14 @@ class LinkIdentityRequest {
     }
 
     /**
+     * Get the DateTime when the request was created.
+     * @return \DateTime
+     */
+    public function getCreationDate() {
+        return $this->creationDate;
+    }
+
+    /**
      * Set the primary user.
      * @param \User $primaryUser
      */
@@ -174,5 +186,13 @@ class LinkIdentityRequest {
      */
     public function setCurrentAuthType($currentAuthType) {
         $this->currentAuthType = $currentAuthType;
+    }
+
+    /**
+     * Set the DateTime when the request was created.
+     * @param \DateTime $creationDate
+     */
+    public function setCreationDate($creationDate) {
+        $this->creationDate = $creationDate;
     }
 }
