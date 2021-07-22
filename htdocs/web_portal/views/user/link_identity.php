@@ -56,10 +56,10 @@
                             class="form-control"
                             name="AUTHTYPE" id="authType"
                             size=<?=count($params['AUTHTYPES']);?>
-                            onchange="updateWarningMessage(); formatAuthType(); formatIdFromAuth();">
+                            onchange="updateWarningMessage(); formatAuthType(); formatIdStringFromAuth();">
                             <?php
                                 foreach ($params['AUTHTYPES'] as $authType) {
-                                    echo "<option onclick=\"updateWarningMessage(); formatAuthType(); formatIdFromAuth();\" value=\"";
+                                    echo "<option onclick=\"updateWarningMessage(); formatAuthType(); formatIdStringFromAuth();\" value=\"";
                                     echo $authType . "\">" . $authType . "</option>";
                                 }
                             ?>
@@ -74,16 +74,16 @@
                     <br id="authPlaceholder3">
                 </div>
 
-                <div class="form-group" id="primaryIdGroup">
+                <div class="form-group" id="primaryIdStringGroup">
                     <label class="control-label" for="primaryIdString">ID string *
                         <label class="input_syntax" >(e.g. for IGTF X509 Cert: /C=.../OU=.../...)</label>
                     </label>
 
                     <div class="controls">
-                        <input class="form-control" type="text" name="PRIMARYIDSTRING" id="primaryIdString" onchange="formatId();" disabled/>
+                        <input class="form-control" type="text" name="PRIMARYIDSTRING" id="primaryIdString" onchange="formatIdString();" disabled/>
                     </div>
-                    <span id="idError" class="label label-danger hidden"></span>
-                    <br id="idPlaceholder">
+                    <span id="idStringError" class="label label-danger hidden"></span>
+                    <br id="idStringPlaceholder">
                 </div>
 
                 <br/>
