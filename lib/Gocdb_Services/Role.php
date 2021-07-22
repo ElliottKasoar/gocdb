@@ -740,7 +740,7 @@ class Role extends AbstractEntityService{
         // addRole perfoms role validation and throws exceptions accordingly
         $newRole = $this->addRole($roleTypeName, $user, $entity);
 
-        if(\Factory::getConfigService()->getSendEmails()) {
+        if (\Factory::getConfigService()->getSendEmails()) {
             \Factory::getNotificationService()->roleRequest($entity);
         }
         return $newRole;

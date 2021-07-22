@@ -34,8 +34,8 @@ function delete_property() {
     $currentIdString = Get_User_Principle();
     $currentUser = $serv->getUserByPrinciple($currentIdString);
 
-    if($currentUser === null) {
-        throw new \Exception("Unregistered users can't edit users");
+    if ($currentUser === null) {
+        throw new \Exception("Unregistered users cannot edit users");
     }
 
     // Check the portal is not in read only mode, returns exception if it is and user is not an admin
@@ -49,7 +49,7 @@ function delete_property() {
     $property = $serv->getPropertyById($propertyId);
 
     // Throw exception if not a valid user id
-    if(is_null($user)) {
+    if (is_null($user)) {
         throw new \Exception("A user with ID '" . $userId . "' cannot be found");
     }
 
@@ -59,12 +59,12 @@ function delete_property() {
     // Non-admins can't tell if a given property matches a specific user
     // But they can currently still tell how many properties exist
     // This could be changed to only give info about if the property matches one of theirs
-    if(is_null($property)) {
+    if (is_null($property)) {
         throw new \Exception("A property with ID '" . $propertyId . "' cannot be found");
     }
 
     // Throw exception if trying to remove property that current user is authenticated with
-    if($property->getKeyValue() === $currentIdString) {
+    if ($property->getKeyValue() === $currentIdString) {
         throw new \Exception("You cannot unlink your current ID string. Please log in using a different authentication mechanism and try again.");
     }
 

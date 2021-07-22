@@ -30,7 +30,7 @@ function view_user() {
 
     $serv = \Factory::getUserService();
     $user = $serv->getUser($userId);
-    if ($user === null){
+    if ($user === null) {
        throw new Exception("No user with that ID");
     }
     $params['user'] = $user;

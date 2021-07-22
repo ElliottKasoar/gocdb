@@ -54,7 +54,7 @@
             <div class="topMargin leftFloat siteFilter">
                 <span class="middle" style="margin-right: 0.4em">ID String: </span>
                 <input class="middle" style="width: 11em;" type="text" name="IdString"
-                    <?php if(isset($params['IdString']))
+                    <?php if (isset($params['IdString']))
                         xecho("value=".$params['IdString']);
                     ?>
                 />

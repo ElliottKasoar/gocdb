@@ -45,7 +45,7 @@ function register() {
 function draw() {
     $serv = \Factory::getUserService();
     $idString = Get_User_Principle();
-    if(empty($idString)){
+    if (empty($idString)) {
         show_view('error.php', "Could not authenticate user - null user principle");
     die();
     }
@@ -68,7 +68,7 @@ function submit() {
     $userValues = getUserDataFromWeb();
 
     $idString = Get_User_Principle();
-    if(empty($idString)){
+    if (empty($idString)) {
         show_view('error.php', "Could not authenticate user - null user principle");
     die();
     }

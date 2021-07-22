@@ -191,7 +191,7 @@ function Get_User_Principle(){
 
         // Is user registered/known in the DB? if true, update their last login time
         // once for the current request.
-        if($user !== null){
+        if ($user !== null) {
             $serv->updateLastLoginTime($user);
 
             // If property for current auth does not exist, add to user

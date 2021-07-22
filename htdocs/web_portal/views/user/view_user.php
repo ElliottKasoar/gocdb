@@ -121,8 +121,8 @@
             </tr>
             <?php
             $num = 2;
-            // foreach user property
-            foreach($params['user']->getUserProperties() as $prop): ?>
+            // Loop through each user property
+            foreach ($params['user']->getUserProperties() as $prop): ?>
 
                 <tr class="site_table_row_<?php echo $num ?>">
                     <td class="site_table" style="width: 40%">
@@ -151,7 +151,7 @@
                         </td>
                     <?php endif;?>
                 </tr>
-                <?php if($num == 1) { $num = 2; } else { $num = 1; }
+                <?php if ($num == 1) { $num = 2; } else { $num = 1; }
             endforeach;?>
         </table>
     </div>

@@ -12,13 +12,13 @@ function validate_identity_link() {
     //Check the portal is not in read only mode, returns exception if it is
     checkPortalIsNotReadOnly();
 
-    if(!isset($_REQUEST['c'])){
+    if (!isset($_REQUEST['c'])) {
         show_view('error.php', "A confirmation code must be specified.");
     }
     $code = $_REQUEST['c'];
 
     $currentIdString = Get_User_Principle();
-    if(empty($currentIdString)){
+    if (empty($currentIdString)) {
         show_view('error.php', "Could not authenticate user - null user principle");
         die();
     }
