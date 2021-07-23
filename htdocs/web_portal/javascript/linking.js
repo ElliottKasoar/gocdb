@@ -1,6 +1,6 @@
 $(document).ready(function() {
     // Add the jQuery form change event handlers
-    $("#linkIdentityForm").find(":input").change(function() {
+    $('#linkIdentityForm').find(":input").change(function() {
         validate();
     });
 });
@@ -56,7 +56,7 @@ function updateWarningMessage() {
         $('#requestPlaceholder').removeClass("hidden");
 
         authTypeText1 = " is different to your current authentication type.";
-        authTypeText2 = "Proceeding will begin the identity linking process."
+        authTypeText2 = "Proceeding will begin the identity linking process.";
         $('#authTypeDivRecover').addClass("hidden");
         $('#authTypeRecoverPlaceholder').removeClass("hidden");
     }
@@ -206,7 +206,7 @@ function formatIdStringFromAuth() {
         } else {
             $('#primaryIdStringGroup').removeClass("has-success");
             $('#primaryIdStringGroup').addClass("has-error");
-            $("#idStringError").removeClass("hidden");
+            $('#idStringError').removeClass("hidden");
             $('#idStringPlaceholder').addClass("hidden");
             $('#idStringError').text("You have entered an invalid ID string for the selected authentication method");
         }

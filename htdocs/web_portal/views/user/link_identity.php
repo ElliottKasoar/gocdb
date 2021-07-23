@@ -129,15 +129,16 @@
 
                     <li class="hidden" id="linkingDetails"> If you successfully validate your linking request:
                         <ul>
+                            <li>
+                                Your <b>current ID string</b> and <b>authentication type</b> will be added as an alternative identifier to the account being linked.
+                            </li>
+                            </li>
                             <li <?php echo $params['registered'] ? "" : "hidden"; ?>>
                                 Any roles you have with the account you are currently using will be requested
                                 for the account being linked.
                             </li>
                             <li <?php echo $params['registered'] ? "" : "hidden"; ?>>
                                 These roles will be approved automatically if either account has permission to do so.
-                            </li>
-                            <li>
-                                Your current ID string and authentication type will be added to the account being linked.
                             </li>
                             <li <?php echo $params['registered'] ? "" : "hidden"; ?>>
                                 <b>The account you are currently using will then be deleted.</b>
@@ -147,18 +148,19 @@
 
                     <li id="recoveryDetails"> If you successfully validate your recovery request:
                         <ul>
+                            <li>
+                                The <b>ID string</b> of your old account that matches your <b>current authentication type</b> will be updated to your <b>current ID string</b>.
+                            </li>
+                            <li>
+                                <b>You will no longer be able to log in with your old ID string</b>.
+                            </li>
                             <li <?php echo $params['registered'] ? "" : "hidden"; ?>>
                                 Any roles you have with the account you are currently using will be requested for your old account.
                             </li>
                             <li <?php echo $params['registered'] ? "" : "hidden"; ?>>
                                 These roles will be approved automatically if either account has permission to do so.
                             </li>
-                            <li>
-                                The ID string of your old account that matches your current authentication type will be updated to your current ID string.
-                            </li>
-                            <li>
-                                <b>You will no longer be able to log in with your old ID string</b>.
-                            </li>
+
                             <li <?php echo $params['registered'] ? "" : "hidden"; ?>>
                                 <b>The account you are currently using will then be deleted.</b>
                             </li>
