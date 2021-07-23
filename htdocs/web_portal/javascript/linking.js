@@ -18,10 +18,11 @@ function updateWarningMessage() {
     var authTypeText1 = "";
     var authTypeText2 = "";
     var authTypeText3 = "";
+
     if (selectedAuthType !== null && selectedAuthType !== "") {
-        $('.authTypeDivShared').removeClass("hidden");
+        $('.authTypeShared').removeClass("hidden");
     } else {
-        $('.authTypeDivShared').addClass("hidden");
+        $('.authTypeShared').addClass("hidden");
     }
 
     $('.authTextPlaceholder').addClass("hidden");
@@ -36,17 +37,19 @@ function updateWarningMessage() {
         $('#authTypeRecoverPlaceholder').addClass("hidden");
 
         authTypeText1 = " is the same as your current authentication type.";
-        authTypeText2 = "Proceeding will begin the account recovery process.";
+        authTypeText3 = "account recovery";
 
         // Stronger warning for certain types. Certificates will be less severe?
         if (selectedAuthType === "IGTF X509 Cert") {
-            authTypeText3 = "identifiers sometimes expire. Are you sure you wish to continue?";
-            $('#authTypeDivRecover').removeClass("hidden");
-            $('#authTypeDivRecover').removeClass("auth-warning");
+            authTypeText2 = "Are you sure you wish to continue?";
+            $('#authTypeRecover').removeClass("hidden");
+            $('#authTypeRecover').removeClass("auth-warning");
+            $('#authTypeSelected').addClass("hidden");
         } else {
-            authTypeText3 = "identifiers rarely expire. Are you sure you wish to continue?";
-            $('#authTypeDivRecover').removeClass("hidden");
-            $('#authTypeDivRecover').addClass("auth-warning");
+            authTypeText2 = "These identifiers rarely expire. Are you sure you wish to continue?";
+            $('#authTypeRecover').removeClass("hidden");
+            $('#authTypeRecover').addClass("auth-warning");
+            $('#authTypeSelected').removeClass("hidden");
         }
 
     } else {
@@ -56,14 +59,14 @@ function updateWarningMessage() {
         $('#requestPlaceholder').removeClass("hidden");
 
         authTypeText1 = " is different to your current authentication type.";
-        authTypeText2 = "Proceeding will begin the identity linking process.";
-        $('#authTypeDivRecover').addClass("hidden");
+        authTypeText3 = "identity linking";
+        $('#authTypeRecover').addClass("hidden");
         $('#authTypeRecoverPlaceholder').removeClass("hidden");
     }
 
     $('#authTypeMsg1').text(authTypeText1);
     $('#authTypeMsg2').text(authTypeText2);
-    $('#authTypeMsg3').text(authTypeText3);
+    $('.requestType').text(authTypeText3);
 }
 
 function getRegExAuthType() {

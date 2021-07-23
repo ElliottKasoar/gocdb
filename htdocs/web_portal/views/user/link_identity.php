@@ -74,18 +74,19 @@
 
                     <br />
                     <br class="authTextPlaceholder" />
-                    <br class="authTextPlaceholder" />
 
-                    <div class="hidden authTypeDivShared">
+                    <div class="hidden authTypeShared">
                         <b><span class="authTypeSelected"></span></b>
-                        <span class="auth-message" id="authTypeMsg1"></span>
+                        <span id="authTypeMsg1"></span>
+                        <span>Proceeding will begin the </span>
+                        <b><span class="requestType"></span></b>
+                        <span> process.</span>
                     </div>
-                    <div class="hidden authTypeDivShared">
-                        <span class="auth-message" id="authTypeMsg2"></span>
+                    <div class="hidden authTypeShared">
+
                     </div>
-                    <div class="hidden" id="authTypeDivRecover">
-                        <b><span class="authTypeSelected"></span></b>
-                        <span class="auth-message" id="authTypeMsg3"></span>
+                    <div class="hidden" id="authTypeRecover">
+                        <span id="authTypeMsg2"></span>
                     </div>
                     <br id="authTypeRecoverPlaceholder" />
                 </div>
@@ -127,7 +128,7 @@
                         Any existing linking or recovery requests you have made will expire.
                     </li>
 
-                    <li class="hidden" id="linkingDetails"> If you successfully validate your linking request:
+                    <li class="hidden" id="linkingDetails"> If you successfully validate your <b>linking</b> request:
                         <ul>
                             <li>
                                 Your <b>current ID string</b> and <b>authentication type</b> will be added as an alternative identifier to the account being linked.
@@ -141,12 +142,12 @@
                                 These roles will be approved automatically if either account has permission to do so.
                             </li>
                             <li <?php echo $params['registered'] ? "" : "hidden"; ?>>
-                                <b>The account you are currently using will then be deleted.</b>
+                                <b>The account you are currently using will be deleted.</b>
                             </li>
                         </ul>
                     </li>
 
-                    <li id="recoveryDetails"> If you successfully validate your recovery request:
+                    <li id="recoveryDetails"> If you successfully validate your <b>recovery</b> request:
                         <ul>
                             <li>
                                 The <b>ID string</b> of your old account that matches your <b>current authentication type</b> will be updated to your <b>current ID string</b>.
@@ -162,7 +163,7 @@
                             </li>
 
                             <li <?php echo $params['registered'] ? "" : "hidden"; ?>>
-                                <b>The account you are currently using will then be deleted.</b>
+                                <b>The account you are currently using will be deleted.</b>
                             </li>
                         </ul>
                     </li>
