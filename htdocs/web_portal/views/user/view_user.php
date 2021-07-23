@@ -137,7 +137,7 @@
                     </td>
                     <?php if (!$params['portalIsReadOnly'] && $params['ShowEdit']):?>
                         <td class="site_table">
-                            <form action="index.php?Page_Type=Remove_User_Property&amp;id=<?=$params['user']->getId();?>&amp;propertyId=<?=$prop->getId();?>" method="post">
+                            <form action="index.php?Page_Type=Remove_User_Property&amp;id=<?php echo $params['user']->getId(); ?>&amp;propertyId=<?php echo $prop->getId(); ?>" method="post">
                                 <div class="btn-like"
                                     <?php if ($params['lastProperty']) echo "title='Cannot remove all identifiers from a user'";?>
                                     <?php if ($params['currentIdString'] === $prop->getKeyValue()) echo "title='Cannot remove the identifier you are using'";?>

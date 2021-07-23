@@ -32,9 +32,9 @@ function validate_identity_link() {
 
     // Recovery or identity linking
     if ($request->getPrimaryAuthType() === $request->getCurrentAuthType()) {
-        $params['REQUESTTEXT'] = 'recovered';
+        $params['requestText'] = 'recovered';
     } else {
-        $params['REQUESTTEXT'] = 'linked';
+        $params['requestText'] = 'linked';
     }
 
     show_view('user/linked_identity.php', $params);

@@ -106,15 +106,15 @@
                                     foreach ($user->getUserProperties() as $i => $prop) {
                             ?>
                             <span style="vertical-align: middle;">
-                                <a href="index.php?Page_Type=Admin_Edit_User_Property&amp;id=<?=$user->getId();?>&amp;propertyId=<?=$prop->getId();?>">
-                                <?php xecho($prop->getKeyName() . ": " . $prop->getKeyValue());?>
-                                <?='<br>';?>
+                                <a href="index.php?Page_Type=Admin_Edit_User_Property&amp;id=<?php echo $user->getId(); ?>&amp;propertyId=<?php echo $prop->getId(); ?>">
+                                <?php echo $prop->getKeyName() . ": " . $prop->getKeyValue(); ?>
+                                <br />
                                 </a>
                             </span>
                             <?php }} else { ?>
                                 <span style="vertical-align: middle;">
-                                    <a href="index.php?Page_Type=Admin_Edit_User_Property&amp;id=<?=$user->getId();?>">
-                                        <?php xecho("Certificate DN (legacy): " . $user->getCertificateDn()); ?>
+                                    <a href="index.php?Page_Type=Admin_Edit_User_Property&amp;id=<?php echo $user->getId(); ?>">
+                                        <?php echo "Certificate DN (legacy): " . $user->getCertificateDn(); ?>
                                     </a>
                                 </span>
                         </div>
@@ -149,7 +149,7 @@
             </table>
 
             <div style="margin-right: 0.4em">
-                <br>
+                <br />
                 &nbsp; Click on a user's name to view more details, or to edit or
                 delete them. Click on their ID string to update it.
                 <!-- Click on the tick or cross to promote them to or demote them from GOCDB admin status-->

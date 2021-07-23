@@ -38,22 +38,22 @@ function draw() {
     $authTypes = $serv->getAuthTypes();
 
     if (is_null($user)) {
-        $params['REGISTERED'] = false;
+        $params['registered'] = false;
     } else {
-        $params['REGISTERED'] = true;
+        $params['registered'] = true;
     }
 
-    $params['IDSTRING'] = $idString;
-    $params['CURRENTAUTHTYPE'] = $authType;
-    $params['AUTHTYPES'] = $authTypes;
+    $params['idString'] = $idString;
+    $params['currentAuthType'] = $authType;
+    $params['authTypes'] = $authTypes;
 
     // Prevent users with multiple properties from continuing
     if ($user !== null) {
         if (count($user->getUserProperties()) > 1) {
             // Store properties that aren't the one currently in use
             foreach ($user->getUserProperties() as $prop) {
-                if ($prop->getKeyValue() !== $params['IDSTRING']) {
-                    $params['OTHERPROPERTIES'][] = $prop;
+                if ($prop->getKeyValue() !== $params['idString']) {
+                    $params['otherProperties'][] = $prop;
                 }
             }
             show_view('user/link_identity_rejected.php', $params);
@@ -68,9 +68,9 @@ function submit() {
 
     // "Primary" account info entered by the user, corresponding to a registered account
     // This account will have its ID string updated, or an identifier added to it
-    $primaryIdString = $_REQUEST['PRIMARYIDSTRING'];
-    $givenEmail = $_REQUEST['EMAIL'];
-    $primaryAuthType = $_REQUEST['AUTHTYPE'];
+    $primaryIdString = $_REQUEST['primaryIdString'];
+    $givenEmail = $_REQUEST['email'];
+    $primaryAuthType = $_REQUEST['authType'];
 
     // Current account info, inferred from the in-use authentication
     // There may or may not be a corresponding registered account
@@ -95,15 +95,15 @@ function submit() {
         die();
     }
 
-    $params['IDSTRING'] = $primaryIdString;
-    $params['AUTHTYPE'] = $primaryAuthType;
-    $params['EMAIL'] = $givenEmail;
+    $params['idString'] = $primaryIdString;
+    $params['authType'] = $primaryAuthType;
+    $params['email'] = $givenEmail;
 
     // Recovery or identity linking
     if ($primaryAuthType === $currentAuthType) {
-        $params['REQUESTTEXT'] = 'account recovery';
+        $params['requestText'] = 'account recovery';
     } else {
-        $params['REQUESTTEXT'] = 'identity linking';
+        $params['requestText'] = 'identity linking';
     }
 
     show_view('user/link_identity_accepted.php', $params);
