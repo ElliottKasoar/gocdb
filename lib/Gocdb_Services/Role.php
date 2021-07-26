@@ -727,12 +727,11 @@ class Role extends AbstractEntityService{
 
     /**
      * Processes role request for user
-     * Similar functionality in request_role.php
      *
-     * @param string $roleTypeName
-     * @param \User $user
-     * @param \OwnedEntity $entity
-     * @return \Role pending Role
+     * @param string $roleTypeName name of role being requested
+     * @param \User $user user requesting the role
+     * @param \OwnedEntity $entity entity role is over
+     * @return \Role pending role
      */
     public function requestRole($roleTypeName, \User $user, \OwnedEntity $entity) {
 
