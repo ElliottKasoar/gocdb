@@ -241,54 +241,38 @@ class LinkIdentity extends AbstractEntityService {
     private function composePrimaryEmail($primaryIdString, $currentIdString, $primaryAuthType, $currentAuthType, $isLinking, $isRegistered, $link) {
 
         if ($isLinking) {
-
-            $subject = "Validation of linking your GOCDB account";
-
-            $body = "Dear GOCDB User,"
-            . "\n\nA request to add a new identifier to your GOCDB account has just been made on GOCDB."
-            . " The identifier used to reference your account was:"
-            . "\n\nAuthentication type: $primaryAuthType"
-            . "\nID string: $primaryIdString"
-            . "\n\nThe identifier requested to be added to this account was:"
-            . "\n\nAuthentication type: $currentAuthType"
-            . "\nID string: $currentIdString";
-
-            if ($isRegistered) {
-                $body .= "\n\nThis new identifier is currently associated with a second registered account."
-                . " If linking is sucessful, any roles currently associated with this second account ($currentIdString)"
-                . " will be requested for your primary GOCDB account ($primaryIdString)."
-                . " These roles will be approved automatically if either account has permission to do so."
-                . "\n\n The second account will then be deleted.";
-            }
-
-            $body .= "\n\nIf you wish to associate your GOCDB account with this identifier, please validate your request by clicking on the link below:"
-            . "\n$link"
-            . "\n\nIf you did not create this request in GOCDB, please immediately contact gocdb-admins@mailman.egi.eu";
-
+            $subText = ['link', 'add a new identifier to', 'Identifier', 'to be added to your account', 'identity linking'];
         } else {
-
-            $subject = "Validation of recovering your GOCDB account";
-
-            $body = "Dear GOCDB User,\n\n"
-            ."A request to retrieve and associate your GOCDB account and privileges with a new ID string has just been made on GOCDB."
-            . " The identifier used to reference your account was:"
-            . "\n\nAuthentication type: $primaryAuthType"
-            . "\nID string: $primaryIdString"
-            ."\n\nThe ID string requested to replace your current ID string was:"
-            ."\n\n$currentIdString";
-
-            if ($isRegistered) {
-                $body .= "\n\nThis new ID string is currently associated with a second registered account."
-                . " If recovery is sucessful, any roles currently associated with this second account ($currentIdString)"
-                . " will be requested for your primary GOCDB account ($primaryIdString)."
-                . " These roles will be approved automatically if either account has permission to do so."
-                . "\n\n The second account will then be deleted.";
-            }
-
-            $body .= "\n\nIf you wish to associate your GOCDB account with this ID string, please validate your request by clicking on the link below:"
-            . "\n$link"
-            . "\n\nIf you did not create this request in GOCDB, please immediately contact gocdb-admins@mailman.egi.eu";
+            $subText = ['recover', 'update an identifier of', 'Current identifier', 'with updated ID string', 'account recovery'];
         }
+        $subject = "Validation of $subText[0]ing your GOCDB account";
+
+        $body = "Dear GOCDB User,"
+        . "\n\nA request to $subText[1] one of your GOCDB accounts has just been made on GOCDB."
+        . " The details of this request are:"
+        . "\n\n$subText[2] of GOCDB account being $subText[0]ed:"
+        . "\n\n    - Authentication type: $primaryAuthType"
+        . "\n    - ID string: $primaryIdString"
+        . "\n\nRequested new identifier $subText[3]:"
+        . "\n\n    - Authentication type: $currentAuthType"
+        . "\n    - ID string: $currentIdString";
+
+        if ($isRegistered) {
+            $body .= "\n\nThis new identifier is currently associated with a second registered account."
+            . " If $subText[4] is sucessful, any roles currently associated with this second account ($currentIdString)"
+            . " will be requested for your primary GOCDB account ($primaryIdString)."
+            . " These roles will be approved automatically if either account has permission to do so."
+            . "\n\n The second account will then be deleted.";
+        }
+
+        if (!$isLinking) {
+            $body .= "\n\nPlease note that you will no longer be able to access your account using your old ID string ($primaryIdString).";
+        }
+
+        $body .= "\n\nIf you wish to associate your GOCDB account with this new identifier, please validate your request by clicking on the link below:"
+        . "\n$link"
+        . "\n\nIf you did not create this request in GOCDB, please immediately contact gocdb-admins@mailman.egi.eu";
+
         return array('subject'=>$subject, 'body'=>$body);
     }
 
@@ -304,32 +288,25 @@ class LinkIdentity extends AbstractEntityService {
     private function composeCurrentEmail($primaryIdString, $currentIdString, $primaryAuthType, $currentAuthType, $isLinking) {
 
         if ($isLinking) {
-
-            $subject = "Validation of linking your GOCDB account";
-
-            $body = "Dear GOCDB User,"
-            . "\n\nA request to add a new authentication method to one of your accounts"
-            . " (ID string: $primaryIdString, authentication type: $primaryAuthType) has just been made on GOCDB."
-            . "\n\nThe authentication details to be added are:"
-            . "\nID string: $currentIdString"
-            . "\nAuthentication type: $currentAuthType"
-            . "\n\nThese details are currently associated with a different GOCDB account, which will be deleted"
-            . " on completetion of the identity linking process."
-            . "\n\nIf you did not create this request in GOCDB, please immediately contact gocdb-admins@mailman.egi.eu";
-
+            $subText = ['link', 'add a new identifier to', 'Identifier', 'to be added to your account', 'identity linking'];
         } else {
-
-            $subject = "Validation of recovering your GOCDB account";
-
-            $body = "Dear GOCDB User,"
-            . "\n\nA request to recover one of your accounts"
-            . " (ID string: $primaryIdString, authentication type: $primaryAuthType) has just been made on GOCDB."
-            . "\n\nThe new ID string will be:"
-            . "\n$currentIdString"
-            . "\n\nThis new ID string is current associated with a different GOCDB account, which will be deleted"
-            . " on completetion of the account recovery process."
-            . "\n\nIf you did not create this request in GOCDB, please immediately contact gocdb-admins@mailman.egi.eu";
+            $subText = ['recover', 'recover', 'Current identifier', 'with updated ID string', 'account recovery'];
         }
+        $subject = "Request to $subText[0] your GOCDB account";
+
+        $body = "Dear GOCDB User,"
+        . "\n\nA request to $subText[1] one of your GOCDB accounts has just been made on GOCDB."
+        . " The details of this request are:"
+        . "\n\n$subText[2] of GOCDB account being $subText[0]ed:"
+        . "\n\n    - Authentication type: $primaryAuthType"
+        . "\n    - ID string: $primaryIdString"
+        . "\n\nRequested new identifier $subText[3]:"
+        . "\n\n    - Authentication type: $currentAuthType"
+        . "\n    - ID string: $currentIdString"
+        . "\n\nThis new identifier is currently associated with a second GOCDB account, which will be deleted"
+        . " on completetion of the $subText[4] process."
+        . "\n\nIf you did not create this request on GOCDB, please immediately contact gocdb-admins@mailman.egi.eu";
+
         return array('subject'=>$subject, 'body'=>$body);
     }
 
