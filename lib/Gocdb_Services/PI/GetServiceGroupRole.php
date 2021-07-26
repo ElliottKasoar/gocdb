@@ -294,6 +294,7 @@ class GetServiceGroupRole implements IPIQuery, IPIQueryPageable, IPIQueryRendera
                 $xmlUser = $xmlSg->addChild ( 'USER' );
                 $xmlUser->addChild ( 'FORENAME', $user->getForename () );
                 $xmlUser->addChild ( 'SURNAME', $user->getSurname () );
+                $xmlUser->addChild ( 'IDSTRING', $serv->getIdString ( $user ) );
                 $xmlUser->addChild ( 'CERTDN', $serv->getIdStringByAuthType ( $user, 'IGTF X509 Cert' ) );
                 $xmlUser->addChild ( 'EGICHECKIN', $serv->getIdStringByAuthType ( $user, 'EGI Proxy IdP' ) );
                 $xmlUser->addChild ( 'IRISIAM', $serv->getIdStringByAuthType ( $user, 'IRIS IAM - OIDC' ) );
