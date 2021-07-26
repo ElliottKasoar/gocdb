@@ -14,7 +14,7 @@
     <br />
 
     <div class=<?php echo $params['dnWarning'] ? "" : "hidden"; ?>>
-        <span style="color: red">Warning: This user does not have user properties!</span>
+        <span style="color: red">Warning: This user does not have user properties yet. Updating this identifier will create a property.</span>
         <br />
         <br />
     </div>
@@ -39,6 +39,6 @@
 
         <input class="input_input_hidden" type="hidden" name="ID" value="<?php echo $params['ID']; ?>" />
         <input class="input_input_hidden" type="hidden" name="propertyId" value="<?php echo $params['propertyId']; ?>" />
-        <input type="submit" value="Update ID String" class="input_button">
+        <input type="submit" value="Update Property" class="input_button">
     </form>
 </div>
