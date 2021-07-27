@@ -310,10 +310,15 @@ class GetSiteContacts implements IPIQuery, IPIQueryPageable, IPIQueryRenderable 
                         $xmlContact->addChild ( 'TITLE', $user->getTitle () );
                         $xmlContact->addChild ( 'EMAIL', $user->getEmail () );
                         $xmlContact->addChild ( 'TEL', $user->getTelephone () );
-                        $xmlContact->addChild ( 'IDSTRING', $serv->getIdString ( $user ) );
-                        $xmlContact->addChild ( 'CERTDN', $serv->getIdStringByAuthType ( $user, 'IGTF X509 Cert' ) );
-                        $xmlContact->addChild ( 'EGICHECKIN', $serv->getIdStringByAuthType ( $user, 'EGI Proxy IdP' ) );
-                        $xmlContact->addChild ( 'IRISIAM', $serv->getIdStringByAuthType ( $user, 'IRIS IAM - OIDC' ) );
+
+                        if (\Factory::getConfigService()->getAPIAllAuthRealms()) {
+                            $xmlContact->addChild ( 'CERTDN', $serv->getIdStringByAuthType ( $user, 'IGTF X509 Cert' ) );
+                            $xmlContact->addChild ( 'EGICHECKIN', $serv->getIdStringByAuthType ( $user, 'EGI Proxy IdP' ) );
+                            $xmlContact->addChild ( 'IRISIAM', $serv->getIdStringByAuthType ( $user, 'IRIS IAM - OIDC' ) );
+                        } else {
+                            $xmlContact->addChild ( 'CERTDN', $serv->getIdString ( $user ) );
+                        }
+
                         $xmlContact->addChild ( 'ROLE_NAME', $role->getRoleType ()->getName () );
                     }
                 }
