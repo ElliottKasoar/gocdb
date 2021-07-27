@@ -16,7 +16,7 @@
                 You must have access to the email address associated with the account being linked.
             </li>
             <li>
-                <b>Your current authentication type must be different to any authentication types aleady associated
+                <b>Your current authentication type must be different to any authentication types already associated
                 with the account being linked.</b>
             </li>
         </ul>

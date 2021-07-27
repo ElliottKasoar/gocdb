@@ -31,7 +31,7 @@ class ServiceGroupDAO extends AbstractDAO{
     public function addServiceGroupToArchive(\ServiceGroup $sg, \User $user){
         $archievedSG = new \ArchivedServiceGroup;
         $serv = \Factory::getUserService();
-        $archievedSG->setDeletedBy($serv->getIdString($user));
+        $archievedSG->setDeletedBy($serv->getPreferredIdString($user));
         $archievedSG->setName($sg->getName());
         $archievedSG->setOriginalCreationDate($sg->getCreationDate());
         $archievedSG->setScopes($sg->getScopeNamesAsString());

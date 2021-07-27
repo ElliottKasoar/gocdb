@@ -52,7 +52,7 @@ class SiteDAO extends AbstractDAO{
         $archievedSite->setCertStatus($site->getCertificationStatus()->getName());
         $archievedSite->setCountry($site->getCountry()->getName());
         $serv = \Factory::getUserService();
-        $archievedSite->setDeletedBy($serv->getIdString($user));
+        $archievedSite->setDeletedBy($serv->getPreferredIdString($user));
         $archievedSite->setName($site->getName());
         $archievedSite->setOriginalCreationDate($site->getCreationDate());
         $archievedSite->setParentNgi($site->getNgi()->getName());

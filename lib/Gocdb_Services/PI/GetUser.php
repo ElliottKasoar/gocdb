@@ -307,7 +307,7 @@ class GetUser implements IPIQuery, IPIQueryPageable, IPIQueryRenderable {
                 $xmlUser->addChild('EGICHECKIN', $serv->getIdStringByAuthType($user, 'EGI Proxy IdP'));
                 $xmlUser->addChild('IRISIAM', $serv->getIdStringByAuthType($user, 'IRIS IAM - OIDC'));
             } else {
-                $xmlUser->addChild('CERTDN', $serv->getIdString($user));
+                $xmlUser->addChild('CERTDN', $serv->getPreferredIdString($user));
             }
 
             $ssousername = $user->getUsername1();

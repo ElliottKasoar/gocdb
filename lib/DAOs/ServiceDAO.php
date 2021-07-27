@@ -157,7 +157,7 @@ class ServiceDAO extends AbstractDAO{
     public function addServiceToArchive(\Service $service, \User $user){
         $archievedService = new \ArchivedService;
         $serv = \Factory::getUserService();
-        $archievedService->setDeletedBy($serv->getIdString($user));
+        $archievedService->setDeletedBy($serv->getPreferredIdString($user));
         $archievedService->setHostName($service->getHostName());
         $archievedService->setServiceType($service->getServiceType()->getName());
         $archievedService->setOriginalCreationDate($service->getCreationDate());
