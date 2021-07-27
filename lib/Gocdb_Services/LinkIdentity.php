@@ -21,7 +21,7 @@ class LinkIdentity extends AbstractEntityService {
         $primaryUser = $serv->getUserByPrincipleAndType($primaryIdString, $primaryAuthType);
         if ($primaryUser === null) {
             // If no valid user properties, check certificateDNs
-            $primaryUser = $serv->getUserFromDn($primaryIdString);
+            $primaryUser = $serv->getUserByCertificateDn($primaryIdString);
         }
 
         // $currentUser is user making request

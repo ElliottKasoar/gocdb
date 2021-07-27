@@ -183,7 +183,7 @@ function Get_User_Principle(){
         $serv = \Factory::getUserService();
         $user = $serv->getUserByPrinciple($principleString);
         if ($user === null) {
-            $user = $serv->getUserFromDn($principleString);
+            $user = $serv->getUserByCertificateDn($principleString);
             $authExists = False;
         } else {
             $authExists = True;

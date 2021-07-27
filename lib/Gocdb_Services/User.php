@@ -53,7 +53,7 @@ class User extends AbstractEntityService{
      * @param string $userPrinciple the user's principle ID string, e.g. DN.
      * @return User object or null if no user can be found with the specified principle
      */
-    public function getUserFromDn($userPrinciple) {
+    public function getUserByCertificateDn($userPrinciple) {
         if (empty($userPrinciple)) {
             return null;
         }
@@ -516,7 +516,7 @@ class User extends AbstractEntityService{
      * @param \User $user User whose ID string we want
      * @return string
      */
-    public function getIdString($user) {
+    public function getPreferredIdString($user) {
 
         $authTypes = $this->getAuthTypes();
         $idString = null;
@@ -802,7 +802,7 @@ class User extends AbstractEntityService{
      * @throws \Exception
      */
     protected function valdidateUniqueIdString($idString) {
-        $oldUser = $this->getUserFromDn($idString);
+        $oldUser = $this->getUserByCertificateDn($idString);
         $newUser = $this->getUserByPrinciple($idString);
         if (!is_null($oldUser) || !is_null($newUser)) {
             throw new \Exception("ID string is already registered in GOCDB");

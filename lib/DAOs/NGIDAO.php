@@ -37,7 +37,7 @@ class NGIDAO extends AbstractDAO{
     public function addNGIToArchive(\NGI $ngi, \User $user){
         $archievedNgi = new \ArchivedNGI;
         $serv = \Factory::getUserService();
-        $archievedNgi->setDeletedBy($serv->getIdString($user));
+        $archievedNgi->setDeletedBy($serv->getPreferredIdString($user));
         $archievedNgi->setName($ngi->getName());
         $archievedNgi->setOriginalCreationDate($ngi->getCreationDate());
         $archievedNgi->setScopes($ngi->getScopeNamesAsString());

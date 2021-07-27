@@ -118,7 +118,7 @@ function view_user() {
         $params['ShowEdit'] = false;
     }
 
-    $params['idString'] = $serv->getIdString($user);
+    $params['idString'] = $serv->getPreferredIdString($user);
 
     $params['projectNamesIds'] = $projectNamesIds;
     $params['role_ProjIds'] = $role_ProjIds;

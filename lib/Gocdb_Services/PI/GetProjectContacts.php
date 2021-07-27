@@ -265,7 +265,7 @@ class GetProjectContacts implements IPIQuery, IPIQueryPageable, IPIQueryRenderab
                             $xmlContact->addChild('EGICHECKIN', $serv->getIdStringByAuthType($user, 'EGI Proxy IdP'));
                             $xmlContact->addChild('IRISIAM', $serv->getIdStringByAuthType($user, 'IRIS IAM - OIDC'));
                         } else {
-                            $xmlContact->addChild('CERTDN', $serv->getIdString($user));
+                            $xmlContact->addChild('CERTDN', $serv->getPreferredIdString($user));
                         }
 
                         $roleName = $role->getRoleType()->getName();
