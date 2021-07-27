@@ -235,77 +235,44 @@ class LinkIdentity extends AbstractEntityService {
      * @param string $currentAuthType auth type of current ID string
      * @param bool $isLinking true if linking, false if recovering
      * @param bool $isRegistered true if current user is registered
-     * @param string $link to be clicked
+     * @param bool $isPrimary true if composing for primary user
+     * @param string $link to be clicked (only sent to primary user email)
      * @return arraycollection
      */
-    private function composePrimaryEmail($primaryIdString, $currentIdString, $primaryAuthType, $currentAuthType, $isLinking, $isRegistered, $link) {
+    private function composeEmail($primaryIdString, $currentIdString, $primaryAuthType, $currentAuthType, $isLinking, $isRegistered, $isPrimary, $link=null) {
 
-        if ($isLinking) {
-            $subText = ['link', 'add a new identifier to', 'Identifier', 'to be added to your account', 'identity linking'];
-        } else {
-            $subText = ['recover', 'update an identifier of', 'Current identifier', 'with updated ID string', 'account recovery'];
-        }
-        $subject = "Validation of $subText[0]ing your GOCDB account";
+        $subject = "Validation of " . ($isLinking ? "linking" : "recovering") . " your GOCDB account";
 
         $body = "Dear GOCDB User,"
-        . "\n\nA request to $subText[1] one of your GOCDB accounts has just been made on GOCDB."
+        . "\n\nA request to " . ($isLinking ? "add a new identifier to" : "update an identifier of")
+        . ($isRegistered ? " one of your accounts" : " your account") . " has just been made on GOCDB."
         . " The details of this request are:"
-        . "\n\n$subText[2] of GOCDB account being $subText[0]ed:"
+        . "\n\n" . ($isLinking ? "Identifier" : "Current identifier") . " of GOCDB account being " . ($isLinking ? "linked" : "recovered") . ":"
         . "\n\n    - Authentication type: $primaryAuthType"
         . "\n    - ID string: $primaryIdString"
-        . "\n\nRequested new identifier $subText[3]:"
+        . "\n\nRequested new identifier " . ($isLinking ? "to be added to your account" : "with updated ID string") . ":"
         . "\n\n    - Authentication type: $currentAuthType"
         . "\n    - ID string: $currentIdString";
 
         if ($isRegistered) {
             $body .= "\n\nThis new identifier is currently associated with a second registered account."
-            . " If $subText[4] is sucessful, any roles currently associated with this second account ($currentIdString)"
+            . " If " . ($isLinking ? "identity linking" : "account recovery") . " is successful, any roles currently associated with this second account ($currentIdString)"
             . " will be requested for your primary GOCDB account ($primaryIdString)."
             . " These roles will be approved automatically if either account has permission to do so."
-            . "\n\n The second account will then be deleted.";
+            . "\n\n Your second account will then be deleted.";
         }
 
         if (!$isLinking) {
             $body .= "\n\nPlease note that you will no longer be able to access your account using your old ID string ($primaryIdString).";
         }
 
-        $body .= "\n\nIf you wish to associate your GOCDB account with this new identifier, please validate your request by clicking on the link below:"
-        . "\n$link"
-        . "\n\nIf you did not create this request in GOCDB, please immediately contact gocdb-admins@mailman.egi.eu";
-
-        return array('subject'=>$subject, 'body'=>$body);
-    }
-
-    /**
-     * Composes confimation email to be sent to the user
-     * @param string $primaryIdString ID string of primary user
-     * @param string $currentIdString ID string of current user
-     * @param string $primaryAuthType auth type of primary ID string
-     * @param string $currentAuthType auth type of current ID string
-     * @param bool $isLinking true if linking, false if recovering
-     * @return arraycollection
-     */
-    private function composeCurrentEmail($primaryIdString, $currentIdString, $primaryAuthType, $currentAuthType, $isLinking) {
-
-        if ($isLinking) {
-            $subText = ['link', 'add a new identifier to', 'Identifier', 'to be added to your account', 'identity linking'];
-        } else {
-            $subText = ['recover', 'recover', 'Current identifier', 'with updated ID string', 'account recovery'];
+        if ($isPrimary) {
+            $body .= "\n\nIf you wish to associate your GOCDB account with this new identifier, please validate your request by clicking on the link below"
+            . " while authenticated with the new identifier:"
+            . "\n\n$link";
         }
-        $subject = "Request to $subText[0] your GOCDB account";
 
-        $body = "Dear GOCDB User,"
-        . "\n\nA request to $subText[1] one of your GOCDB accounts has just been made on GOCDB."
-        . " The details of this request are:"
-        . "\n\n$subText[2] of GOCDB account being $subText[0]ed:"
-        . "\n\n    - Authentication type: $primaryAuthType"
-        . "\n    - ID string: $primaryIdString"
-        . "\n\nRequested new identifier $subText[3]:"
-        . "\n\n    - Authentication type: $currentAuthType"
-        . "\n    - ID string: $currentIdString"
-        . "\n\nThis new identifier is currently associated with a second GOCDB account, which will be deleted"
-        . " on completetion of the $subText[4] process."
-        . "\n\nIf you did not create this request on GOCDB, please immediately contact gocdb-admins@mailman.egi.eu";
+        $body .= "\n\nIf you did not create this request, please immediately contact gocdb-admins@mailman.egi.eu";
 
         return array('subject'=>$subject, 'body'=>$body);
     }
@@ -328,8 +295,9 @@ class LinkIdentity extends AbstractEntityService {
         $portalUrl = \Factory::getConfigService()->GetPortalURL();
         $link = $portalUrl."/index.php?Page_Type=User_Validate_Identity_Link&c=" . $code;
 
-        // Compose emails for identity linking or recovery
-        $composedPrimaryEmail = $this->composePrimaryEmail($primaryIdString, $currentIdString, $primaryAuthType, $currentAuthType, $isLinking, $isRegistered, $link);
+        // Compose email to send to primary user
+        $isPrimary = true;
+        $composedPrimaryEmail = $this->composeEmail($primaryIdString, $currentIdString, $primaryAuthType, $currentAuthType, $isLinking, $isRegistered, $isPrimary, $link);
         $primarySubject = $composedPrimaryEmail['subject'];
         $primaryBody = $composedPrimaryEmail['body'];
 
@@ -345,7 +313,9 @@ class LinkIdentity extends AbstractEntityService {
         if ($isRegistered) {
             if ($currentUser->getEmail() !== $primaryUser->getEmail()) {
 
-                $composedCurrentEmail = $this->composeCurrentEmail($primaryIdString, $currentIdString, $primaryAuthType, $currentAuthType, $isLinking);
+                // Compose email to send to current user
+                $isPrimary = false;
+                $composedCurrentEmail = $this->composeEmail($primaryIdString, $currentIdString, $primaryAuthType, $currentAuthType, $isLinking, $isRegistered, $isPrimary);
                 $currentSubject = $composedCurrentEmail['subject'];
                 $currentBody = $composedCurrentEmail['body'];
 
