@@ -244,7 +244,7 @@ class LinkIdentity extends AbstractEntityService {
         $subject = "Validation of " . ($isLinking ? "linking" : "recovering") . " your GOCDB account";
 
         $body = "Dear GOCDB User,"
-        . "\n\nA request to " . ($isLinking ? "add a new identifier to" : "update an identifier of")
+        . "\n\nA request to " . ($isLinking ? "associate a new identifier with" : "update an identifier associated with")
         . ($isRegistered ? " one of your accounts" : " your account") . " has just been made on GOCDB."
         . " The details of this request are:"
         . "\n\n" . ($isLinking ? "Identifier" : "Current identifier") . " of GOCDB account being " . ($isLinking ? "linked" : "recovered") . ":"
