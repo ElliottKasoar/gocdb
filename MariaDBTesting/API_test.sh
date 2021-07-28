@@ -195,18 +195,18 @@ do
         wgetOptionsMaria=""
         public="public"
     fi
- 
+
     wget $wgetOptionsOracle -O $oracle_dir/${arrFiles[i]}.xml "${oracle_URL}/gocdbpi/${public}/?method=get_${arrMethods[i]}"
     wget --no-check-certificate $wgetOptionsMaria -O $maria_dir/${arrFiles[i]}.xml "${maria_URL}/gocdbpi/${public}/?method=get_${arrMethods[i]}"
 
     if grep -q "$searchString"  "$oracle_dir/${arrFiles[i]}.xml"; then
-        echo ${arrFiles[i]}.xml downloaded successfully 
+        echo ${arrFiles[i]}.xml downloaded successfully
     else
         echo ${arrFiles[i]}.xml download failed
     fi
 
     if grep -q "$searchString"  "$maria_dir/${arrFiles[i]}.xml"; then
-        echo ${arrFiles[i]}.xml downloaded successfully 
+        echo ${arrFiles[i]}.xml downloaded successfully
     else
         echo ${arrFiles[i]}.xml download failed
     fi
