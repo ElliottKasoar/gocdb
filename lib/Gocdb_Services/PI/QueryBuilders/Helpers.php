@@ -15,6 +15,7 @@ namespace org\gocdb\services;
  */
 
 use Doctrine\ORM\Tools\Pagination\Paginator;
+use Doctrine\Common\Collections\Criteria;
 
 /**
  * Contains helper functions for API queries.
@@ -432,5 +433,16 @@ class Helpers {
 //         $lastLink->addAttribute("href", $urlBase.$lastQueryUrl);
     }
 
+    /**
+     * Sorts an array of entites by ascending ID
+     * @param arraycollection $arr entities array
+     * @return arraycollection ordered array
+     */
+    public function orderArrById($arr) {
+        $criteria = Criteria::create()
+            ->orderBy(array("id" => Criteria::ASC));
+        $orderedArr = $arr->matching($criteria);
+        return $orderedArr;
+    }
 
 }
