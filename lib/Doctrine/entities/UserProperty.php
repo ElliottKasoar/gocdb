@@ -2,8 +2,9 @@
 
 /**
  * A custom Key=Value pair (extension property) used to augment a {@see User}
- * object with additional attributes. These properties can also be used for
- * the purposes of resource matching.
+ * object with additional attributes. These properties are used to store
+ * user identifiers, with keys storing authentication realms and values
+ * storing ID strings.
  * <p>
  * A unique constraint is defined on the DB preventing duplicate keys for a given user.
  * This allows the pairs to be upadated based enitrely on the key name and entity
@@ -47,7 +48,7 @@ class UserProperty {
     }
 
     /**
-     * Get the key name, usually a simple alphaNumeric name, but this is not
+     * Get the key name, usually a simple alphanumeric name, but this is not
      * enforced by the entity.
      * @return string
      */

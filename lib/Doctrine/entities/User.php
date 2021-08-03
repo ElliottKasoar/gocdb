@@ -159,7 +159,7 @@ class User {
 
     /**
      * Get the user's unique ID string, typically an x509 DN string.
-     * @todo This needs to be renamed to getAccountID
+     * This should return null once the user has user properties.
      * @return string
      */
     public function getCertificateDn() {
