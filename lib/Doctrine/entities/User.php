@@ -71,6 +71,12 @@ class User {
     /** @Column(type="datetime", nullable=true)  */
     protected $lastLoginDate;
 
+    /**
+     * Bidirectional - A User (INVERSE ORM SIDE) can have many properties
+     * @OneToMany(targetEntity="UserProperty", mappedBy="parentUser", cascade={"remove"})
+     */
+    protected $userProperties = null;
+
     /*
      * TODO:
      * This entity will need to own a property bag (akin to custom props)
@@ -87,6 +93,7 @@ class User {
         $this->creationDate = new \DateTime("now");
         //$this->sites = new ArrayCollection();
         $this->roles = new ArrayCollection();
+        $this->userProperties = new ArrayCollection();
     }
 
     /**
@@ -191,6 +198,15 @@ class User {
      */
     public function getLastLoginDate(){
         return $this->lastLoginDate;
+    }
+
+    /**
+     * The User's list of {@see UserProperty} extension objects. When the
+     * User is deleted, the userProperties are also cascade deleted.
+     * @return ArrayCollection
+     */
+    public function getUserProperties() {
+        return $this->userProperties;
     }
 
     /**
@@ -333,6 +349,16 @@ class User {
      */
     public function getRoles() {
         return $this->roles;
+    }
+
+    /**
+     * Add a UserProperty entity to this User's collection of properties.
+     * This method also sets the UserProperty's parentUser.
+     * @param \UserProperty $userProperty
+     */
+    public function addUserPropertyDoJoin($userProperty) {
+        $this->userProperties[] = $userProperty;
+        $userProperty->_setParentUser($this);
     }
 
 }
