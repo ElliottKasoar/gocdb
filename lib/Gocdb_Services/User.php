@@ -448,6 +448,144 @@ class User extends AbstractEntityService{
     }
 
     /**
+     * Adds an extension property key/value pair to a user.
+     * @param \User $user user having property added
+     * @param array $propArr property name and value
+     * @param \User $currentUser user adding the property
+     * @throws \Exception
+     */
+    public function addUserProperty(\User $user, array $propArr, \User $currentUser) {
+        // Check the portal is not in read only mode, throws exception if it is
+        $this->checkPortalIsNotReadOnlyOrUserIsAdmin($user);
+
+        // Check to see whether the current user can edit this user
+        $this->editUserAuthorization($user, $currentUser);
+
+        // Add the property
+        $this->em->getConnection()->beginTransaction();
+        try {
+            $this->addUserPropertyLogic($user, $propArr);
+            $this->em->flush();
+            $this->em->getConnection()->commit();
+        } catch (\Exception $e) {
+            $this->em->getConnection()->rollback();
+            $this->em->close();
+            throw $e;
+        }
+    }
+
+    /**
+     * Logic to add an extension property to a user.
+     * @param \User $user user having property added
+     * @param array $propArr property name and value
+     * @throws \Exception
+     */
+    protected function addUserPropertyLogic(\User $user, array $propArr) {
+
+        // We will use this variable to track the keys as we go along, this will be used check they are all unique later
+        $keys = array();
+
+        $existingProperties = $user->getUserProperties();
+
+        // We will use this variable to track the final number of properties and ensure we do not exceede the specified limit
+        $propertyCount = count($existingProperties);
+
+        // Trim off any trailing and leading whitespace
+        $keyName = trim($propArr[0]);
+        $keyValue = trim($propArr[1]);
+
+        // $this->addUserPropertyValidation();
+
+        /* Find out if a property with the provided key already exists for this user
+        * If it does, we will throw an exception
+        */
+        $property = null;
+        foreach ($existingProperties as $existProp) {
+            if ($existProp->getKeyName() === $keyName) {
+                $property = $existProp;
+            }
+        }
+
+        /* If the property does not already exist, we add it
+        * If it already exists, we throw an exception
+        */
+        if (is_null($property)) {
+            $property = new \UserProperty();
+            $property->setKeyName($keyName);
+            $property->setKeyValue($keyValue);
+            $user->addUserPropertyDoJoin($property);
+            $this->em->persist($property);
+
+            // Increment the property counter to enable check against property limit
+            $propertyCount++;
+        } else {
+            throw new \Exception("A property with name \"$keyName\" already exists for this object, no properties were added.");
+        }
+
+        // Add the key to the keys array, to enable unique check
+        $keys[] = $keyName;
+
+        // Keys should be unique, create an exception if they are not
+        if (count(array_unique($keys)) !== count($keys)) {
+            throw new \Exception(
+                "Property names should be unique. The requested new properties include multiple properties with the same name."
+            );
+        }
+
+        // Check to see if adding the new properties will exceed the max limit defined in local_info.xml, and throw an exception if so
+        $extensionLimit = \Factory::getConfigService()->getExtensionsLimit();
+        if ($propertyCount > $extensionLimit) {
+            throw new \Exception("Property(s) could not be added due to the property limit of $extensionLimit");
+        }
+    }
+
+    /**
+     * Migrates a user's identifier from certificateDn to UserProperties.
+     * certificateDn is overwritten with a placeholder, before the user's
+     * ID string and its auth type are added as a property
+     * @param \User $user user having first property added
+     * @param array $propArr property name and value
+     * @param \User $currentUser user adding the property
+     * @throws \Exception
+     */
+    public function migrateUserCredentials(\User $user, array $propArr, \User $currentUser) {
+        // Check the portal is not in read only mode, throws exception if it is
+        $this->checkPortalIsNotReadOnlyOrUserIsAdmin($user);
+
+        // Check to see whether the current user can edit this user
+        $this->editUserAuthorization($user, $currentUser);
+
+        // Check the user property being added corresponds to the current certificateDn
+        $idString = trim($propArr[1]);
+        if ($idString !== $user->getCertificateDn()) {
+            throw new \Exception("ID string must match the current certificateDn");
+        }
+
+        // Overwrite certificateDn and add the property
+        $this->em->getConnection()->beginTransaction();
+        try {
+            $this->setDefaultCertDn($user);
+            $this->addUserPropertyLogic($user, $propArr);
+            $this->em->flush();
+            $this->em->getConnection()->commit();
+        } catch (\Exception $e) {
+            $this->em->getConnection()->rollback();
+            $this->em->close();
+            throw $e;
+        }
+    }
+
+    /**
+     * Overwrites a user's certificateDn to a default value
+     * Currently set to the user's ID
+     * @param \User $user user having certificate DN overwritten
+     * @throws \Exception
+     */
+    private function setDefaultCertDn(\User $user) {
+        $user->setCertificateDn($user->getId());
+    }
+
+    /**
      * Changes the isAdmin user property.
      * @param \User $user           The user who's admin status is to change
      * @param \User $currentUser    The user making the change, who themselvess must be an admin
