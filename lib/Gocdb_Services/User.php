@@ -262,7 +262,7 @@ class User extends AbstractEntityService{
         $this->editUserAuthorization($user, $currentUser);
 
         // validate the input fields for the user
-        $this->validateUser($newValues);
+        $this->validate($newValues, 'user');
 
         //Explicity demarcate our tx boundary
         $this->em->getConnection()->beginTransaction();
@@ -317,12 +317,12 @@ class User extends AbstractEntityService{
      *                   validated. The \Exception message will contain a human
      *                   readable description of which field failed validation.
      * @return null */
-    private function validateUser($userData) {
+    private function validate($userData, $type) {
         require_once __DIR__ .'/Validate.php';
         $serv = new \org\gocdb\services\Validate();
         foreach($userData as $field => $value) {
-            $valid = $serv->validate('user', $field, $value);
-            if(!$valid) {
+            $valid = $serv->validate($type, $field, $value);
+            if (!$valid) {
                 $error = "$field contains an invalid value: $value";
                 throw new \Exception($error);
             }
@@ -348,13 +348,7 @@ class User extends AbstractEntityService{
      */
     public function register($userValues, $userPropertyValues) {
         // validate the input fields for the user
-        $this->validateUser($values);
-
-        // Check the DN isn't already registered
-        $user = $this->getUserByPrinciple($values['CERTIFICATE_DN']);
-        if(!is_null($user)) {
-            throw new \Exception("DN is already registered in GOCDB");
-        }
+        $this->validate($userValues, 'user');
 
         //Explicity demarcate our tx boundary
         $this->em->getConnection()->beginTransaction();
@@ -519,10 +513,10 @@ class User extends AbstractEntityService{
         $keyName = trim($propArr[0]);
         $keyValue = trim($propArr[1]);
 
-        // $this->addUserPropertyValidation($keyName, $keyValue);
-
         // Set certificate DN to unique ID for now
         $user->setCertificateDn($user->getId());
+
+        $this->addUserPropertyValidation($keyName, $keyValue);
 
         /* Find out if a property with the provided key already exists for this user.
         * If we are preventing overwrites, this will be a problem. If we are not,
@@ -570,6 +564,25 @@ class User extends AbstractEntityService{
     }
 
     /**
+     * Validation when adding a user property
+     * @param string $keyName
+     * @param string $keyValue
+     * @throws \Exception
+     */
+    protected function addUserPropertyValidation($keyName, $keyValue) {
+        // Validate against schema
+        $validateArray['NAME'] = $keyName;
+        $validateArray['VALUE'] = $keyValue;
+        $this->validate($validateArray, 'userproperty');
+
+        // Check the ID string does not already exist
+        $this->valdidateUniqueIdString($keyValue);
+
+        // Check auth type is valid
+        $this->valdidateAuthType($keyName);
+    }
+
+    /**
      * Edit a user's property.
      * @param \User $user user that owns the property
      * @param \UserProperty $prop property being edited
@@ -612,12 +625,82 @@ class User extends AbstractEntityService{
         $keyValue = trim($newPropArr[1]);
 
         // Validate new property
-        // $this->editUserPropertyValidation();
+        $this->editUserPropertyValidation($user, $prop, $keyName, $keyValue);
 
         // Set the user property values
         $prop->setKeyName($keyName);
         $prop->setKeyValue($keyValue);
         $this->em->merge($prop);
+    }
+
+    /**
+     * Validation when editing a user's property
+     * @param \User $user
+     * @param \UserProperty $prop
+     * @param string $keyName
+     * @param string $keyValue
+     * @throws \Exception
+     */
+    protected function editUserPropertyValidation(\User $user, \UserProperty $prop, $keyName, $keyValue) {
+
+        // Validate new values against schema
+        $validateArray['NAME'] = $keyName;
+        $validateArray['VALUE'] = $keyValue;
+        $this->validate($validateArray, 'userproperty');
+
+        // Check that the property is owned by the user
+        if ($prop->getParentUser() !== $user) {
+            $id = $prop->getId();
+            throw new \Exception("Property {$id} does not belong to the specified user");
+        }
+
+        // Check the property has changed
+        if ($keyName === $prop->getKeyName() && $keyValue === $prop->getKeyValue()) {
+            throw new \Exception("The specified user property is the same as the current user property");
+        }
+
+        // Check the ID string is unique if it is being changed
+        if ($keyValue !== $prop->getKeyValue()) {
+            $this->valdidateUniqueIdString($keyValue);
+        }
+
+        // Check auth type is valid
+        $this->valdidateAuthType($keyName);
+
+        // If the properties key has changed, check there isn't an existing property with that key
+        if ($keyName !== $prop->getKeyName()) {
+            $existingProperties = $user->getUserProperties();
+            foreach ($existingProperties as $existingProp) {
+                if ($existingProp->getKeyName() === $keyName) {
+                    throw new \Exception("A property with that name already exists for this object");
+                }
+            }
+        }
+    }
+
+    /**
+     * Validate authentication type based on known list.
+     * @param string $authType
+     * @throws \Exception
+     */
+    protected function valdidateAuthType($authType) {
+        if (!in_array($authType, $this->getAuthTypes(false))) {
+            throw new \Exception("The authentication type entered is invalid");
+        }
+    }
+
+    /**
+     * Validate ID string is unique.
+     * Checks both user properties and certificateDns
+     * @param string $idString
+     * @throws \Exception
+     */
+    protected function valdidateUniqueIdString($idString) {
+        $oldUser = $this->getUserByCertificateDn($idString);
+        $newUser = $this->getUserByPrinciple($idString);
+        if (!is_null($oldUser) || !is_null($newUser)) {
+            throw new \Exception("ID string is already registered in GOCDB");
+        }
     }
 
     /**
