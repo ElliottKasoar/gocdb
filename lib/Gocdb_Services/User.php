@@ -448,6 +448,100 @@ class User extends AbstractEntityService{
     }
 
     /**
+     * Adds an extension property key/value pair to a user.
+     * @param \User $user user having property added
+     * @param array $propArr property name and value
+     * @param \User $currentUser user adding the property
+     * @throws \Exception
+     */
+    public function addUserProperty(\User $user, array $propArr, \User $currentUser) {
+        //Check the portal is not in read only mode, throws exception if it is
+        $this->checkPortalIsNotReadOnlyOrUserIsAdmin($user);
+
+        // Check to see whether the current user can edit this user
+        $this->editUserAuthorization($user, $currentUser);
+
+        //Add the properties
+        $this->em->getConnection()->beginTransaction();
+        try {
+            $this->addUserPropertyLogic($user, $propArr);
+            $this->em->flush();
+            $this->em->getConnection()->commit();
+        } catch (\Exception $e) {
+            $this->em->getConnection()->rollback();
+            $this->em->close();
+            throw $e;
+        }
+    }
+
+    /**
+     * Logic to add an extension property to a user.
+     * @param \User $user user having property added
+     * @param array $propArr property name and value
+     * @throws \Exception
+     */
+    protected function addUserPropertyLogic(\User $user, array $propArr) {
+
+        // We will use this variable to track the keys as we go along, this will be used check they are all unique later
+        $keys = array();
+
+        $existingProperties = $user->getUserProperties();
+
+        // We will use this variable to track the final number of properties and ensure we do not exceede the specified limit
+        $propertyCount = count($existingProperties);
+
+        // Trim off any trailing and leading whitespace
+        $keyName = trim($propArr[0]);
+        $keyValue = trim($propArr[1]);
+
+        // $this->addUserPropertyValidation($keyName, $keyValue);
+
+        /* Find out if a property with the provided key already exists for this user.
+        * If we are preventing overwrites, this will be a problem. If we are not,
+        * we will want to edit the existing property later, rather than create it.
+        */
+        $property = null;
+        foreach ($existingProperties as $existProp) {
+            if ($existProp->getKeyName() === $keyName) {
+                $property = $existProp;
+            }
+        }
+
+        /* If the property doesn't already exist, we add it. If it exists
+        * and we are not preventing overwrites, we edit the existing one.
+        * If it exists and we are preventing overwrites, we throw an exception
+        */
+        if (is_null($property)) {
+            $property = new \UserProperty();
+            $property->setKeyName($keyName);
+            $property->setKeyValue($keyValue);
+            $user->addUserPropertyDoJoin($property);
+            $this->em->persist($property);
+
+            // Increment the property counter to enable check against property limit
+            $propertyCount++;
+        } else {
+            throw new \Exception("A property with name \"$keyName\" already exists for this object, no properties were added.");
+        }
+
+        // Add the key to the keys array, to enable unique check
+        $keys[] = $keyName;
+
+        // Keys should be unique, create an exception if they are not
+        if (count(array_unique($keys)) !== count($keys)) {
+            throw new \Exception(
+                "Property names should be unique. The requested new properties include multiple properties with the same name."
+            );
+        }
+
+        // Check to see if adding the new properties will exceed the max limit defined in local_info.xml, and throw an exception if so
+        $extensionLimit = \Factory::getConfigService()->getExtensionsLimit();
+        if ($propertyCount > $extensionLimit) {
+            throw new \Exception("Property(s) could not be added due to the property limit of $extensionLimit");
+        }
+    }
+
+    /**
      * Changes the isAdmin user property.
      * @param \User $user           The user who's admin status is to change
      * @param \User $currentUser    The user making the change, who themselvess must be an admin
