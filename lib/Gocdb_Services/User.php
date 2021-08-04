@@ -570,6 +570,57 @@ class User extends AbstractEntityService{
     }
 
     /**
+     * Edit a user's property.
+     * @param \User $user user that owns the property
+     * @param \UserProperty $prop property being edited
+     * @param array $newPropArr new key and/or value for the property
+     * @param \User $currentUser user editing the property
+     * @throws \Exception
+     */
+    public function editUserProperty(\User $user, \UserProperty $prop, array $newPropArr, \User $currentUser) {
+        // Check the portal is not in read only mode, throws exception if it is
+        $this->checkPortalIsNotReadOnlyOrUserIsAdmin($currentUser);
+
+        // Check to see whether the current user can edit this user
+        $this->editUserAuthorization($user, $currentUser);
+
+        // Make the change
+        $this->em->getConnection()->beginTransaction();
+        try {
+            $this->editUserPropertyLogic($user, $prop, $newPropArr);
+            $this->em->flush ();
+            $this->em->getConnection ()->commit();
+        } catch (\Exception $e) {
+            $this->em->getConnection ()->rollback();
+            $this->em->close ();
+            throw $e;
+        }
+    }
+
+    /**
+     * Logic to edit a user's property, without the user validation.
+     * Validation of the edited property values is performed by a seperate function.
+     * @param \User $user user that owns the property
+     * @param \UserProperty $prop property being edited
+     * @param array $newPropArr new key and/or value for the property
+     * @throws \Exception
+     */
+    protected function editUserPropertyLogic(\User $user, \UserProperty $prop, array $newPropArr) {
+
+        // Trim off trailing and leading whitespace
+        $keyName = trim($newPropArr[0]);
+        $keyValue = trim($newPropArr[1]);
+
+        // Validate new property
+        // $this->editUserPropertyValidation();
+
+        // Set the user property values
+        $prop->setKeyName($keyName);
+        $prop->setKeyValue($keyValue);
+        $this->em->merge($prop);
+    }
+
+    /**
      * Changes the isAdmin user property.
      * @param \User $user           The user who's admin status is to change
      * @param \User $currentUser    The user making the change, who themselvess must be an admin
