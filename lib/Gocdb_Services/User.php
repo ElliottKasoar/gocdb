@@ -340,7 +340,7 @@ class User extends AbstractEntityService{
      * )
      * Array
      * (
-     *     [NAME] => IGTF
+     *     [NAME] => IGTF X509 Cert
      *     [VALUE] => /C=UK/O=eScience/OU=CLRC/L=RAL/CN=a person
      * )
      * @param array $userValues User details, defined above
