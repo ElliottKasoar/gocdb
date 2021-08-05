@@ -390,8 +390,9 @@ class LinkIdentity extends AbstractEntityService {
             // Delete request before user so references still exist
             $this->em->remove($request);
 
-            // Remove current user so their ID string is free to be added
+            // Merge roles and remove current user so their ID string is free to be added
             if ($currentUser !== null) {
+                \Factory::getRoleService()->mergeRoles($primaryUser, $currentUser);
                 $serv->deleteUser($currentUser, $currentUser);
             }
 

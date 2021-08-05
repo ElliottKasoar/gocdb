@@ -745,6 +745,103 @@ class Role extends AbstractEntityService{
     }
 
     /**
+     * Calling (current) user attempts to 'merge' roles with another (primary) user
+     * All roles the current user has are requested for the primary user
+     * Both users attempt to grant these requests, and current user self-revokes their roles
+     * Logic is handled by a seperate function
+     *
+     * @param \User $primaryUser user to request and be granted roles
+     * @param \User $currentUser user currently holding the roles
+     */
+    public function mergeRoles(\User $primaryUser, \User $currentUser) {
+
+        // Check the portal is not in read only mode or user is an admin
+        $this->checkPortalIsNotReadOnlyOrUserIsAdmin($currentUser);
+
+        $this->em->getConnection()->beginTransaction();
+        try {
+            $this->mergeRolesLogic($primaryUser, $currentUser);
+            $this->em->flush();
+            $this->em->getConnection()->commit();
+        } catch (\Exception $e) {
+            $this->em->getConnection()->rollback();
+            $this->em->close();
+            throw $e;
+        }
+    }
+
+    /**
+     * Logic to 'merge' current user's roles with another user
+     * All roles the current user has are requested for the primary user
+     * Both users attempt to grant these requests, and the current user self-revokes their roles
+     *
+     * @param \User $primaryUser user to be granted the roles
+     * @param \User $currentUser user currently holding the roles
+     */
+    private function mergeRolesLogic(\User $primaryUser, \User $currentUser) {
+
+        $currentRoles = $currentUser->getRoles();
+        foreach ($currentRoles as $currentRole) {
+
+            $roleTypeName = $currentRole->getRoleType()->getName();
+            $entity = $currentRole->getOwnedEntity();
+
+            // If primary user already has the same role GRANTED over entity, no need to grant again
+            if (in_array($roleTypeName, $this->getUserRoleNamesOverEntity($entity, $primaryUser, \RoleStatus::GRANTED))) {
+                continue;
+            }
+
+            // If primary user already has the same role PENDING over entity, will attempt to grant
+            if (in_array($roleTypeName, $this->getUserRoleNamesOverEntity($entity, $primaryUser, \RoleStatus::PENDING))) {
+                $rolesToGrant[] = $this->getRoleByUserEntityType($primaryUser, $entity, $roleTypeName);
+            } else {
+                // Request role on behalf of primary user
+                $rolesToGrant[] = $this->requestRole($roleTypeName, $primaryUser, $entity);
+            }
+        }
+
+        // Attempt to 'self-grant' roles for primary user
+        foreach ($rolesToGrant as $role) {
+            $this->selfGrantRole($primaryUser, $currentUser, $role);
+        }
+
+        // Revoke roles from current user after granting
+        foreach ($currentRoles as $role) {
+            $this->revokeRole($role, $currentUser);
+        }
+    }
+
+    /**
+     * Attempt to 'self-grant' a role based on two user permissions
+     *
+     * @param \User $primaryUser user to be granted the role
+     * @param \User $currentUser user currently holding the role
+     * @param \Role $role role to be granted
+     */
+    private function selfGrantRole(\User $primaryUser, \User $currentUser, \Role $role) {
+
+        // Allow this exception as users may not have permission to grant
+        $grantMessage = 'You do not have permission to grant this role';
+
+        // Try approving based on primary user permissions
+        try {
+            $this->grantRole($role, $primaryUser);
+        } catch (\Exception $e) {
+            if ($e->getMessage() !== $grantMessage) {
+                throw $e;
+            }
+            // Try approving based on current user permissions
+            try {
+                $this->grantRole($role, $currentUser);
+            } catch (\Exception $e) {
+                if ($e->getMessage() !== $grantMessage) {
+                    throw $e;
+                }
+            }
+        }
+    }
+
+    /**
      * Get an array of {@link \RoleActionRecord}s for the {@link \OwnedEntity}
      * that has the given id and type.
      * @param integer $id
