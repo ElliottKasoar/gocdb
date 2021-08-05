@@ -83,6 +83,27 @@ class User extends AbstractEntityService{
     }
 
     /**
+     * Lookup a User object by user's principle ID string and auth type from UserProperty.
+     * @param string $userPrinciple the user's principle ID string, e.g. DN.
+     * @param string $authType the authorisation type e.g. IGTF X509 Cert.
+     * @return User object or null if no user can be found with the specified principle
+     */
+    public function getUserByPrincipleAndType($userPrinciple, $authType) {
+        if (empty($userPrinciple) || empty($authType)) {
+            return null;
+        }
+
+        $dql = "SELECT u FROM User u JOIN u.userProperties up
+                WHERE up.keyName = :keyName
+                AND up.keyValue = :keyValue";
+        $user = $this->em->createQuery($dql)
+                  ->setParameters(array('keyName' => $authType, 'keyValue' => $userPrinciple))
+                  ->getOneOrNullResult();
+
+        return $user;
+    }
+
+    /**
      * Updates the users last login time to the current time in UTC.
      * @param \User $user
      */
@@ -464,6 +485,17 @@ class User extends AbstractEntityService{
             ->getResult();
 
         return $users;
+    }
+
+    /**
+     * Returns a single user property from its ID string
+     * @param $idString ID string of user property
+     * @return \UserProperty
+     */
+    public function getPropertyByIdString($idString) {
+        $dql = "SELECT p FROM UserProperty p WHERE p.keyValue = :IDSTRING";
+        $property = $this->em->createQuery($dql)->setParameter('IDSTRING', $idString)->getOneOrNullResult();
+        return $property;
     }
 
     /**
