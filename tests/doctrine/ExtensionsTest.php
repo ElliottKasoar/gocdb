@@ -3,6 +3,7 @@ require_once dirname(__FILE__) . '/TestUtil.php';
 require_once dirname(__FILE__) . '/../../lib/Gocdb_Services/ServiceService.php';
 require_once dirname(__FILE__) . '/../../lib/Gocdb_Services/RoleActionMappingService.php';
 require_once dirname(__FILE__) . '/../../lib/Gocdb_Services/RoleActionAuthorisationService.php';
+require_once dirname(__FILE__) . '/../../lib/Gocdb_Services/User.php';
 use Doctrine\ORM\EntityManager;
 require_once dirname(__FILE__) . '/bootstrap.php';
 
@@ -140,7 +141,10 @@ class ExtensionsTest extends PHPUnit_Extensions_Database_TestCase {
 
 
     //Create an admin user that can delete a property
-    $adminUser = TestUtil::createSampleUser('my', 'admin', '/my/admin');
+    $adminUser = TestUtil::createSampleUser('my', 'admin');
+    $prop = TestUtil::createSampleUserProperty('IGTF X509 Cert', '/my/admin');
+    $adminUser->addUserPropertyDoJoin($prop);
+    $this->em->persist($prop);
     $adminUser->setAdmin(TRUE);
     $this->em->persist($adminUser);
 
@@ -229,7 +233,10 @@ class ExtensionsTest extends PHPUnit_Extensions_Database_TestCase {
     $this->assertTrue(count($properties) == 3);
 
     //Create an admin user that can delete a property
-    $adminUser = TestUtil::createSampleUser('my', 'admin', '/my/admin');
+    $adminUser = TestUtil::createSampleUser('my', 'admin');
+    $prop = TestUtil::createSampleUserProperty('IGTF X509 Cert', '/my/admin');
+    $adminUser->addUserPropertyDoJoin($prop);
+    $this->em->persist($prop);
     $adminUser->setAdmin(TRUE);
     $this->em->persist($adminUser);
 
@@ -325,7 +332,10 @@ class ExtensionsTest extends PHPUnit_Extensions_Database_TestCase {
     $this->assertTrue(count($properties) == 3);
 
     //Create an admin user that can delete a property
-    $adminUser = TestUtil::createSampleUser('my', 'admin', '/my/admin');
+    $adminUser = TestUtil::createSampleUser('my', 'admin');
+    $prop = TestUtil::createSampleUserProperty('IGTF X509 Cert', '/my/admin');
+    $adminUser->addUserPropertyDoJoin($prop);
+    $this->em->persist($prop);
     $adminUser->setAdmin(TRUE);
     $this->em->persist($adminUser);
 
@@ -419,7 +429,10 @@ class ExtensionsTest extends PHPUnit_Extensions_Database_TestCase {
 
 
     //Create an admin user that can delete a property
-    $adminUser = TestUtil::createSampleUser('my', 'admin', '/my/admin');
+    $adminUser = TestUtil::createSampleUser('my', 'admin');
+    $prop = TestUtil::createSampleUserProperty('IGTF X509 Cert', '/my/admin');
+    $adminUser->addUserPropertyDoJoin($prop);
+    $this->em->persist($prop);
     $adminUser->setAdmin(TRUE);
     $this->em->persist($adminUser);
 
