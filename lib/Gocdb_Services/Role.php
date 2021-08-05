@@ -471,6 +471,30 @@ class Role extends AbstractEntityService{
         return $role;
     }
 
+    /**
+     * Get the named role associated with a user and entity
+     * @param \User $user user
+     * @param \OwnedEntity entity
+     * @param string $roleTypeName
+     * @return \Role
+     */
+    public function getRoleByUserEntityType(\User $user, \OwnedEntity $entity, $roleTypeName) {
+        $dql = "SELECT r FROM Role r
+                INNER JOIN r.user u
+                INNER JOIN r.ownedEntity o
+                INNER JOIN r.roleType rt
+                WHERE u.id = :userId
+                AND o.id = :entityId
+                AND rt.name= :roleTypeName";
+
+        $role = $this->em->createQuery($dql)
+                    ->setParameter(":userId", $user->getId())
+                    ->setParameter(":entityId", $entity->getId())
+                    ->setParameter(":roleTypeName", $roleTypeName)
+                    ->getSingleResult();
+
+        return $role;
+    }
 
     /**
      * Create and return a new \Role instance linking the given user and entity.
