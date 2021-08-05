@@ -123,7 +123,10 @@ class RoleActionAuthorisationServiceTest  extends PHPUnit_Extensions_Database_Te
     $this->em->persist($codRT);  // edit all sites cert status only
 
     // Create a user
-    $u = TestUtil::createSampleUser("Test", "Testing", "/c=test");
+    $u = TestUtil::createSampleUser("Test", "Testing");
+    $prop = TestUtil::createSampleUserProperty("X.509", "/c=test");
+    $u->addUserPropertyDoJoin($prop);
+    $this->em->persist($prop);
     $this->em->persist($u);
 
     /*
@@ -190,7 +193,10 @@ class RoleActionAuthorisationServiceTest  extends PHPUnit_Extensions_Database_Te
     $this->em->persist($siteDepManAdminRT);  // edit all sites cert status only
 
     // Create a user
-    $u = TestUtil::createSampleUser("Test", "Testing", "/c=test");
+    $u = TestUtil::createSampleUser("Test", "Testing");
+    $prop = TestUtil::createSampleUserProperty("X.509", "/c=test");
+    $u->addUserPropertyDoJoin($prop);
+    $this->em->persist($prop);
     $this->em->persist($u);
 
     /*
@@ -490,7 +496,10 @@ class RoleActionAuthorisationServiceTest  extends PHPUnit_Extensions_Database_Te
     include __DIR__ . '/../../resources/sampleFixtureData5.php';
 
     // create a user
-    $u = TestUtil::createSampleUser("dave", "meredith", "idSTring");
+    $u = TestUtil::createSampleUser("dave", "meredith");
+    $prop = TestUtil::createSampleUserProperty("X.509", "idSTring");
+    $u->addUserPropertyDoJoin($prop);
+    $this->em->persist($prop);
     $this->em->persist($u);
 
     // add some roles to domain model
@@ -687,7 +696,10 @@ class RoleActionAuthorisationServiceTest  extends PHPUnit_Extensions_Database_Te
     $this->em->persist($codRT);  // edit all sites cert status only
 
     // Create a user
-    $u = TestUtil::createSampleUser("Test", "Testing", "/c=test");
+    $u = TestUtil::createSampleUser("Test", "Testing");
+    $prop = TestUtil::createSampleUserProperty("X.509", "/c=test");
+    $u->addUserPropertyDoJoin($prop);
+    $this->em->persist($prop);
     $this->em->persist($u);
 
     /*
