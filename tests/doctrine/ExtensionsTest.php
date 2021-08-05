@@ -478,5 +478,84 @@ class ExtensionsTest extends PHPUnit_Extensions_Database_TestCase {
     $this->assertEquals(0, $result->getRowCount());
   }
 
+  /**
+   * An example test showing the creation of a user and properties and that
+   * all data is removed on deletion of a user or property
+   */
+  public function testUserPropertyDeletions() {
+    print __METHOD__ . "\n";
+
+    //Create a user
+    $user = TestUtil::createSampleUser("Test", "Testing");
+    //Create user property
+    $prop1 = TestUtil::createSampleUserProperty("Auth type 1", "/c=test1");
+    $prop2 = TestUtil::createSampleUserProperty("Auth type 2", "/c=test2");
+    $prop3 = TestUtil::createSampleUserProperty("Auth type 3", "/c=test3");
+
+    $user->addUserPropertyDoJoin($prop1);
+    $user->addUserPropertyDoJoin($prop2);
+    $user->addUserPropertyDoJoin($prop3);
+
+    //Set some extra details of the user
+    $user->setEmail("myTest@email.com");
+    $user->setTelephone("012345678910");
+
+    //Persist the user & property in the entity manager
+    $this->em->persist($user);
+    $this->em->persist($prop1);
+    $this->em->persist($prop2);
+    $this->em->persist($prop3);
+
+    //Commit the user to the database
+    $this->em->flush();
+
+    //Check that the user has 3 properties associated with it
+    $properties = $user->getUserProperties();
+    $this->assertTrue(count($properties) === 3);
+
+
+    //Create an admin user that can delete a property
+    $adminUser = TestUtil::createSampleUser('my', 'admin');
+    $prop = TestUtil::createSampleUserProperty('IGTF X509 Cert', '/my/admin');
+    $adminUser->addUserPropertyDoJoin($prop);
+    $this->em->persist($prop);
+    $adminUser->setAdmin(TRUE);
+    $this->em->persist($adminUser);
+
+    //flush the user to the DB - so that the RoleAuthorisationService can find it in the DB
+    $this->em->flush();
+
+    //Delete the property from the user
+    $userService = new org\gocdb\services\User();
+    $userService->setEntityManager($this->em);
+    $userService->deleteUserProperty($user, $prop1, $adminUser);
+
+    //Check that the user now only has 2 properties
+    $properties = $user->getUserProperties();
+    $this->assertTrue(count($properties) == 2);
+    $this->em->flush();
+
+    //Check this via the database
+    $con = $this->getConnection();
+
+    //Get user id to use in sql statements
+    $userId = $user->getId();
+
+    $result = $con->createQueryTable('results', "SELECT * FROM User_Properties WHERE PARENTUSER_ID = '$userId'");
+    //Assert that only 2 user properties exist in the database for this user
+    $this->assertEquals(2, $result->getRowCount());
+
+    //Now delete the user and check that it cascades the delete to remove the user's associated properties
+    $userService->deleteUser($user, $adminUser);
+    $this->em->flush();
+
+    //Check user is gone
+    $result = $con->createQueryTable('results', "SELECT * FROM Users WHERE ID = '$userId'");
+    $this->assertEquals(0, $result->getRowCount());
+
+    //Check properties are gone
+    $result = $con->createQueryTable('results', "SELECT * FROM User_Properties WHERE PARENTUSER_ID = '$userId'");
+    $this->assertEquals(0, $result->getRowCount());
+  }
 }
 ?>
