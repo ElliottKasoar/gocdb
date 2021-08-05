@@ -467,6 +467,46 @@ class User extends AbstractEntityService{
     }
 
     /**
+     * Returns list of authentication types
+     * List composed of AuthenticationRealms defined within tokens
+     * Order of tokens determined by order listed in MyConfig1
+     * Order of realms hardcoded based on order within tokens
+     * @param bool $reducedRealms if true only return the "main" authentication types
+     * @return array of authentication types
+     */
+    public function getAuthTypes($reducedRealms=true) {
+
+        require_once __DIR__ . '/../Authentication/_autoload.php';
+        // Get list of tokens in order they are currently used
+        $myConfig1 = new \org\gocdb\security\authentication\MyConfig1();
+        $authTokenNames = $myConfig1->getAuthTokenClassList();
+
+        // Hardcoded authentication realms in same order as in token definitions
+        $x509Realms = ['IGTF X509 Cert'];
+        if ($reducedRealms) {
+            $shibRealms = ['EGI Proxy IdP'];
+        } else {
+            $shibRealms = ['EUDAT_SSO_IDP', 'UK_ACCESS_FED', 'EGI Proxy IdP'];
+        }
+        $irisRealms = ['IRIS IAM - OIDC'];
+
+        // Add auth types to a list in the correct order
+        $authTypes = array();
+        foreach ($authTokenNames as $authTokenName) {
+            if (strpos($authTokenName, 'Shib') !== false) {
+                $authTypes = array_merge($authTypes, $shibRealms);
+            }
+            if (strpos($authTokenName, 'X509') !== false) {
+                $authTypes = array_merge($authTypes, $x509Realms);
+            }
+            if (strpos($authTokenName, 'IAM') !== false) {
+                $authTypes = array_merge($authTypes, $irisRealms);
+            }
+        }
+        return $authTypes;
+    }
+
+    /**
      * Adds an extension property key/value pair to a user.
      * @param \User $user user having property added
      * @param array $propArr property name and value
