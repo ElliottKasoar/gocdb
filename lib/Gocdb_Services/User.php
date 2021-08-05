@@ -488,6 +488,17 @@ class User extends AbstractEntityService{
     }
 
     /**
+     * Returns a single user property from its ID
+     * @param $id ID of user property
+     * @return \UserProperty
+     */
+    public function getPropertyById($id) {
+        $dql = "SELECT p FROM UserProperty p WHERE p.id = :ID";
+        $property = $this->em->createQuery($dql)->setParameter('ID', $id)->getOneOrNullResult();
+        return $property;
+    }
+
+    /**
      * Returns a single user property from its ID string
      * @param $idString ID string of user property
      * @return \UserProperty
