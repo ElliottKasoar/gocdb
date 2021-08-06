@@ -585,8 +585,13 @@ class User extends AbstractEntityService{
         $keyName = trim($propArr[0]);
         $keyValue = trim($propArr[1]);
 
-        // Set certificate DN to unique ID for now
-        $user->setCertificateDn($user->getId());
+        // Set certificateDn to null if not already
+        $certificateDn = $user->getCertificateDn();
+        if ($certificateDn !== null) {
+            $user->setCertificateDn(null);
+            $this->em->persist($user);
+            $this->em->flush();
+        }
 
         $this->addUserPropertyValidation($keyName, $keyValue);
 
