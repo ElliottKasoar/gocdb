@@ -381,11 +381,10 @@ class User extends AbstractEntityService{
             $user->setSurname($userValues['SURNAME']);
             $user->setEmail($userValues['EMAIL']);
             $user->setTelephone($userValues['TELEPHONE']);
-            $user->setCertificateDn($userPropertyValues['VALUE']);
             $user->setAdmin(false);
             $this->em->persist($user);
             $this->em->flush();
-            $this->migrateUserCredentials($user, $propArr, $user);
+            $this->addUserProperty($user, $propArr, $user);
             $this->em->flush();
             $this->em->getConnection()->commit();
         } catch (\Exception $e) {
@@ -680,12 +679,14 @@ class User extends AbstractEntityService{
 
     /**
      * Overwrites a user's certificateDn to a default value
-     * Currently set to the user's ID
+     * Currently set to null
      * @param \User $user user having certificate DN overwritten
      * @throws \Exception
      */
     private function setDefaultCertDn(\User $user) {
-        $user->setCertificateDn($user->getId());
+        $user->setCertificateDn(null);
+        $this->em->persist($user);
+        $this->em->flush();
     }
 
     /**
