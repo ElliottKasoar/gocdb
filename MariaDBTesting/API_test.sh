@@ -210,8 +210,11 @@ do
 
     success=true
 
-    wget $wgetOptionsOracle -O $oracle_file "${oracle_URL}/gocdbpi/${privacy}/?method=get_${arr_methods[i]}"
-    wget --no-check-certificate $wgetOptionsMaria -O $mariadb_file "${mariadb_URL}/gocdbpi/${privacy}/?method=get_${arr_methods[i]}"
+    echo
+    echo Attempting to download ${arr_files[i]}.xml...
+
+    wget -q $wgetOptionsOracle -O $oracle_file "${oracle_URL}/gocdbpi/${privacy}/?method=get_${arr_methods[i]}"
+    wget -q --no-check-certificate $wgetOptionsMaria -O $mariadb_file "${mariadb_URL}/gocdbpi/${privacy}/?method=get_${arr_methods[i]}"
 
     if grep -q "$searchString"  "$oracle_file"; then
         echo $oracle_file downloaded successfully!
@@ -230,17 +233,21 @@ do
     fi
 
     if $success; then
-        echo performing diff pf XML files...
         diff $oracle_file $mariadb_file > $diff_file
         diff_count=$((diff_count+1))
+        echo ${arr_files[i]}.xml diff performed!
+    else
+        echo Unable to perform ${arr_files[i]}.xml diff
     fi
 
 done
 
+echo
 echo diffs created successfully: $diff_count
+echo
 
 if [[ ${#arr_file_failures[@]} = 0 ]]; then
-    echo All XML downloads successful
+    echo All XML downloads successful!
 else
     echo XML download failures:
     for i in "${!arr_file_failures[@]}"
@@ -248,3 +255,4 @@ else
         echo ${arr_file_failures[i]}
     done
 fi
+echo
