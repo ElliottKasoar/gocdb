@@ -11,25 +11,38 @@ diff_dir=/usr/share/GOCDB5/MariaDBTesting/xmlDiff
 oracle_URL="https://goc.egi.eu"
 mariadb_URL="https://host-172-16-102-162.nubes.stfc.ac.uk"
 
+# Directories for certificates
 grid_dir="/etc/grid-security/"
 cert_dir="${grid_dir}hostcert/"
 
-# Declare a string array
+# Array for API method names (get_ not required)
 arr_methods=()
+# Array for XML/diff file names to save
 arr_files=()
+# Array for API method protection level (2 requires a authentication)
 arr_permissions=()
 
-#
+# Number of diff files created
 diff_count=0
+# Array for XML files that failed to download
 arr_file_failures=()
 
+# Define full lists, used by default (no flags) or --all
+arr_methods_all=("site" "site_list" "site_contacts" "site_security_info" "roc_list" "roc_contacts" "downtime&startdate=2021-01-01" "downtime_nested_services&startdate=2021-01-01" "service_endpoint" "service" "service_types" "user" "downtime_to_broadcast" "cert_status_changes" "cert_status_date" "service_group" "service_group_role" "ngi" "project_contacts" "site_count_per_country")
+arr_files_all=("sites" "sites_list" "site_contacts" "site_security_info" "roc_list" "roc_contacts" "downtimes" "downtime_services" "service_endpoints" "services" "service_types" "users" "downtimes_to_broadcast" "cert_status_changes" "cert_status_dates" "service_groups" "service_group_roles" "ngis" "project_contacts" "site_counts")
+arr_permissions_all=(2 1 2 2 1 2 1 1 1 1 1 2 1 2 2 2 2 2 2 1)
+
+# Add methods and file names to arrays based on flags if no flags specified
+if [[ -z "$1" ]]; then
+    arr_methods=("${arr_methods_all[@]}")
+    arr_files=("${arr_files_all[@]}")
+    arr_permissions=("${arr_permissions_all[@]}")
+fi
+
+# Add methods and file names to arrays based on flags
 while test $# -gt 0; do
     case "$1" in
         -h|--help)
-            echo "$package - attempt to capture frames"
-            echo " "
-            echo "$package [options] application [arguments]"
-            echo " "
             echo "options:"
             echo "-h, --help                show brief help"
             echo "--all                     get all data"
@@ -57,9 +70,10 @@ while test $# -gt 0; do
             ;;
         --all)
             shift
-            arr_methods+=("site" "site_list" "site_contacts" "site_security_info" "roc_list" "roc_contacts" "downtime&startdate=2021-01-01" "downtime_nested_services&startdate=2021-01-01" "service_endpoint" "service" "service_types" "user" "downtime_to_broadcast" "cert_status_changes" "cert_status_date" "service_group" "service_group_role" "ngi" "project_contacts" "site_count_per_country")
-            arr_files+=("sites" "sites_list" "site_contacts" "site_security_info" "roc_list" "roc_contacts" "downtimes" "downtime_services" "service_endpoints" "services" "service_types" "users" "downtimes_to_broadcast" "cert_status_changes" "cert_status_dates" "service_groups" "service_group_roles" "ngis" "project_contacts" "site_counts")
-            arr_permissions+=(2 1 2 2 1 2 1 1 1 1 1 2 1 2 2 2 2 2 2 1)
+            arr_methods=("${arr_methods_all[@]}")
+            arr_files=("${arr_files_all[@]}")
+            arr_permissions=("${arr_permissions_all[@]}")
+            break
             ;;
         --sites)
             shift
@@ -182,7 +196,8 @@ while test $# -gt 0; do
             arr_permissions+=(1)
             ;;
         *)
-            break
+            echo Invalid flag
+            exit 1
             ;;
     esac
 done
@@ -214,7 +229,6 @@ do
     echo Attempting to download ${arr_files[i]}.xml...
 
     wget -q $wgetOptionsOracle -O $oracle_file "${oracle_URL}/gocdbpi/${privacy}/?method=get_${arr_methods[i]}"
-    wget -q --no-check-certificate $wgetOptionsMaria -O $mariadb_file "${mariadb_URL}/gocdbpi/${privacy}/?method=get_${arr_methods[i]}"
 
     if grep -q "$searchString"  "$oracle_file"; then
         echo $oracle_file downloaded successfully!
@@ -223,6 +237,8 @@ do
         success=false
         arr_file_failures+=($oracle_file)
     fi
+
+    wget -q --no-check-certificate $wgetOptionsMaria -O $mariadb_file "${mariadb_URL}/gocdbpi/${privacy}/?method=get_${arr_methods[i]}"
 
     if grep -q "$searchString"  "$mariadb_dir/${arr_files[i]}.xml"; then
         echo $mariadb_file downloaded successfully!
