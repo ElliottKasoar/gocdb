@@ -11,9 +11,8 @@ diff_dir=/usr/share/GOCDB5/MariaDBTesting/xmlDiff
 oracle_URL="https://goc.egi.eu"
 mariadb_URL="https://host-172-16-102-162.nubes.stfc.ac.uk"
 
-# Directories for certificates
-grid_dir="/etc/grid-security/"
-cert_dir="${grid_dir}hostcert/"
+# Directory for certificate and private key
+cert_dir="/etc/grid-security/hostcert/"
 
 # Array for API method names (get_ not required)
 arr_methods=()
@@ -210,27 +209,34 @@ searchString="<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
 for i in "${!arr_methods[@]}"
 do
     if [[ ${arr_permissions[i]} = 2 ]]; then
-        wgetOptionsOracle="--ca-certificate=${grid_dir}hostcert.pem  --certificate=/${cert_dir}hostcert.pem --private-key=${cert_dir}hostkey.pem --private-key-type=PEM"
-        wgetOptionsMaria=$wgetOptionsOracle
+        # Need certificate for authentication
+        wgetOptionsOracle="-q --certificate=${cert_dir}hostcert.pem --private-key=${cert_dir}hostkey.pem --private-key-type=PEM"
         privacy="private"
     else
-        wgetOptionsOracle="--no-check-certificate"
-        wgetOptionsMaria=""
+        # Authentication not required
+        wgetOptionsOracle="-q"
         privacy="public"
     fi
 
+    # Required as self-signed
+    wgetOptionsMaria="--no-check-certificate $wgetOptionsOracle"
+
+    # Define location of XML files and their diff file
     oracle_file=$oracle_dir/${arr_files[i]}.xml
     mariadb_file=$mariadb_dir/${arr_files[i]}.xml
     diff_file=$diff_dir/${arr_files[i]}.txt
 
+    # Track if the XML files are created successfully
     success=true
 
     echo
     echo Attempting to download ${arr_files[i]}.xml...
 
-    wget -q $wgetOptionsOracle -O $oracle_file "${oracle_URL}/gocdbpi/${privacy}/?method=get_${arr_methods[i]}"
+    # Get XMl file from Oracle API
+    wget $wgetOptionsOracle -O $oracle_file "${oracle_URL}/gocdbpi/${privacy}/?method=get_${arr_methods[i]}"
 
-    if grep -q "$searchString"  "$oracle_file"; then
+    # Check if XML file contains the search string for basic validation
+    if grep -q "$searchString" "$oracle_file"; then
         echo $oracle_file downloaded successfully!
     else
         echo $oracle_file download failed
@@ -238,9 +244,11 @@ do
         arr_file_failures+=($oracle_file)
     fi
 
-    wget -q --no-check-certificate $wgetOptionsMaria -O $mariadb_file "${mariadb_URL}/gocdbpi/${privacy}/?method=get_${arr_methods[i]}"
+    # Get XMl file from MariaDB API
+    wget $wgetOptionsMaria -O $mariadb_file "${mariadb_URL}/gocdbpi/${privacy}/?method=get_${arr_methods[i]}"
 
-    if grep -q "$searchString"  "$mariadb_dir/${arr_files[i]}.xml"; then
+    # Check if XML file contains the search string for basic validation
+    if grep -q "$searchString" "$mariadb_dir/${arr_files[i]}.xml"; then
         echo $mariadb_file downloaded successfully!
     else
         echo $mariadb_file download failed
@@ -248,6 +256,7 @@ do
         arr_file_failures+=($mariadb_file)
     fi
 
+    # If downloaded both XML files, do diff
     if $success; then
         diff $oracle_file $mariadb_file > $diff_file
         diff_count=$((diff_count+1))
@@ -272,3 +281,6 @@ else
     done
 fi
 echo
+
+# Count length of diff files and compare to legnth of XML files
+./line_count.sh
