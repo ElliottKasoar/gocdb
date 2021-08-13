@@ -21,7 +21,7 @@ do
     # Get XML file name
     xml_file=`basename xmlDiff/$diff_file | cut -f 1 -d .`
 
-    # Get legnth of XML file
+    # Get length of XML file
     total_lines=`wc -l < oracle/${xml_file}.xml`
 
     # Approx percentage difference (returns integer)
