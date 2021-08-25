@@ -259,7 +259,7 @@ class LinkIdentity extends AbstractEntityService {
             . " If " . ($isLinking ? "identity linking" : "account recovery") . " is successful, any roles currently associated with this second account ($currentIdString)"
             . " will be requested for your primary GOCDB account ($primaryIdString)."
             . " These roles will be approved automatically if either account has permission to do so."
-            . "\n\n Your second account will then be deleted.";
+            . "\n\nYour second account will then be deleted.";
         }
 
         if (!$isLinking) {
