@@ -550,6 +550,61 @@ class User extends AbstractEntityService{
     }
 
     /**
+     * Get one of the user's unique ID strings, favouring certain types
+     * If user does not have user properties, returns certificateDn
+     * @param \User $user User whose ID string we want
+     * @return string
+     */
+    public function getDefaultIdString($user) {
+
+        $authTypes = $this->getAuthTypes();
+        $idString = null;
+
+        // For each ordered auth type, check if a property matches
+        // Gets certifcateDn if no user properties and X.509 listed
+        foreach ($authTypes as $authType) {
+            $idString = $this->getIdStringByAuthType($user, $authType);
+            if ($idString !== null) {
+                break;
+            }
+        }
+
+        // If user only has unlisted properties, return first property
+        if ($idString === null) {
+            $idString = $user->getUserProperties()[0]->getKeyValue();
+        }
+
+        return $idString;
+    }
+
+    /**
+     * Get a user's ID string of specified authentication type
+     * If user does not have user properties, returns certificateDn for X.509
+     * @param \User $user User whose ID string we want
+     * @param $authType authentication type of ID string we want
+     * @return string
+     */
+    public function getIdStringByAuthType($user, $authType) {
+
+        $props = $user->getUserProperties();
+        $idString = null;
+
+        // For each auth type, check if a property matches
+        foreach ($props as $prop) {
+            if ($prop->getKeyName() === $authType) {
+                $idString = $prop->getKeyValue();
+            }
+        }
+
+        // If no user properties and want X.509, return certificateDn
+        if (count($props) === 0 && $authType === 'X.509') {
+            $idString = $user->getCertificateDn();
+        }
+
+        return $idString;
+    }
+
+    /**
      * Adds an extension property key/value pair to a user.
      * @param \User $user user having property added
      * @param array $propArr property name and value
