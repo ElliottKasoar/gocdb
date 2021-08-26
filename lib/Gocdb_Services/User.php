@@ -262,7 +262,7 @@ class User extends AbstractEntityService{
         $this->editUserAuthorization($user, $currentUser);
 
         // validate the input fields for the user
-        $this->validateUser($newValues);
+        $this->validate($newValues, 'user');
 
         //Explicity demarcate our tx boundary
         $this->em->getConnection()->beginTransaction();
@@ -317,12 +317,12 @@ class User extends AbstractEntityService{
      *                   validated. The \Exception message will contain a human
      *                   readable description of which field failed validation.
      * @return null */
-    private function validateUser($userData) {
+    private function validate($userData, $type) {
         require_once __DIR__ .'/Validate.php';
         $serv = new \org\gocdb\services\Validate();
         foreach($userData as $field => $value) {
-            $valid = $serv->validate('user', $field, $value);
-            if(!$valid) {
+            $valid = $serv->validate($type, $field, $value);
+            if (!$valid) {
                 $error = "$field contains an invalid value: $value";
                 throw new \Exception($error);
             }
@@ -348,13 +348,7 @@ class User extends AbstractEntityService{
      */
     public function register($userValues, $userPropertyValues) {
         // validate the input fields for the user
-        $this->validateUser($values);
-
-        // Check the DN isn't already registered
-        $user = $this->getUserByPrinciple($values['CERTIFICATE_DN']);
-        if(!is_null($user)) {
-            throw new \Exception("DN is already registered in GOCDB");
-        }
+        $this->validate($userValues, 'user');
 
         //Explicity demarcate our tx boundary
         $this->em->getConnection()->beginTransaction();
@@ -520,7 +514,7 @@ class User extends AbstractEntityService{
         $keyName = trim($propArr[0]);
         $keyValue = trim($propArr[1]);
 
-        // $this->addUserPropertyValidation();
+        $this->addUserPropertyValidation($keyName, $keyValue);
 
         /* Find out if a property with the provided key already exists for this user
         * If it does, we will throw an exception
@@ -609,6 +603,197 @@ class User extends AbstractEntityService{
      */
     private function setDefaultCertDn(\User $user) {
         $user->setCertificateDn($user->getId());
+    }
+
+    /**
+     * Validation when adding a user property
+     * @param string $keyName
+     * @param string $keyValue
+     * @throws \Exception
+     */
+    protected function addUserPropertyValidation($keyName, $keyValue) {
+        // Validate against schema
+        $validateArray['NAME'] = $keyName;
+        $validateArray['VALUE'] = $keyValue;
+        $this->validate($validateArray, 'userproperty');
+
+        // Check the ID string does not already exist
+        $this->valdidateUniqueIdString($keyValue);
+
+        // Check auth type is valid
+        $this->valdidateAuthType($keyName);
+    }
+
+    /**
+     * Edit a user's property.
+     * @param \User $user user that owns the property
+     * @param \UserProperty $prop property being edited
+     * @param array $newPropArr new key and/or value for the property
+     * @param \User $currentUser user editing the property
+     * @throws \Exception
+     */
+    public function editUserProperty(\User $user, \UserProperty $prop, array $newPropArr, \User $currentUser) {
+        // Check the portal is not in read only mode, throws exception if it is
+        $this->checkPortalIsNotReadOnlyOrUserIsAdmin($currentUser);
+
+        // Check to see whether the current user can edit this user
+        $this->editUserAuthorization($user, $currentUser);
+
+        // Make the change
+        $this->em->getConnection()->beginTransaction();
+        try {
+            $this->editUserPropertyLogic($user, $prop, $newPropArr);
+            $this->em->flush ();
+            $this->em->getConnection ()->commit();
+        } catch (\Exception $e) {
+            $this->em->getConnection ()->rollback();
+            $this->em->close ();
+            throw $e;
+        }
+    }
+
+    /**
+     * Logic to edit a user's property, without the user validation.
+     * Validation of the edited property values is performed by a seperate function.
+     * @param \User $user user that owns the property
+     * @param \UserProperty $prop property being edited
+     * @param array $newPropArr new key and/or value for the property
+     * @throws \Exception
+     */
+    protected function editUserPropertyLogic(\User $user, \UserProperty $prop, array $newPropArr) {
+
+        // Trim off trailing and leading whitespace
+        $keyName = trim($newPropArr[0]);
+        $keyValue = trim($newPropArr[1]);
+
+        // Validate new property
+        $this->editUserPropertyValidation($user, $prop, $keyName, $keyValue);
+
+        // Set the user property values
+        $prop->setKeyName($keyName);
+        $prop->setKeyValue($keyValue);
+        $this->em->merge($prop);
+    }
+
+    /**
+     * Validation when editing a user's property
+     * @param \User $user
+     * @param \UserProperty $prop
+     * @param string $keyName
+     * @param string $keyValue
+     * @throws \Exception
+     */
+    protected function editUserPropertyValidation(\User $user, \UserProperty $prop, $keyName, $keyValue) {
+
+        // Validate new values against schema
+        $validateArray['NAME'] = $keyName;
+        $validateArray['VALUE'] = $keyValue;
+        $this->validate($validateArray, 'userproperty');
+
+        // Check that the property is owned by the user
+        if ($prop->getParentUser() !== $user) {
+            $id = $prop->getId();
+            throw new \Exception("Property {$id} does not belong to the specified user");
+        }
+
+        // Check the property has changed
+        if ($keyName === $prop->getKeyName() && $keyValue === $prop->getKeyValue()) {
+            throw new \Exception("The specified user property is the same as the current user property");
+        }
+
+        // Check the ID string is unique if it is being changed
+        if ($keyValue !== $prop->getKeyValue()) {
+            $this->valdidateUniqueIdString($keyValue);
+        }
+
+        // Check auth type is valid
+        $this->valdidateAuthType($keyName);
+
+        // If the properties key has changed, check there isn't an existing property with that key
+        if ($keyName !== $prop->getKeyName()) {
+            $existingProperties = $user->getUserProperties();
+            foreach ($existingProperties as $existingProp) {
+                if ($existingProp->getKeyName() === $keyName) {
+                    throw new \Exception("A property with that name already exists for this object");
+                }
+            }
+        }
+    }
+
+    /**
+     * Validate authentication type based on known list.
+     * @param string $authType
+     * @throws \Exception
+     */
+    protected function valdidateAuthType($authType) {
+        if (!in_array($authType, $this->getAuthTypes(false))) {
+            throw new \Exception("The authentication type entered is invalid");
+        }
+    }
+
+    /**
+     * Validate ID string is unique.
+     * Checks both user properties and certificateDns
+     * @param string $idString
+     * @throws \Exception
+     */
+    protected function valdidateUniqueIdString($idString) {
+        $oldUser = $this->getUserByCertificateDn($idString);
+        $newUser = $this->getUserByPrinciple($idString);
+        if (!is_null($oldUser) || !is_null($newUser)) {
+            throw new \Exception("ID string is already registered in GOCDB");
+        }
+    }
+
+    /**
+     * Delete a user property
+     * Validates the user has permission, then calls the required logic
+     * @param \User $user user having the property deleted
+     * @param \UserProperty $prop property being deleted
+     * @param \User $currentUser user deleting the property
+     */
+    public function deleteUserProperty(\User $user, \UserProperty $prop, \User $currentUser) {
+        //Check the portal is not in read only mode, throws exception if it is
+        $this->checkPortalIsNotReadOnlyOrUserIsAdmin($user);
+
+        // Check to see whether the current user can edit this user
+        $this->editUserAuthorization($user, $currentUser);
+
+        // Make the change
+        $this->em->getConnection()->beginTransaction();
+        try {
+            $this->deleteUserPropertyLogic($user, $prop);
+            $this->em->flush();
+            $this->em->getConnection()->commit();
+        } catch (\Exception $e) {
+            $this->em->getConnection()->rollback();
+            $this->em->close();
+            throw $e;
+        }
+    }
+
+    /**
+     * Logic to delete a user's property
+     * Before deletion a check is done to confirm the property is from the parent user
+     * specified by the request, and an exception is thrown if this is not the case
+     * @param \User $user user having the property deleted
+     * @param \UserProperty $prop property being deleted
+     */
+    protected function deleteUserPropertyLogic(\User $user, \UserProperty $prop) {
+        // Check that the property's parent user is the same as the one given
+        if ($prop->getParentUser() !== $user) {
+            $id = $prop->getId();
+            throw new \Exception("Property {$id} does not belong to the specified user");
+        }
+        // Check the user has more than one property
+        if (count($user->getUserProperties()) < 2) {
+            throw new \Exception("Users must have at least one identity string.");
+        }
+        // User is the owning side so remove elements from the user
+        $user->getUserProperties()->removeElement($prop);
+
+        // Once relationship is removed, delete the actual element
+        $this->em->remove($prop);
     }
 
     /**
