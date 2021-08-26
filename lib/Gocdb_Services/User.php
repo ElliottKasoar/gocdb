@@ -337,11 +337,16 @@ class User extends AbstractEntityService{
      *     [SURNAME] => TestFace
      *     [EMAIL] => JCasson@gmail.com
      *     [TELEPHONE] => 01235 44 5010
-     *     [CERTIFICATE_DN] => /C=UK/O=eScience/OU=CLRC/L=RAL/CN=claire devereuxxxx
      * )
-     * @param array $values User details, defined above
+     * Array
+     * (
+     *     [NAME] => IGTF
+     *     [VALUE] => /C=UK/O=eScience/OU=CLRC/L=RAL/CN=a person
+     * )
+     * @param array $userValues User details, defined above
+     * @param array $userPropertyValues User Property details, defined above
      */
-    public function register($values) {
+    public function register($userValues, $userPropertyValues) {
         // validate the input fields for the user
         $this->validateUser($values);
 
@@ -354,21 +359,24 @@ class User extends AbstractEntityService{
         //Explicity demarcate our tx boundary
         $this->em->getConnection()->beginTransaction();
         $user = new \User();
+        $propArr = array($userPropertyValues['NAME'], $userPropertyValues['VALUE']);
         try {
-            $user->setTitle($values['TITLE']);
-            $user->setForename($values['FORENAME']);
-            $user->setSurname($values['SURNAME']);
-            $user->setEmail($values['EMAIL']);
-            $user->setTelephone($values['TELEPHONE']);
-            $user->setCertificateDn($values['CERTIFICATE_DN']);
+            $user->setTitle($userValues['TITLE']);
+            $user->setForename($userValues['FORENAME']);
+            $user->setSurname($userValues['SURNAME']);
+            $user->setEmail($userValues['EMAIL']);
+            $user->setTelephone($userValues['TELEPHONE']);
+            $user->setCertificateDn($userPropertyValues['VALUE']);
             $user->setAdmin(false);
             $this->em->persist($user);
             $this->em->flush();
+            $this->migrateUserCredentials($user, $propArr, $user);
+            $this->em->flush();
             $this->em->getConnection()->commit();
-        } catch (\Exception $ex) {
+        } catch (\Exception $e) {
             $this->em->getConnection()->rollback();
             $this->em->close();
-            throw $ex;
+            throw $e;
         }
         return $user;
     }
