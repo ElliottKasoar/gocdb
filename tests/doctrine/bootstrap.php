@@ -19,7 +19,7 @@ require_once $entitiesPath."/SubGrid.php";
 require_once $entitiesPath."/ServiceType.php";
 require_once $entitiesPath."/EndpointLocation.php";
 require_once $entitiesPath."/User.php";
-require_once $entitiesPath."/UserProperty.php";
+require_once $entitiesPath."/UserIdentifier.php";
 require_once $entitiesPath."/RoleType.php";
 require_once $entitiesPath."/Role.php";
 require_once $entitiesPath."/Downtime.php";

@@ -1,30 +1,29 @@
 <?php
 
 /**
- * A custom Key=Value pair (extension property) used to augment a {@see User}
- * object with additional attributes. These properties are used to store
- * user identifiers, with keys storing authentication realms and values
+ * A custom Key=Value pair (extension property) used to store {@see User}
+ * identifiers, with keys storing authentication realms and values
  * storing ID strings.
  * <p>
  * A unique constraint is defined on the DB preventing duplicate keys for a given user.
  * This allows the pairs to be upadated based enitrely on the key name and entity
- * unique identifier, rather than needing the custom property id.
+ * unique identifier, rather than needing the custom ID.
  * <p>
- * When the owning parent User is deleted, its UserProperties
+ * When the owning parent User is deleted, its UserIdentifiers
  * are also cascade-deleted.
  *
- * @Entity @Table(name="User_Properties", uniqueConstraints={@UniqueConstraint(name="user_keypairs", columns={"parentUser_id", "keyName"})})
+ * @Entity @Table(name="User_Identifiers", uniqueConstraints={@UniqueConstraint(name="user_keypairs", columns={"parentUser_id", "keyName"})})
  */
-class UserProperty {
+class UserIdentifier {
 
     /** @Id @Column(type="integer") @GeneratedValue */
     protected $id;
 
     /**
-     * Bidirectional - Many UserProperties (SIDE THAT OWNS FK)
+     * Bidirectional - Many UserIdentifiers (SIDE THAT OWNS FK)
      * can be linked to one User (OWNING ORM SIDE).
      *
-     * @ManyToOne(targetEntity="User", inversedBy="userProperties")
+     * @ManyToOne(targetEntity="User", inversedBy="userIdentifiers")
      * @JoinColumn(name="parentUser_id", referencedColumnName="id", onDelete="CASCADE")
      */
     protected $parentUser = null;
@@ -40,7 +39,7 @@ class UserProperty {
 
     /**
      * Get the owning parent {@see User}. When the User is deleted,
-     * these properties are also cascade deleted.
+     * these identifiers are also cascade deleted.
      * @return \User
      */
     public function getParentUser() {
@@ -73,7 +72,7 @@ class UserProperty {
 
     /**
      * Do not call in client code, always use the opposite
-     * <code>$user->addUserPropertyDoJoin($userProperty)</code>
+     * <code>$user->addUserIdentifierDoJoin($userIdentifier)</code>
      * instead which internally calls this method to keep the bidirectional
      * relationship consistent.
      * <p>

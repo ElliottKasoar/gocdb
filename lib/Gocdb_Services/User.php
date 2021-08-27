@@ -65,7 +65,7 @@ class User extends AbstractEntityService{
     }
 
     /**
-     * Lookup a User object by user's principle ID string from UserProperty.
+     * Lookup a User object by user's principle ID string from UserIdentifier.
      * @param string $userPrinciple the user's principle ID string, e.g. DN.
      * @return User object or null if no user can be found with the specified principle
      */
@@ -74,7 +74,7 @@ class User extends AbstractEntityService{
             return null;
         }
 
-        $dql = "SELECT u FROM User u JOIN u.userProperties up WHERE up.keyValue = :keyValue";
+        $dql = "SELECT u FROM User u JOIN u.userIdentifiers up WHERE up.keyValue = :keyValue";
         $user = $this->em->createQuery($dql)
                   ->setParameters(array('keyValue' => $userPrinciple))
                   ->getOneOrNullResult();
@@ -83,7 +83,7 @@ class User extends AbstractEntityService{
     }
 
     /**
-     * Lookup a User object by user's principle ID string and auth type from UserProperty.
+     * Lookup a User object by user's principle ID string and auth type from UserIdentifier.
      * @param string $userPrinciple the user's principle ID string, e.g. DN.
      * @param string $authType the authorisation type e.g. X.509.
      * @return User object or null if no user can be found with the specified principle
@@ -93,7 +93,7 @@ class User extends AbstractEntityService{
             return null;
         }
 
-        $dql = "SELECT u FROM User u JOIN u.userProperties up
+        $dql = "SELECT u FROM User u JOIN u.userIdentifiers up
                 WHERE up.keyName = :keyName
                 AND up.keyValue = :keyValue";
         $user = $this->em->createQuery($dql)
@@ -365,16 +365,16 @@ class User extends AbstractEntityService{
      *     [VALUE] => /C=UK/O=eScience/OU=CLRC/L=RAL/CN=a person
      * )
      * @param array $userValues User details, defined above
-     * @param array $userPropertyValues User Property details, defined above
+     * @param array $userIdentifierValues User Identifier details, defined above
      */
-    public function register($userValues, $userPropertyValues) {
+    public function register($userValues, $userIdentifierValues) {
         // validate the input fields for the user
         $this->validate($userValues, 'user');
 
         //Explicity demarcate our tx boundary
         $this->em->getConnection()->beginTransaction();
         $user = new \User();
-        $propArr = array($userPropertyValues['NAME'], $userPropertyValues['VALUE']);
+        $identifierArr = array($userIdentifierValues['NAME'], $userIdentifierValues['VALUE']);
         try {
             $user->setTitle($userValues['TITLE']);
             $user->setForename($userValues['FORENAME']);
@@ -384,7 +384,7 @@ class User extends AbstractEntityService{
             $user->setAdmin(false);
             $this->em->persist($user);
             $this->em->flush();
-            $this->addUserProperty($user, $propArr, $user);
+            $this->addUserIdentifier($user, $identifierArr, $user);
             $this->em->flush();
             $this->em->getConnection()->commit();
         } catch (\Exception $e) {
@@ -429,7 +429,7 @@ class User extends AbstractEntityService{
     public function getUsers($surname=null, $forename=null, $idString=null, $isAdmin=null) {
 
         $dql =
-            "SELECT u FROM User u LEFT JOIN u.userProperties up
+            "SELECT u FROM User u LEFT JOIN u.userIdentifiers up
              WHERE (UPPER(u.surname) LIKE UPPER(:surname) OR :surname is null)
              AND (UPPER(u.forename) LIKE UPPER(:forename) OR :forename is null)
              AND (u.certificateDn LIKE :idString OR up.keyValue LIKE :idString OR :idString is null)
@@ -448,25 +448,25 @@ class User extends AbstractEntityService{
     }
 
     /**
-     * Returns a single user property from its ID
-     * @param $id ID of user property
-     * @return \UserProperty
+     * Returns a single user identifier from its ID
+     * @param $id ID of user identifier
+     * @return \UserIdentifier
      */
-    public function getPropertyById($id) {
-        $dql = "SELECT p FROM UserProperty p WHERE p.id = :ID";
-        $property = $this->em->createQuery($dql)->setParameter('ID', $id)->getOneOrNullResult();
-        return $property;
+    public function getIdentifierById($id) {
+        $dql = "SELECT p FROM UserIdentifier p WHERE p.id = :ID";
+        $identifier = $this->em->createQuery($dql)->setParameter('ID', $id)->getOneOrNullResult();
+        return $identifier;
     }
 
     /**
-     * Returns a single user property from its ID string
-     * @param $idString ID string of user property
-     * @return \UserProperty
+     * Returns a single user identifier from its ID string
+     * @param $idString ID string of user identifier
+     * @return \UserIdentifier
      */
-    public function getPropertyByIdString($idString) {
-        $dql = "SELECT p FROM UserProperty p WHERE p.keyValue = :IDSTRING";
-        $property = $this->em->createQuery($dql)->setParameter('IDSTRING', $idString)->getOneOrNullResult();
-        return $property;
+    public function getIdentifierByIdString($idString) {
+        $dql = "SELECT p FROM UserIdentifier p WHERE p.keyValue = :IDSTRING";
+        $identifier = $this->em->createQuery($dql)->setParameter('IDSTRING', $idString)->getOneOrNullResult();
+        return $identifier;
     }
 
     /**
@@ -511,7 +511,7 @@ class User extends AbstractEntityService{
 
     /**
      * Get one of the user's unique ID strings, favouring certain types
-     * If user does not have user properties, returns certificateDn
+     * If user does not have user identifiers, returns certificateDn
      * @param \User $user User whose ID string we want
      * @return string
      */
@@ -520,8 +520,8 @@ class User extends AbstractEntityService{
         $authTypes = $this->getAuthTypes();
         $idString = null;
 
-        // For each ordered auth type, check if a property matches
-        // Gets certifcateDn if no user properties and X.509 listed
+        // For each ordered auth type, check if an identifier matches
+        // Gets certifcateDn if no user identifiers and X.509 listed
         foreach ($authTypes as $authType) {
             $idString = $this->getIdStringByAuthType($user, $authType);
             if ($idString !== null) {
@@ -529,9 +529,9 @@ class User extends AbstractEntityService{
             }
         }
 
-        // If user only has unlisted properties, return first property
+        // If user only has unlisted identifiers, return first identifier
         if ($idString === null) {
-            $idString = $user->getUserProperties()[0]->getKeyValue();
+            $idString = $user->getUserIdentifiers()[0]->getKeyValue();
         }
 
         return $idString;
@@ -539,25 +539,25 @@ class User extends AbstractEntityService{
 
     /**
      * Get a user's ID string of specified authentication type
-     * If user does not have user properties, returns certificateDn for X.509
+     * If user does not have user identifiers, returns certificateDn for X.509
      * @param \User $user User whose ID string we want
      * @param $authType authentication type of ID string we want
      * @return string
      */
     public function getIdStringByAuthType($user, $authType) {
 
-        $props = $user->getUserProperties();
+        $identifiers = $user->getUserIdentifiers();
         $idString = null;
 
-        // For each auth type, check if a property matches
-        foreach ($props as $prop) {
-            if ($prop->getKeyName() === $authType) {
-                $idString = $prop->getKeyValue();
+        // For each auth type, check if an identifier matches
+        foreach ($identifiers as $identifier) {
+            if ($identifier->getKeyName() === $authType) {
+                $idString = $identifier->getKeyValue();
             }
         }
 
-        // If no user properties and want X.509, return certificateDn
-        if (count($props) === 0 && $authType === 'X.509') {
+        // If no user identifiers and want X.509, return certificateDn
+        if (count($identifiers) === 0 && $authType === 'X.509') {
             $idString = $user->getCertificateDn();
         }
 
@@ -565,23 +565,23 @@ class User extends AbstractEntityService{
     }
 
     /**
-     * Adds an extension property key/value pair to a user.
-     * @param \User $user user having property added
-     * @param array $propArr property name and value
-     * @param \User $currentUser user adding the property
+     * Adds an identifier to a user.
+     * @param \User $user user having identifier added
+     * @param array $identifierArr identifier name and value
+     * @param \User $currentUser user adding the identifier
      * @throws \Exception
      */
-    public function addUserProperty(\User $user, array $propArr, \User $currentUser) {
+    public function addUserIdentifier(\User $user, array $identifierArr, \User $currentUser) {
         // Check the portal is not in read only mode, throws exception if it is
         $this->checkPortalIsNotReadOnlyOrUserIsAdmin($user);
 
         // Check to see whether the current user can edit this user
         $this->editUserAuthorization($user, $currentUser);
 
-        // Add the property
+        // Add the identifier
         $this->em->getConnection()->beginTransaction();
         try {
-            $this->addUserPropertyLogic($user, $propArr);
+            $this->addUserIdentifierLogic($user, $identifierArr);
             $this->em->flush();
             $this->em->getConnection()->commit();
         } catch (\Exception $e) {
@@ -592,51 +592,51 @@ class User extends AbstractEntityService{
     }
 
     /**
-     * Logic to add an extension property to a user.
-     * @param \User $user user having property added
-     * @param array $propArr property name and value
+     * Logic to add an identifier to a user.
+     * @param \User $user user having identifier added
+     * @param array $identifierArr identifier name and value
      * @throws \Exception
      */
-    protected function addUserPropertyLogic(\User $user, array $propArr) {
+    protected function addUserIdentifierLogic(\User $user, array $identifierArr) {
 
         // We will use this variable to track the keys as we go along, this will be used check they are all unique later
         $keys = array();
 
-        $existingProperties = $user->getUserProperties();
+        $existingIdentifiers = $user->getUserIdentifiers();
 
-        // We will use this variable to track the final number of properties and ensure we do not exceede the specified limit
-        $propertyCount = count($existingProperties);
+        // We will use this variable to track the final number of identifiers and ensure we do not exceede the specified limit
+        $identifierCount = count($existingIdentifiers);
 
         // Trim off any trailing and leading whitespace
-        $keyName = trim($propArr[0]);
-        $keyValue = trim($propArr[1]);
+        $keyName = trim($identifierArr[0]);
+        $keyValue = trim($identifierArr[1]);
 
-        $this->addUserPropertyValidation($keyName, $keyValue);
+        $this->addUserIdentifierValidation($keyName, $keyValue);
 
-        /* Find out if a property with the provided key already exists for this user
+        /* Find out if an identifier with the provided key already exists for this user
         * If it does, we will throw an exception
         */
-        $property = null;
-        foreach ($existingProperties as $existProp) {
-            if ($existProp->getKeyName() === $keyName) {
-                $property = $existProp;
+        $identifier = null;
+        foreach ($existingIdentifiers as $existIdentifier) {
+            if ($existIdentifier->getKeyName() === $keyName) {
+                $identifier = $existIdentifier;
             }
         }
 
-        /* If the property does not already exist, we add it
+        /* If the identifier does not already exist, we add it
         * If it already exists, we throw an exception
         */
-        if (is_null($property)) {
-            $property = new \UserProperty();
-            $property->setKeyName($keyName);
-            $property->setKeyValue($keyValue);
-            $user->addUserPropertyDoJoin($property);
-            $this->em->persist($property);
+        if (is_null($identifier)) {
+            $identifier = new \UserIdentifier();
+            $identifier->setKeyName($keyName);
+            $identifier->setKeyValue($keyValue);
+            $user->addUserIdentifierDoJoin($identifier);
+            $this->em->persist($identifier);
 
-            // Increment the property counter to enable check against property limit
-            $propertyCount++;
+            // Increment the identifier counter to enable check against extension limit
+            $identifierCount++;
         } else {
-            throw new \Exception("A property with name \"$keyName\" already exists for this object, no properties were added.");
+            throw new \Exception("An identifier with name \"$keyName\" already exists for this object, no identifiers were added.");
         }
 
         // Add the key to the keys array, to enable unique check
@@ -645,44 +645,44 @@ class User extends AbstractEntityService{
         // Keys should be unique, create an exception if they are not
         if (count(array_unique($keys)) !== count($keys)) {
             throw new \Exception(
-                "Property names should be unique. The requested new properties include multiple properties with the same name."
+                "Identifier names should be unique. The requested new identifiers include multiple identifiers with the same name."
             );
         }
 
-        // Check to see if adding the new properties will exceed the max limit defined in local_info.xml, and throw an exception if so
+        // Check to see if adding the new identifiers will exceed the max limit defined in local_info.xml, and throw an exception if so
         $extensionLimit = \Factory::getConfigService()->getExtensionsLimit();
-        if ($propertyCount > $extensionLimit) {
-            throw new \Exception("Property(s) could not be added due to the property limit of $extensionLimit");
+        if ($identifierCount > $extensionLimit) {
+            throw new \Exception("Identifier could not be added due to the extension limit of $extensionLimit");
         }
     }
 
     /**
-     * Migrates a user's identifier from certificateDn to UserProperties.
+     * Migrates a user's identifier from certificateDn to UserIdentifiers.
      * certificateDn is overwritten with a placeholder, before the user's
-     * ID string and its auth type are added as a property
-     * @param \User $user user having first property added
-     * @param array $propArr property name and value
-     * @param \User $currentUser user adding the property
+     * ID string and its auth type are added as an identifier
+     * @param \User $user user having first identifier added
+     * @param array $identifierArr identifier name and value
+     * @param \User $currentUser user adding the identifier
      * @throws \Exception
      */
-    public function migrateUserCredentials(\User $user, array $propArr, \User $currentUser) {
+    public function migrateUserCredentials(\User $user, array $identifierArr, \User $currentUser) {
         // Check the portal is not in read only mode, throws exception if it is
         $this->checkPortalIsNotReadOnlyOrUserIsAdmin($user);
 
         // Check to see whether the current user can edit this user
         $this->editUserAuthorization($user, $currentUser);
 
-        // Check the user property being added corresponds to the current certificateDn
-        $idString = trim($propArr[1]);
+        // Check the user identifier being added corresponds to the current certificateDn
+        $idString = trim($identifierArr[1]);
         if ($idString !== $user->getCertificateDn()) {
             throw new \Exception("ID string must match the current certificateDn");
         }
 
-        // Overwrite certificateDn and add the property
+        // Overwrite certificateDn and add the identifier
         $this->em->getConnection()->beginTransaction();
         try {
             $this->setDefaultCertDn($user);
-            $this->addUserPropertyLogic($user, $propArr);
+            $this->addUserIdentifierLogic($user, $identifierArr);
             $this->em->flush();
             $this->em->getConnection()->commit();
         } catch (\Exception $e) {
@@ -705,16 +705,16 @@ class User extends AbstractEntityService{
     }
 
     /**
-     * Validation when adding a user property
+     * Validation when adding a user identifier
      * @param string $keyName
      * @param string $keyValue
      * @throws \Exception
      */
-    protected function addUserPropertyValidation($keyName, $keyValue) {
+    protected function addUserIdentifierValidation($keyName, $keyValue) {
         // Validate against schema
         $validateArray['NAME'] = $keyName;
         $validateArray['VALUE'] = $keyValue;
-        $this->validate($validateArray, 'userproperty');
+        $this->validate($validateArray, 'useridentifier');
 
         // Check the ID string does not already exist
         $this->valdidateUniqueIdString($keyValue);
@@ -724,14 +724,14 @@ class User extends AbstractEntityService{
     }
 
     /**
-     * Edit a user's property.
-     * @param \User $user user that owns the property
-     * @param \UserProperty $prop property being edited
-     * @param array $newPropArr new key and/or value for the property
-     * @param \User $currentUser user editing the property
+     * Edit a user's identifier.
+     * @param \User $user user that owns the identifier
+     * @param \UserIdentifier $identifier identifier being edited
+     * @param array $newIdentifierArr new key and/or value for the identifier
+     * @param \User $currentUser user editing the identifier
      * @throws \Exception
      */
-    public function editUserProperty(\User $user, \UserProperty $prop, array $newPropArr, \User $currentUser) {
+    public function editUserIdentifier(\User $user, \UserIdentifier $identifier, array $newIdentifierArr, \User $currentUser) {
         // Check the portal is not in read only mode, throws exception if it is
         $this->checkPortalIsNotReadOnlyOrUserIsAdmin($currentUser);
 
@@ -741,7 +741,7 @@ class User extends AbstractEntityService{
         // Make the change
         $this->em->getConnection()->beginTransaction();
         try {
-            $this->editUserPropertyLogic($user, $prop, $newPropArr);
+            $this->editUserIdentifierLogic($user, $identifier, $newIdentifierArr);
             $this->em->flush ();
             $this->em->getConnection ()->commit();
         } catch (\Exception $e) {
@@ -752,68 +752,68 @@ class User extends AbstractEntityService{
     }
 
     /**
-     * Logic to edit a user's property, without the user validation.
-     * Validation of the edited property values is performed by a seperate function.
-     * @param \User $user user that owns the property
-     * @param \UserProperty $prop property being edited
-     * @param array $newPropArr new key and/or value for the property
+     * Logic to edit a user's identifier, without the user validation.
+     * Validation of the edited identifier values is performed by a seperate function.
+     * @param \User $user user that owns the identifier
+     * @param \UserIdentifier $identifier identifier being edited
+     * @param array $newIdentifierArr new key and/or value for the identifier
      * @throws \Exception
      */
-    protected function editUserPropertyLogic(\User $user, \UserProperty $prop, array $newPropArr) {
+    protected function editUserIdentifierLogic(\User $user, \UserIdentifier $identifier, array $newIdentifierArr) {
 
         // Trim off trailing and leading whitespace
-        $keyName = trim($newPropArr[0]);
-        $keyValue = trim($newPropArr[1]);
+        $keyName = trim($newIdentifierArr[0]);
+        $keyValue = trim($newIdentifierArr[1]);
 
-        // Validate new property
-        $this->editUserPropertyValidation($user, $prop, $keyName, $keyValue);
+        // Validate new identifier
+        $this->editUserIdentifierValidation($user, $identifier, $keyName, $keyValue);
 
-        // Set the user property values
-        $prop->setKeyName($keyName);
-        $prop->setKeyValue($keyValue);
-        $this->em->merge($prop);
+        // Set the user identifier values
+        $identifier->setKeyName($keyName);
+        $identifier->setKeyValue($keyValue);
+        $this->em->merge($identifier);
     }
 
     /**
-     * Validation when editing a user's property
+     * Validation when editing a user's identifier
      * @param \User $user
-     * @param \UserProperty $prop
+     * @param \UserIdentifier $identifier
      * @param string $keyName
      * @param string $keyValue
      * @throws \Exception
      */
-    protected function editUserPropertyValidation(\User $user, \UserProperty $prop, $keyName, $keyValue) {
+    protected function editUserIdentifierValidation(\User $user, \UserIdentifier $identifier, $keyName, $keyValue) {
 
         // Validate new values against schema
         $validateArray['NAME'] = $keyName;
         $validateArray['VALUE'] = $keyValue;
-        $this->validate($validateArray, 'userproperty');
+        $this->validate($validateArray, 'useridentifier');
 
-        // Check that the property is owned by the user
-        if ($prop->getParentUser() !== $user) {
-            $id = $prop->getId();
-            throw new \Exception("Property {$id} does not belong to the specified user");
+        // Check that the identifier is owned by the user
+        if ($identifier->getParentUser() !== $user) {
+            $id = $identifier->getId();
+            throw new \Exception("Identifier {$id} does not belong to the specified user");
         }
 
-        // Check the property has changed
-        if ($keyName === $prop->getKeyName() && $keyValue === $prop->getKeyValue()) {
-            throw new \Exception("The specified user property is the same as the current user property");
+        // Check the identifier has changed
+        if ($keyName === $identifier->getKeyName() && $keyValue === $identifier->getKeyValue()) {
+            throw new \Exception("The specified user identifier is the same as the current user identifier");
         }
 
         // Check the ID string is unique if it is being changed
-        if ($keyValue !== $prop->getKeyValue()) {
+        if ($keyValue !== $identifier->getKeyValue()) {
             $this->valdidateUniqueIdString($keyValue);
         }
 
         // Check auth type is valid
         $this->valdidateAuthType($keyName);
 
-        // If the properties key has changed, check there isn't an existing property with that key
-        if ($keyName !== $prop->getKeyName()) {
-            $existingProperties = $user->getUserProperties();
-            foreach ($existingProperties as $existingProp) {
-                if ($existingProp->getKeyName() === $keyName) {
-                    throw new \Exception("A property with that name already exists for this object");
+        // If the identifiers key has changed, check there isn't an existing identifier with that key
+        if ($keyName !== $identifier->getKeyName()) {
+            $existingIdentifiers = $user->getUserIdentifiers();
+            foreach ($existingIdentifiers as $existingIdentifier) {
+                if ($existingIdentifier->getKeyName() === $keyName) {
+                    throw new \Exception("An identifier with that name already exists for this object");
                 }
             }
         }
@@ -832,7 +832,7 @@ class User extends AbstractEntityService{
 
     /**
      * Validate ID string is unique.
-     * Checks both user properties and certificateDns
+     * Checks both user identifiers and certificateDns
      * @param string $idString
      * @throws \Exception
      */
@@ -845,13 +845,13 @@ class User extends AbstractEntityService{
     }
 
     /**
-     * Delete a user property
+     * Delete a user identifier
      * Validates the user has permission, then calls the required logic
-     * @param \User $user user having the property deleted
-     * @param \UserProperty $prop property being deleted
-     * @param \User $currentUser user deleting the property
+     * @param \User $user user having the identifier deleted
+     * @param \UserIdentifier $identifier identifier being deleted
+     * @param \User $currentUser user deleting the identifier
      */
-    public function deleteUserProperty(\User $user, \UserProperty $prop, \User $currentUser) {
+    public function deleteUserIdentifier(\User $user, \UserIdentifier $identifier, \User $currentUser) {
         //Check the portal is not in read only mode, throws exception if it is
         $this->checkPortalIsNotReadOnlyOrUserIsAdmin($user);
 
@@ -861,7 +861,7 @@ class User extends AbstractEntityService{
         // Make the change
         $this->em->getConnection()->beginTransaction();
         try {
-            $this->deleteUserPropertyLogic($user, $prop);
+            $this->deleteUserIdentifierLogic($user, $identifier);
             $this->em->flush();
             $this->em->getConnection()->commit();
         } catch (\Exception $e) {
@@ -872,27 +872,27 @@ class User extends AbstractEntityService{
     }
 
     /**
-     * Logic to delete a user's property
-     * Before deletion a check is done to confirm the property is from the parent user
+     * Logic to delete a user's identifier
+     * Before deletion a check is done to confirm the identifier is from the parent user
      * specified by the request, and an exception is thrown if this is not the case
-     * @param \User $user user having the property deleted
-     * @param \UserProperty $prop property being deleted
+     * @param \User $user user having the identifier deleted
+     * @param \UserIdentifier $identifier identifier being deleted
      */
-    protected function deleteUserPropertyLogic(\User $user, \UserProperty $prop) {
-        // Check that the property's parent user is the same as the one given
-        if ($prop->getParentUser() !== $user) {
-            $id = $prop->getId();
-            throw new \Exception("Property {$id} does not belong to the specified user");
+    protected function deleteUserIdentifierLogic(\User $user, \UserIdentifier $identifier) {
+        // Check that the identifier's parent user is the same as the one given
+        if ($identifier->getParentUser() !== $user) {
+            $id = $identifier->getId();
+            throw new \Exception("Identifier {$id} does not belong to the specified user");
         }
-        // Check the user has more than one property
-        if (count($user->getUserProperties()) < 2) {
+        // Check the user has more than one identifier
+        if (count($user->getUserIdentifiers()) < 2) {
             throw new \Exception("Users must have at least one identity string.");
         }
         // User is the owning side so remove elements from the user
-        $user->getUserProperties()->removeElement($prop);
+        $user->getUserIdentifiers()->removeElement($identifier);
 
         // Once relationship is removed, delete the actual element
-        $this->em->remove($prop);
+        $this->em->remove($identifier);
     }
 
     /**

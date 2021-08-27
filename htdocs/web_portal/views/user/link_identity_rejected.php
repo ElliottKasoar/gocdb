@@ -8,8 +8,8 @@
 
     <p>The other identifiers associated with this account are:</p>
     <ul>
-        <?php foreach ($params['otherProperties'] as $prop) {
-            echo "<li> {$prop->getKeyName()}: {$prop->getKeyValue()} </li>";
+        <?php foreach ($params['otherIdentifiers'] as $identifier) {
+            echo "<li> {$identifier->getKeyName()}: {$identifier->getKeyValue()} </li>";
         } ?>
     </ul>
 

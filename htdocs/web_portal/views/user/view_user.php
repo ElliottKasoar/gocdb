@@ -105,7 +105,7 @@
         </div>
     </div>
 
-    <!-- ID strings from user properties -->
+    <!-- ID strings from user identifiers -->
     <div class="listContainer" style="width: 99.5%; float: left; margin-top: 3em; margin-right: 10px;">
         <span class="header" style="vertical-align:middle; float: left; padding-top: 0.9em; padding-left: 1em;">
             Identifiers
@@ -121,30 +121,30 @@
             </tr>
             <?php
             $num = 2;
-            // Loop through each user property
-            foreach ($params['user']->getUserProperties() as $prop): ?>
+            // Loop through each user identifier
+            foreach ($params['user']->getUserIdentifiers() as $identifier): ?>
 
                 <tr class="site_table_row_<?php echo $num ?>">
                     <td class="site_table" style="width: 40%">
                         <div style="background-color: inherit;">
-                            <?php xecho($prop->getKeyValue())?>
+                            <?php xecho($identifier->getKeyValue())?>
                         </div>
                     </td>
                     <td class="site_table">
                         <div style="background-color: inherit;">
-                            <?php xecho($prop->getKeyName())?>
+                            <?php xecho($identifier->getKeyName())?>
                         </div>
                     </td>
                     <?php if (!$params['portalIsReadOnly'] && $params['ShowEdit']):?>
                         <td class="site_table">
-                            <form action="index.php?Page_Type=Remove_User_Property&amp;id=<?php echo $params['user']->getId(); ?>&amp;propertyId=<?php echo $prop->getId(); ?>" method="post">
+                            <form action="index.php?Page_Type=Remove_User_Identifier&amp;id=<?php echo $params['user']->getId(); ?>&amp;identifierId=<?php echo $identifier->getId(); ?>" method="post">
                                 <div class="btn-like"
-                                    <?php if ($params['lastProperty']) echo "title='Cannot remove all identifiers from a user'";?>
-                                    <?php if ($params['currentIdString'] === $prop->getKeyValue()) echo "title='Cannot remove the identifier you are using'";?>
+                                    <?php if ($params['lastIdentifier']) echo "title='Cannot remove all identifiers from a user'";?>
+                                    <?php if ($params['currentIdString'] === $identifier->getKeyValue()) echo "title='Cannot remove the identifier you are using'";?>
                                 >
                                     <input
                                         id="revokeButton" type="submit" value="Remove" class="btn btn-sm btn-danger" onclick="return confirmSubmit()"
-                                        <?php if ($params['lastProperty'] || $params['currentIdString'] === $prop->getKeyValue()) echo "disabled";?>
+                                        <?php if ($params['lastIdentifier'] || $params['currentIdString'] === $identifier->getKeyValue()) echo "disabled";?>
                                     >
                                 </div>
                             </form>

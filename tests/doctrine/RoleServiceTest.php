@@ -127,9 +127,9 @@ class RoleServiceTest extends PHPUnit_Extensions_Database_TestCase {
 
     // User
     $u = TestUtil::createSampleUser("Test", "Testing");
-    $prop = TestUtil::createSampleUserProperty("X.509", "/c=test");
-    $u->addUserPropertyDoJoin($prop);
-    $this->em->persist($prop);
+    $identifier= TestUtil::createSampleUserIdentifier("X.509", "/c=test");
+    $u->addUserIdentifierDoJoin($identifier);
+    $this->em->persist($identifier);
     $this->em->persist($u);
     // Site
     $site1 = TestUtil::createSampleSite("SITENAME");
@@ -148,9 +148,9 @@ class RoleServiceTest extends PHPUnit_Extensions_Database_TestCase {
 
     // new user
     $u2 = TestUtil::createSampleUser("Test2", "Testing2");
-    $prop = TestUtil::createSampleUserProperty("X.509", "/c=test2");
-    $u2->addUserPropertyDoJoin($prop);
-    $this->em->persist($prop);
+    $identifier= TestUtil::createSampleUserIdentifier("X.509", "/c=test2");
+    $u2->addUserIdentifierDoJoin($identifier);
+    $this->em->persist($identifier);
     $this->em->persist($u2);
     // Create a pending SITE_ADMIN Role request for new user
     $pendingSiteRole = TestUtil::createSampleRole($u2, $siteAdminRT, $site1, RoleStatus::PENDING);
@@ -191,9 +191,9 @@ class RoleServiceTest extends PHPUnit_Extensions_Database_TestCase {
     $this->em->persist($siteAdminRT);
     // User
     $u = TestUtil::createSampleUser("Test", "Testing");
-    $prop = TestUtil::createSampleUserProperty("X.509", "/c=test");
-    $u->addUserPropertyDoJoin($prop);
-    $this->em->persist($prop);
+    $identifier= TestUtil::createSampleUserIdentifier("X.509", "/c=test");
+    $u->addUserIdentifierDoJoin($identifier);
+    $this->em->persist($identifier);
     $this->em->persist($u);
     // Site
     $site1 = TestUtil::createSampleSite("SITENAME"/*, "PK01"*/);
@@ -237,9 +237,9 @@ class RoleServiceTest extends PHPUnit_Extensions_Database_TestCase {
 
     // Create a user
     $u = TestUtil::createSampleUser("Test", "Testing");
-    $prop = TestUtil::createSampleUserProperty("X.509", "/c=test");
-    $u->addUserPropertyDoJoin($prop);
-    $this->em->persist($prop);
+    $identifier= TestUtil::createSampleUserIdentifier("X.509", "/c=test");
+    $u->addUserIdentifierDoJoin($identifier);
+    $this->em->persist($identifier);
     $this->em->persist($u);
 
     // Create an NGI
@@ -300,9 +300,9 @@ class RoleServiceTest extends PHPUnit_Extensions_Database_TestCase {
     $roleService = new org\gocdb\services\Role();
     $this->assertFalse($roleService->isValidRoleStatus("some invalid role"));
     $u = TestUtil::createSampleUser("Test", "Testing");
-    $prop = TestUtil::createSampleUserProperty("X.509", "/c=test");
-    $u->addUserPropertyDoJoin($prop);
-    $this->em->persist($prop);
+    $identifier= TestUtil::createSampleUserIdentifier("X.509", "/c=test");
+    $u->addUserIdentifierDoJoin($identifier);
+    $this->em->persist($identifier);
     $roleService->getUserRoles($u, "some invalid role");
   }
 
@@ -358,9 +358,9 @@ class RoleServiceTest extends PHPUnit_Extensions_Database_TestCase {
 
     // create a user
     $u = TestUtil::createSampleUser("dave", "meredith");
-    $prop = TestUtil::createSampleUserProperty("X.509", "idSTring");
-    $u->addUserPropertyDoJoin($prop);
-    $this->em->persist($prop);
+    $identifier= TestUtil::createSampleUserIdentifier("X.509", "idSTring");
+    $u->addUserIdentifierDoJoin($identifier);
+    $this->em->persist($identifier);
     $this->em->persist($u);
 
     // add some roles to domain model

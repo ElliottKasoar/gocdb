@@ -47,13 +47,13 @@ function draw() {
     $params['currentAuthType'] = $authType;
     $params['authTypes'] = $authTypes;
 
-    // Prevent users with multiple properties from continuing
+    // Prevent users with multiple identifiers from continuing
     if ($user !== null) {
-        if (count($user->getUserProperties()) > 1) {
-            // Store properties that aren't the one currently in use
-            foreach ($user->getUserProperties() as $prop) {
-                if ($prop->getKeyValue() !== $params['idString']) {
-                    $params['otherProperties'][] = $prop;
+        if (count($user->getUserIdentifiers()) > 1) {
+            // Store identifiers that aren't the one currently in use
+            foreach ($user->getUserIdentifiers() as $identifier) {
+                if ($identifier->getKeyValue() !== $params['idString']) {
+                    $params['otherIdentifiers'][] = $identifier;
                 }
             }
             show_view('user/link_identity_rejected.php', $params);

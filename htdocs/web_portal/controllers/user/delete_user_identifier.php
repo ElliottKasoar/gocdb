@@ -1,9 +1,9 @@
 <?php
 /*______________________________________________________
  *======================================================
- * File: delete_user_property.php
+ * File: delete_user_identifier.php
  * Author: Elliott Kasoar
- * Description: Removes a user's property
+ * Description: Removes a user's identifier
  *
  * License information
  *
@@ -23,11 +23,11 @@ require_once __DIR__.'/../../components/Get_User_Principle.php';
 require_once __DIR__ . '/../utils.php';
 
 /**
- * Controller for a user property removal request
+ * Controller for a user identifier removal request
  * @global array $_POST only set if the browser has POSTed data
  * @return null
  */
-function delete_property() {
+function delete_identifier() {
 
     $serv = \Factory::getUserService();
 
@@ -43,10 +43,10 @@ function delete_property() {
 
     // Get the posted data
     $userId = $_REQUEST['id'];
-    $propertyId = $_REQUEST['propertyId'];
+    $identifierId = $_REQUEST['identifierId'];
 
     $user = $serv->getUser($userId);
-    $property = $serv->getPropertyById($propertyId);
+    $identifier = $serv->getIdentifierById($identifierId);
 
     // Throw exception if not a valid user ID
     if (is_null($user)) {
@@ -55,16 +55,16 @@ function delete_property() {
 
     $serv->editUserAuthorization($user, $currentUser);
 
-    // Throw exception if not a valid property ID
-    // Non-admins can't tell if a given property matches a specific user
-    // but they can currently still tell how many properties exist
-    // This could be changed to only give info about if the property matches one of theirs
-    if (is_null($property)) {
-        throw new \Exception("A property with ID '" . $propertyId . "' cannot be found");
+    // Throw exception if not a valid identifier ID
+    // Non-admins can't tell if a given identifier matches a specific user
+    // but they can currently still tell how many identifiers exist
+    // This could be changed to only give info about if the identifier matches one of theirs
+    if (is_null($identifier)) {
+        throw new \Exception("An identifier with ID '" . $identifierId . "' cannot be found");
     }
 
-    // Throw exception if trying to remove property that current user is authenticated with
-    if ($property->getKeyValue() === $currentIdString) {
+    // Throw exception if trying to remove identifier that current user is authenticated with
+    if ($identifier->getKeyValue() === $currentIdString) {
         throw new \Exception("You cannot unlink your current ID string. Please log in using a different authentication mechanism and try again.");
     }
 
@@ -72,8 +72,8 @@ function delete_property() {
 
     try {
         // Function will throw error if user does not have the correct permissions
-        $serv->deleteUserProperty($user, $property, $currentUser);
-        show_view("user/deleted_user_property.php", $params);
+        $serv->deleteUserIdentifier($user, $identifier, $currentUser);
+        show_view("user/deleted_user_identifier.php", $params);
     } catch (Exception $e) {
         show_view('error.php', $e->getMessage());
         die();

@@ -192,9 +192,9 @@ class DowntimeServiceEndpointTest1 extends PHPUnit_Extensions_Database_TestCase 
     include __DIR__ . '/resources/sampleFixtureData4.php';
 
     $adminUser = TestUtil::createSampleUser('some', 'admin');
-    $prop = TestUtil::createSampleUserProperty('X.509', '/some/admin');
-    $adminUser->addUserPropertyDoJoin($prop);
-    $this->em->persist($prop);
+    $identifier= TestUtil::createSampleUserIdentifier('X.509', '/some/admin');
+    $adminUser->addUserIdentifierDoJoin($identifier);
+    $this->em->persist($identifier);
     $adminUser->setAdmin(TRUE);
     $this->em->persist($adminUser);
 
@@ -221,9 +221,9 @@ class DowntimeServiceEndpointTest1 extends PHPUnit_Extensions_Database_TestCase 
     include __DIR__ . '/resources/sampleFixtureData4.php';
 
     $adminUser = TestUtil::createSampleUser('some', 'admin');
-    $prop = TestUtil::createSampleUserProperty('X.509', '/some/admin');
-    $adminUser->addUserPropertyDoJoin($prop);
-    $this->em->persist($prop);
+    $identifier= TestUtil::createSampleUserIdentifier('X.509', '/some/admin');
+    $adminUser->addUserIdentifierDoJoin($identifier);
+    $this->em->persist($identifier);
     $adminUser->setAdmin(TRUE);
     $this->em->persist($adminUser);
 

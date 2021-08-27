@@ -35,8 +35,8 @@ function view_user() {
     }
     $params['user'] = $user;
 
-    // Check if user only has one property to disable unlinking
-    $params['lastProperty'] = (count($user->getUserProperties()) === 1);
+    // Check if user only has one identifier to disable unlinking
+    $params['lastIdentifier'] = (count($user->getUserIdentifiers()) === 1);
 
     // 2D array, each element stores role and a child array holding project Ids
     $role_ProjIds = array();

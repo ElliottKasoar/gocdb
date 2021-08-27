@@ -124,9 +124,9 @@ class RoleActionAuthorisationServiceTest  extends PHPUnit_Extensions_Database_Te
 
     // Create a user
     $u = TestUtil::createSampleUser("Test", "Testing");
-    $prop = TestUtil::createSampleUserProperty("X.509", "/c=test");
-    $u->addUserPropertyDoJoin($prop);
-    $this->em->persist($prop);
+    $identifier= TestUtil::createSampleUserIdentifier("X.509", "/c=test");
+    $u->addUserIdentifierDoJoin($identifier);
+    $this->em->persist($identifier);
     $this->em->persist($u);
 
     /*
@@ -194,9 +194,9 @@ class RoleActionAuthorisationServiceTest  extends PHPUnit_Extensions_Database_Te
 
     // Create a user
     $u = TestUtil::createSampleUser("Test", "Testing");
-    $prop = TestUtil::createSampleUserProperty("X.509", "/c=test");
-    $u->addUserPropertyDoJoin($prop);
-    $this->em->persist($prop);
+    $identifier= TestUtil::createSampleUserIdentifier("X.509", "/c=test");
+    $u->addUserIdentifierDoJoin($identifier);
+    $this->em->persist($identifier);
     $this->em->persist($u);
 
     /*
@@ -497,9 +497,9 @@ class RoleActionAuthorisationServiceTest  extends PHPUnit_Extensions_Database_Te
 
     // create a user
     $u = TestUtil::createSampleUser("dave", "meredith");
-    $prop = TestUtil::createSampleUserProperty("X.509", "idSTring");
-    $u->addUserPropertyDoJoin($prop);
-    $this->em->persist($prop);
+    $identifier= TestUtil::createSampleUserIdentifier("X.509", "idSTring");
+    $u->addUserIdentifierDoJoin($identifier);
+    $this->em->persist($identifier);
     $this->em->persist($u);
 
     // add some roles to domain model
@@ -697,9 +697,9 @@ class RoleActionAuthorisationServiceTest  extends PHPUnit_Extensions_Database_Te
 
     // Create a user
     $u = TestUtil::createSampleUser("Test", "Testing");
-    $prop = TestUtil::createSampleUserProperty("X.509", "/c=test");
-    $u->addUserPropertyDoJoin($prop);
-    $this->em->persist($prop);
+    $identifier= TestUtil::createSampleUserIdentifier("X.509", "/c=test");
+    $u->addUserIdentifierDoJoin($identifier);
+    $this->em->persist($identifier);
     $this->em->persist($u);
 
     /*

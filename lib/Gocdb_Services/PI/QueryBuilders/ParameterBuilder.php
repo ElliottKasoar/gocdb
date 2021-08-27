@@ -144,7 +144,7 @@ class ParameterBuilder {
 
     if (isset($parameters ['dn'])) {
         ++$bc;
-        $qb->leftJoin('u.userProperties', 'up');
+        $qb->leftJoin('u.userIdentifiers', 'up');
         $qb->andWhere($qb->expr()->orX(
             $qb->expr()->andX(
                 $qb->expr()->like('up.keyValue', '?' . $bc),
@@ -157,7 +157,7 @@ class ParameterBuilder {
 
     if (isset($parameters ['dnlike'])) {
         ++$bc;
-        $qb->leftJoin('u.userProperties', 'up');
+        $qb->leftJoin('u.userIdentifiers', 'up');
         $qb->andWhere($qb->expr()->orX(
             $qb->expr()->andX(
                 $qb->expr()->like('up.keyValue', '?' . $bc),

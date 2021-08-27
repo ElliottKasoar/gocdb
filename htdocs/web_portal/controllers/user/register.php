@@ -72,18 +72,18 @@ function submit() {
         show_view('error.php', "Could not authenticate user - null user principle");
     die();
     }
-    $userPropertyValues['VALUE'] = $idString;
+    $userIdentifierValues['VALUE'] = $idString;
 
     /* @var $authToken \org\gocdb\security\authentication\IAuthentication */
     $authToken = Get_User_AuthToken();
     $params['authAttributes'] = $authToken->getDetails();
     $authType = $params['authAttributes']['AuthenticationRealm'][0];
 
-    $userPropertyValues['NAME'] = $authType;
+    $userIdentifierValues['NAME'] = $authType;
 
     $serv = \Factory::getUserService();
     try {
-        $user = $serv->register($userValues, $userPropertyValues);
+        $user = $serv->register($userValues, $userIdentifierValues);
         $params = array('user' => $user);
         show_view('user/registered.php', $params);
     } catch(Exception $e) {

@@ -284,10 +284,10 @@ function Draw_Page($Page_Type) {
             require_once __DIR__.'/controllers/user/view_user.php';
             view_user();
             break;
-        case "Remove_User_Property":
+        case "Remove_User_Identifier":
             rejectIfNotAuthenticated();
-            require_once __DIR__.'/controllers/user/delete_user_property.php';
-            delete_property();
+            require_once __DIR__.'/controllers/user/delete_user_identifier.php';
+            delete_identifier();
             break;
         case "Downtime":
             rejectIfNotAuthenticated();
@@ -487,10 +487,10 @@ function Draw_Page($Page_Type) {
             require_once __DIR__.'/controllers/admin/users.php';
             show_users();
             break;
-        case "Admin_Edit_User_Property":
+        case "Admin_Edit_User_Identifier":
             rejectIfNotAuthenticated();
-            require_once __DIR__.'/controllers/admin/edit_user_property.php';
-            edit_property();
+            require_once __DIR__.'/controllers/admin/edit_user_identifier.php';
+            edit_identifier();
             break;
 //        case "Admin_Change_User_Admin_Status":
 //            rejectIfNotAuthenticated();

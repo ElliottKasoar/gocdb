@@ -38,7 +38,7 @@ require_once $entitiesPath."/ArchivedSite.php";
 require_once $entitiesPath."/EndpointProperty.php";
 require_once $entitiesPath."/RoleActionRecord.php";
 require_once $entitiesPath."/APIAuthentication.php";
-require_once $entitiesPath."/UserProperty.php";
+require_once $entitiesPath."/UserIdentifier.php";
 require_once $entitiesPath."/LinkIdentityRequest.php";
 
 //if (!class_exists("Doctrine\Common\Version", false)) {

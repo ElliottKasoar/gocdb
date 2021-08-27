@@ -140,11 +140,11 @@ class TestUtil {
         return $scope;
     }
 
-    public static function createSampleUserProperty($name, $key) {
-        $prop = new UserProperty();
-        $prop->setKeyName($name);
-        $prop->setKeyValue($key);
-        return $prop;
+    public static function createSampleUserIdentifier($name, $key) {
+        $identifier = new UserIdentifier();
+        $identifier->setKeyName($name);
+        $identifier->setKeyValue($key);
+        return $identifier;
     }
 
 }

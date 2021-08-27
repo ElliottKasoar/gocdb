@@ -164,7 +164,7 @@ function Get_User_Principle(){
 
         $serv = \Factory::getUserService();
 
-        // Get user by searching user properties
+        // Get user by searching user identifiers
         $user = $serv->getUserByPrinciple($principleString);
 
         // If cannot find user, search certificate DNs instead
@@ -180,12 +180,12 @@ function Get_User_Principle(){
         if ($user !== null) {
             $serv->updateLastLoginTime($user);
 
-            // If property for current auth does not exist, add to user
+            // If identifier for current auth does not exist, add to user
             if (!$authExists) {
                 // Get type of auth logged in with e.g. X.509)
                 $authType = $auth->getDetails()['AuthenticationRealm'][0];
-                $propArr = array($authType, $principleString);
-                $serv->migrateUserCredentials($user, $propArr, $user);
+                $identifierArr = array($authType, $principleString);
+                $serv->migrateUserCredentials($user, $identifierArr, $user);
             }
         }
         return $principleString;

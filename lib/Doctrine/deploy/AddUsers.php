@@ -29,7 +29,7 @@ try {
         $idStrings[$idString] = true;
 
         $doctrineUser = new \User();
-        $propArr = array($authType, $idString);
+        $identifierArr = array($authType, $idString);
         $doctrineUser->setForename((string) $user->FORENAME);
         $doctrineUser->setSurname((string) $user->SURNAME);
         $doctrineUser->setTitle((string) $user->TITLE);
@@ -66,7 +66,7 @@ try {
 
         $em->persist($doctrineUser);
         $em->flush();
-        $serv->addUserProperty($doctrineUser, $propArr, $doctrineUser);
+        $serv->addUserIdentifier($doctrineUser, $identifierArr, $doctrineUser);
     }
     $em->getConnection()->commit();
 } catch (\Exception $e) {

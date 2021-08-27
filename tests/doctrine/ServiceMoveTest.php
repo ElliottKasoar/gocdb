@@ -124,9 +124,9 @@ class ServiceMoveTest extends PHPUnit_Extensions_Database_TestCase {
     $SE2 = TestUtil::createSampleService("SEP2");
     $SE3 = TestUtil::createSampleService("SEP3");
     $dummy_user = TestUtil::createSampleUser('Test', 'User');
-    $prop = TestUtil::createSampleUserProperty('X.509', '/Some/string');
-    $dummy_user->addUserPropertyDoJoin($prop);
-    $this->em->persist($prop);
+    $identifier= TestUtil::createSampleUserIdentifier('X.509', '/Some/string');
+    $dummy_user->addUserIdentifierDoJoin($identifier);
+    $this->em->persist($identifier);
 
     //Make dummy user a GOCDB admin so it can perfirm site moves etc.
     $dummy_user->setAdmin(true);

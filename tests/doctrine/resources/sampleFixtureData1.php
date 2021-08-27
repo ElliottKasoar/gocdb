@@ -20,9 +20,9 @@ $this->em->persist($roleType2);
 
 // Create a user
 $userWithRoles = TestUtil::createSampleUser("Test", "Testing");
-$prop = TestUtil::createSampleUserProperty("X.509", "/c=test");
-$userWithRoles->addUserPropertyDoJoin($prop);
-$this->em->persist($prop);
+$identifier= TestUtil::createSampleUserIdentifier("X.509", "/c=test");
+$userWithRoles->addUserIdentifierDoJoin($identifier);
+$this->em->persist($identifier);
 $this->em->persist($userWithRoles);
 
 // Create an NGI, site and services

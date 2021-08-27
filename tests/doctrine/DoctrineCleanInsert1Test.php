@@ -545,9 +545,9 @@ class DoctrineCleanInsert1Test extends PHPUnit_Extensions_Database_TestCase {
     print __METHOD__ . "\n";
     // User
     $u = TestUtil::createSampleUser("Test", "Testing");
-    $prop = TestUtil::createSampleUserProperty("X.509", "/c=test");
-    $u->addUserPropertyDoJoin($prop);
-    $this->em->persist($prop);
+    $identifier= TestUtil::createSampleUserIdentifier("X.509", "/c=test");
+    $u->addUserIdentifierDoJoin($identifier);
+    $this->em->persist($identifier);
 
     $regFLSupportRT = TestUtil::createSampleRoleType(RoleTypeName::REG_FIRST_LINE_SUPPORT/*, RoleTypeClass::REGIONAL_USER*/);
     $this->em->persist($u);

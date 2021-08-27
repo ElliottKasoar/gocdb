@@ -17,10 +17,10 @@ class LinkIdentity extends AbstractEntityService {
         $serv = \Factory::getUserService();
 
         // $primaryUser is user who will have ID string updated/added
-        // Ideally, ID string and auth type match a user property
+        // Ideally, ID string and auth type match a user identifier
         $primaryUser = $serv->getUserByPrincipleAndType($primaryIdString, $primaryAuthType);
         if ($primaryUser === null) {
-            // If no valid user properties, check certificateDNs
+            // If no valid user identifiers, check certificateDNs
             $primaryUser = $serv->getUserByCertificateDn($primaryIdString);
         }
 
@@ -78,7 +78,7 @@ class LinkIdentity extends AbstractEntityService {
 
     /**
      * Performs validation on request
-     * @param \User $primaryUser user who will have property added/updated
+     * @param \User $primaryUser user who will have identifier added/updated
      * @param \User $currentUser user creating the request
      * @param string $currentAuthType auth type of current ID string
      * @param bool $isLinking true if linking, false if recovering
@@ -108,8 +108,8 @@ class LinkIdentity extends AbstractEntityService {
 
         // Prevent attempt to add duplicate auth type when linking
         if ($isLinking) {
-            foreach ($primaryUser->getUserProperties() as $prop) {
-                if ($prop->getKeyName() === $currentAuthType) {
+            foreach ($primaryUser->getUserIdentifiers() as $identifier) {
+                if ($identifier->getKeyName() === $currentAuthType) {
                     return 1;
                 }
             }
@@ -120,7 +120,7 @@ class LinkIdentity extends AbstractEntityService {
 
     /**
      * Removes any existing requests which involve either user
-     * @param \User $primaryUser user who will have property added/updated
+     * @param \User $primaryUser user who will have identifier added/updated
      * @param \User $currentUser user creating the request
      * @param string $primaryIdString ID string of primary user
      * @param string $currentIdString ID string of current user
@@ -281,7 +281,7 @@ class LinkIdentity extends AbstractEntityService {
 
     /**
      * Send confirmation email(s) to primary user, and current user if registered with a different email
-     * @param \User $primaryUser user who will have property added/updated
+     * @param \User $primaryUser user who will have identifier added/updated
      * @param \User $currentUser user creating the request
      * @param string $code confirmation code of the request being retrieved
      * @param string $primaryIdString ID string of primary user
@@ -362,26 +362,25 @@ class LinkIdentity extends AbstractEntityService {
             throw new \Exception($invalidURL);
         }
 
-        // Create property array from the current user's credentials
-        $propArr = array($request->getCurrentAuthType(), $request->getCurrentIdString());
+        // Create identifier array from the current user's credentials
+        $identifierArr = array($request->getCurrentAuthType(), $request->getCurrentIdString());
 
         // Are we recovering or linking an identity? True if linking
         $isLinking = ($request->getPrimaryAuthType() !== $request->getCurrentAuthType());
 
-        // If linking, does primary user have user properties?
-        // If not, and linking, we will add an additional property using the request info
+        // If primary user does not have user identifiers, add using the request info
         $isOldUser = ($primaryUser->getCertificateDn() === $request->getPrimaryIdString());
         if ($isOldUser) {
-            $propArrOld = array($request->getPrimaryAuthType(), $request->getPrimaryIdString());
+            $identifierArrOld = array($request->getPrimaryAuthType(), $request->getPrimaryIdString());
         }
 
         // Update primary user, remove request (and current user)
         try {
             $this->em->getConnection()->beginTransaction();
 
-            // Add certificateDn as property if necessary
+            // Add certificateDn as identifier if necessary
             if ($isOldUser) {
-                $serv->migrateUserCredentials($primaryUser, $propArrOld, $primaryUser);
+                $serv->migrateUserCredentials($primaryUser, $identifierArrOld, $primaryUser);
             }
 
             // Delete request before user so references still exist
@@ -397,10 +396,10 @@ class LinkIdentity extends AbstractEntityService {
 
             // Add or update to current identifier
             if ($isLinking) {
-                $serv->addUserProperty($primaryUser, $propArr, $primaryUser);
+                $serv->addUserIdentifier($primaryUser, $identifierArr, $primaryUser);
             } else {
-                $property = $serv->getPropertyByIdString($request->getPrimaryIdString());
-                $serv->editUserProperty($primaryUser, $property, $propArr, $primaryUser);
+                $identifier = $serv->getIdentifierByIdString($request->getPrimaryIdString());
+                $serv->editUserIdentifier($primaryUser, $identifier, $identifierArr, $primaryUser);
             }
 
             $this->em->remove($request);

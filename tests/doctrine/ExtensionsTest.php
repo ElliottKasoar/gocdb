@@ -142,9 +142,9 @@ class ExtensionsTest extends PHPUnit_Extensions_Database_TestCase {
 
     //Create an admin user that can delete a property
     $adminUser = TestUtil::createSampleUser('my', 'admin');
-    $prop = TestUtil::createSampleUserProperty('X.509', '/my/admin');
-    $adminUser->addUserPropertyDoJoin($prop);
-    $this->em->persist($prop);
+    $identifier= TestUtil::createSampleUserIdentifier('X.509', '/my/admin');
+    $adminUser->addUserIdentifierDoJoin($identifier);
+    $this->em->persist($identifier);
     $adminUser->setAdmin(TRUE);
     $this->em->persist($adminUser);
 
@@ -234,9 +234,9 @@ class ExtensionsTest extends PHPUnit_Extensions_Database_TestCase {
 
     //Create an admin user that can delete a property
     $adminUser = TestUtil::createSampleUser('my', 'admin');
-    $prop = TestUtil::createSampleUserProperty('X.509', '/my/admin');
-    $adminUser->addUserPropertyDoJoin($prop);
-    $this->em->persist($prop);
+    $identifier= TestUtil::createSampleUserIdentifier('X.509', '/my/admin');
+    $adminUser->addUserIdentifierDoJoin($identifier);
+    $this->em->persist($identifier);
     $adminUser->setAdmin(TRUE);
     $this->em->persist($adminUser);
 
@@ -333,9 +333,9 @@ class ExtensionsTest extends PHPUnit_Extensions_Database_TestCase {
 
     //Create an admin user that can delete a property
     $adminUser = TestUtil::createSampleUser('my', 'admin');
-    $prop = TestUtil::createSampleUserProperty('X.509', '/my/admin');
-    $adminUser->addUserPropertyDoJoin($prop);
-    $this->em->persist($prop);
+    $identifier= TestUtil::createSampleUserIdentifier('X.509', '/my/admin');
+    $adminUser->addUserIdentifierDoJoin($identifier);
+    $this->em->persist($identifier);
     $adminUser->setAdmin(TRUE);
     $this->em->persist($adminUser);
 
@@ -430,9 +430,9 @@ class ExtensionsTest extends PHPUnit_Extensions_Database_TestCase {
 
     //Create an admin user that can delete a property
     $adminUser = TestUtil::createSampleUser('my', 'admin');
-    $prop = TestUtil::createSampleUserProperty('X.509', '/my/admin');
-    $adminUser->addUserPropertyDoJoin($prop);
-    $this->em->persist($prop);
+    $identifier = TestUtil::createSampleUserIdentifier('X.509', '/my/admin');
+    $adminUser->addUserIdentifierDoJoin($identifier);
+    $this->em->persist($identifier);
     $adminUser->setAdmin(TRUE);
     $this->em->persist($adminUser);
 
@@ -479,82 +479,82 @@ class ExtensionsTest extends PHPUnit_Extensions_Database_TestCase {
   }
 
   /**
-   * An example test showing the creation of a user and properties and that
-   * all data is removed on deletion of a user or property
+   * An example test showing the creation of a user and identifiers and that
+   * all data is removed on deletion of a user or identifier
    */
-  public function testUserPropertyDeletions() {
+  public function testUserIdentifierDeletions() {
     print __METHOD__ . "\n";
 
-    //Create a user
+    // Create a user
     $user = TestUtil::createSampleUser("Test", "Testing");
-    //Create user property
-    $prop1 = TestUtil::createSampleUserProperty("Auth type 1", "/c=test1");
-    $prop2 = TestUtil::createSampleUserProperty("Auth type 2", "/c=test2");
-    $prop3 = TestUtil::createSampleUserProperty("Auth type 3", "/c=test3");
+    // Create user identifiers
+    $identifier1 = TestUtil::createSampleUserIdentifier("Auth type 1", "/c=test1");
+    $identifier2 = TestUtil::createSampleUserIdentifier("Auth type 2", "/c=test2");
+    $identifier3 = TestUtil::createSampleUserIdentifier("Auth type 3", "/c=test3");
 
-    $user->addUserPropertyDoJoin($prop1);
-    $user->addUserPropertyDoJoin($prop2);
-    $user->addUserPropertyDoJoin($prop3);
+    $user->addUserIdentifierDoJoin($identifier1);
+    $user->addUserIdentifierDoJoin($identifier2);
+    $user->addUserIdentifierDoJoin($identifier3);
 
-    //Set some extra details of the user
+    // Set some extra details of the user
     $user->setEmail("myTest@email.com");
     $user->setTelephone("012345678910");
 
-    //Persist the user & property in the entity manager
+    // Persist the user & identifiers in the entity manager
     $this->em->persist($user);
-    $this->em->persist($prop1);
-    $this->em->persist($prop2);
-    $this->em->persist($prop3);
+    $this->em->persist($identifier1);
+    $this->em->persist($identifier2);
+    $this->em->persist($identifier3);
 
-    //Commit the user to the database
+    // Commit the user to the database
     $this->em->flush();
 
-    //Check that the user has 3 properties associated with it
-    $properties = $user->getUserProperties();
-    $this->assertTrue(count($properties) === 3);
+    // Check that the user has 3 identifiers associated with it
+    $identifiers = $user->getUserIdentifiers();
+    $this->assertTrue(count($identifiers) === 3);
 
 
-    //Create an admin user that can delete a property
+    // Create an admin user that can delete an identifier
     $adminUser = TestUtil::createSampleUser('my', 'admin');
-    $prop = TestUtil::createSampleUserProperty('X.509', '/my/admin');
-    $adminUser->addUserPropertyDoJoin($prop);
-    $this->em->persist($prop);
+    $identifier= TestUtil::createSampleUserIdentifier('X.509', '/my/admin');
+    $adminUser->addUserIdentifierDoJoin($identifier);
+    $this->em->persist($identifier);
     $adminUser->setAdmin(TRUE);
     $this->em->persist($adminUser);
 
-    //flush the user to the DB - so that the RoleAuthorisationService can find it in the DB
+    // Flush the user to the DB - so that the RoleAuthorisationService can find it in the DB
     $this->em->flush();
 
-    //Delete the property from the user
+    // Delete the identifier from the user
     $userService = new org\gocdb\services\User();
     $userService->setEntityManager($this->em);
-    $userService->deleteUserProperty($user, $prop1, $adminUser);
+    $userService->deleteUserIdentifier($user, $identifier1, $adminUser);
 
-    //Check that the user now only has 2 properties
-    $properties = $user->getUserProperties();
-    $this->assertTrue(count($properties) == 2);
+    // Check that the user now only has 2 identifiers
+    $identifiers = $user->getUserIdentifiers();
+    $this->assertTrue(count($identifiers) == 2);
     $this->em->flush();
 
-    //Check this via the database
+    // Check this via the database
     $con = $this->getConnection();
 
-    //Get user id to use in sql statements
+    // Get user id to use in sql statements
     $userId = $user->getId();
 
-    $result = $con->createQueryTable('results', "SELECT * FROM User_Properties WHERE PARENTUSER_ID = '$userId'");
-    //Assert that only 2 user properties exist in the database for this user
+    $result = $con->createQueryTable('results', "SELECT * FROM User_Identifiers WHERE PARENTUSER_ID = '$userId'");
+    // Assert that only 2 user identifiers exist in the database for this user
     $this->assertEquals(2, $result->getRowCount());
 
-    //Now delete the user and check that it cascades the delete to remove the user's associated properties
+    // Now delete the user and check that it cascades the delete to remove the user's associated identifiers
     $userService->deleteUser($user, $adminUser);
     $this->em->flush();
 
-    //Check user is gone
+    // Check user is gone
     $result = $con->createQueryTable('results', "SELECT * FROM Users WHERE ID = '$userId'");
     $this->assertEquals(0, $result->getRowCount());
 
-    //Check properties are gone
-    $result = $con->createQueryTable('results', "SELECT * FROM User_Properties WHERE PARENTUSER_ID = '$userId'");
+    // Check identifiers are gone
+    $result = $con->createQueryTable('results', "SELECT * FROM User_Identifiers WHERE PARENTUSER_ID = '$userId'");
     $this->assertEquals(0, $result->getRowCount());
   }
 }

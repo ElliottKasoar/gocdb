@@ -43,7 +43,7 @@ foreach($usersRoles as $user) {
         }
 
         // Get user entity
-        $dql = "SELECT u FROM User u JOIN u.userProperties up WHERE up.keyValue = :keyValue";
+        $dql = "SELECT u FROM User u JOIN u.userIdentifiers up WHERE up.keyValue = :keyValue";
         $users = $entityManager->createQuery($dql)
                   ->setParameter('keyValue', trim((string) $user->CERTDN))
                   ->getResult();

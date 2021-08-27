@@ -72,10 +72,10 @@ class User {
     protected $lastLoginDate;
 
     /**
-     * Bidirectional - A User (INVERSE ORM SIDE) can have many properties
-     * @OneToMany(targetEntity="UserProperty", mappedBy="parentUser", cascade={"remove"})
+     * Bidirectional - A User (INVERSE ORM SIDE) can have many identifiers
+     * @OneToMany(targetEntity="UserIdentifier", mappedBy="parentUser", cascade={"remove"})
      */
-    protected $userProperties = null;
+    protected $userIdentifiers = null;
 
     /*
      * TODO:
@@ -93,7 +93,7 @@ class User {
         $this->creationDate = new \DateTime("now");
         //$this->sites = new ArrayCollection();
         $this->roles = new ArrayCollection();
-        $this->userProperties = new ArrayCollection();
+        $this->userIdentifiers = new ArrayCollection();
     }
 
     /**
@@ -158,7 +158,7 @@ class User {
 
     /**
      * Get the user's unique ID string, typically an x509 DN string.
-     * This should return null once the user has user properties.
+     * This should return null once the user has user identifiers.
      * @return string
      */
     public function getCertificateDn() {
@@ -201,12 +201,12 @@ class User {
     }
 
     /**
-     * The User's list of {@see UserProperty} extension objects. When the
-     * User is deleted, the userProperties are also cascade deleted.
+     * The User's list of {@see UserIdentifier} extension objects. When the
+     * User is deleted, the userIdentifiers are also cascade deleted.
      * @return ArrayCollection
      */
-    public function getUserProperties() {
-        return $this->userProperties;
+    public function getUserIdentifiers() {
+        return $this->userIdentifiers;
     }
 
     /**
@@ -276,7 +276,7 @@ class User {
     /**
      * Set the user's unique ID string, typically an x509 DN string.
      * This should only be used to set the value to null
-     * when user properties are first added to an old user.
+     * when user identifiers are first added to an old user.
      * @param string $certificateDn
      */
     public function setCertificateDn($certificateDn) {
@@ -353,13 +353,13 @@ class User {
     }
 
     /**
-     * Add a UserProperty entity to this User's collection of properties.
-     * This method also sets the UserProperty's parentUser.
-     * @param \UserProperty $userProperty
+     * Add a UserIdentifier entity to this User's collection of identifiers.
+     * This method also sets the UserIdentifier's parentUser.
+     * @param \UserIdentifier $userIdentifier
      */
-    public function addUserPropertyDoJoin($userProperty) {
-        $this->userProperties[] = $userProperty;
-        $userProperty->_setParentUser($this);
+    public function addUserIdentifierDoJoin($userIdentifier) {
+        $this->userIdentifiers[] = $userIdentifier;
+        $userIdentifier->_setParentUser($this);
     }
 
 }

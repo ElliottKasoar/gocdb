@@ -102,18 +102,18 @@
 
                     <td class="site_table">
                         <div style="background-color: inherit;">
-                            <?php if (count($user->getUserProperties()) > 0) {
-                                    foreach ($user->getUserProperties() as $i => $prop) {
+                            <?php if (count($user->getUserIdentifiers()) > 0) {
+                                    foreach ($user->getUserIdentifiers() as $i => $identifier) {
                             ?>
                             <span style="vertical-align: middle;">
-                                <a href="index.php?Page_Type=Admin_Edit_User_Property&amp;id=<?php echo $user->getId(); ?>&amp;propertyId=<?php echo $prop->getId(); ?>">
-                                <?php echo $prop->getKeyName() . ": " . $prop->getKeyValue(); ?>
+                                <a href="index.php?Page_Type=Admin_Edit_User_Identifier&amp;id=<?php echo $user->getId(); ?>&amp;identifierId=<?php echo $identifier->getId(); ?>">
+                                <?php echo $identifier->getKeyName() . ": " . $identifier->getKeyValue(); ?>
                                 <br />
                                 </a>
                             </span>
                             <?php }} else { ?>
                                 <span style="vertical-align: middle;">
-                                    <a href="index.php?Page_Type=Admin_Edit_User_Property&amp;id=<?php echo $user->getId(); ?>">
+                                    <a href="index.php?Page_Type=Admin_Edit_User_Identifier&amp;id=<?php echo $user->getId(); ?>">
                                         <?php echo "Certificate DN (legacy): " . $user->getCertificateDn(); ?>
                                     </a>
                                 </span>
